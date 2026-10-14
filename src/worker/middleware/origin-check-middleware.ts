@@ -14,7 +14,13 @@ export const originCheck = createMiddleware<AppEnv>(async (c, next) => {
   if (!origin || origin !== new URL(c.req.url).origin) {
     throw AppError.forbidden("Yêu cầu bị từ chối (Origin không hợp lệ)");
   }
-  if (c.req.raw.body !== null) {
+  // workerd exposes an empty stream (not null) for body-less POST/DELETE, so decide by headers.
+  const length = Number(c.req.header("content-length") ?? "0");
+  const hasBody =
+    length > 0 ||
+    c.req.header("transfer-encoding") !== undefined ||
+    c.req.header("content-type") !== undefined;
+  if (hasBody) {
     const type = (c.req.header("content-type") ?? "").split(";")[0]?.trim().toLowerCase();
     if (type !== "application/json") {
       throw AppError.forbidden("Yêu cầu phải có Content-Type: application/json");

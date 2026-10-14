@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
-import { api, createSession, errorOf } from "./helpers/auth-helpers";
+import { app } from "../../src/worker/app";
+import { api, createSession, errorOf, ORIGIN } from "./helpers/auth-helpers";
 import { insertUser, resetTestData, TEST_PASSWORD } from "./helpers/test-fixtures";
 
 beforeEach(async () => {
@@ -37,6 +38,17 @@ describe("origin check", () => {
       headers: { "Content-Type": "text/plain" },
     });
     expect(res.status).toBe(403);
+  });
+
+  it("accepts body-less writes sent with an empty stream (browser logout/DELETE)", async () => {
+    const token = await createSession(env.DB, 1);
+    const headers = { Origin: ORIGIN, Cookie: `__Host-sid=${token}`, "Content-Length": "0" };
+    const res = await app.request(
+      "/api/auth/logout",
+      { method: "POST", headers, body: new Uint8Array(0) },
+      env,
+    );
+    expect(res.status).toBe(200);
   });
 
   it("allows same-origin JSON writes and never checks safe methods", async () => {
