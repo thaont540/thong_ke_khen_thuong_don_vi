@@ -138,6 +138,14 @@ describe("readImportFile", () => {
     );
   });
 
+  it("rejects a sheet whose data hides behind blank rows past the read cap (no silent drop)", async () => {
+    const blanks = Array.from({ length: 110 }, () => [] as string[]);
+    const msg = await messageOf(
+      readImportFile(xlsxFile([HEADERS, sheetRow(), ...blanks, sheetRow()])),
+    );
+    expect(msg).toMatch(/^File có \d+ dòng, tối đa 100 dòng mỗi lần nhập$/);
+  });
+
   it("rejects bytes that are not a spreadsheet (SheetJS falls back to text -> no header columns)", async () => {
     const msg = await messageOf(readImportFile(new File([new Uint8Array([1, 2, 3])], "x.xlsx")));
     expect(msg).toContain("File thiếu cột");

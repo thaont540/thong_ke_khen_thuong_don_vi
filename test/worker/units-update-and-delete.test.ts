@@ -69,6 +69,33 @@ describe("PUT /api/units/:id", () => {
     expect(await auditCount("unit", "UPDATE")).toBe(1);
   });
 
+  it("new team codes never collide with leftovers of a renamed unit's prefix", async () => {
+    const first = await createUnit({ code: "X1", teams: [{ name: "Đội cũ" }] });
+    // Rename the unit's code: its team keeps the old X1-T1 code.
+    expect(
+      (
+        await put(first.id, {
+          ...unitBody({ code: "X2" }),
+          teams: [{ id: first.teams[0]?.id, name: "Đội cũ" }],
+        })
+      ).status,
+    ).toBe(200);
+    const second = await createUnit({
+      code: "X1",
+      name: "Đơn vị khác",
+      teams: [{ name: "Đội mới" }],
+    });
+    expect(second.teams.map((t) => t.code)).toEqual(["X1-T2"]);
+    const grown = await put(second.id, {
+      ...unitBody({ code: "X1", name: "Đơn vị khác" }),
+      teams: [{ id: second.teams[0]?.id, name: "Đội mới" }, { name: "Đội nữa" }],
+    });
+    expect(unitDetailSchema.parse(await grown.json()).teams.map((t) => t.code)).toEqual([
+      "X1-T2",
+      "X1-T3",
+    ]);
+  });
+
   it("renaming a used team keeps award history pointing at it", async () => {
     const u = await createUnit({ teams: [{ name: "Đội A" }] });
     const team = u.teams[0];

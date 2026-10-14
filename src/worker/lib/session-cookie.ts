@@ -3,6 +3,8 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 
 export const SESSION_COOKIE = "__Host-sid";
 export const SESSION_TTL_SECONDS = 8 * 60 * 60;
+/** Hard cap from login: a session never outlives this, however often it is used. */
+export const SESSION_ABSOLUTE_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 export const readSessionCookie = (c: Context): string | undefined => getCookie(c, SESSION_COOKIE);
 

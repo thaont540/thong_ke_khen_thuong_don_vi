@@ -1,5 +1,7 @@
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
+import driftSql from "../../scripts/check-award-counter-drift.sql?raw";
+import recomputeSql from "../../scripts/recompute-award-counters.sql?raw";
 import { listAwards } from "../../src/worker/services/awards-list-query-service";
 import { insertAward, insertOfficer, resetTestData, SEED } from "./helpers/test-fixtures";
 
@@ -80,5 +82,39 @@ describe("award_counters stay equal to a live GROUP BY (trigger maintenance)", (
       expect(viaCounters.stats).toEqual(viaScan.stats);
       expect(viaCounters.total).toBe(viaScan.total);
     }
+  });
+});
+
+describe("counter drift check and recompute scripts", () => {
+  const drift = async () => (await db.prepare(driftSql).all()).results;
+  const statements = (sql: string) =>
+    sql
+      .split("\n")
+      .filter((l) => !l.startsWith("--"))
+      .join("\n")
+      .split(";")
+      .map((q) => q.trim())
+      .filter(Boolean);
+
+  it("reports no drift when healthy, detects wrong/missing/stale rows, and recompute repairs them", async () => {
+    await insertAward(db, { id: 1, officerId: 1, unitId: SEED.unitP6, teamId: SEED.teamP6Ct1 });
+    await insertAward(db, { id: 2, officerId: 2, unitId: SEED.unitP1 });
+    expect(await drift()).toEqual([]);
+
+    await db
+      .prepare("UPDATE award_counters SET n = n + 5 WHERE unit_id = ?")
+      .bind(SEED.unitP1)
+      .run();
+    await db.prepare("DELETE FROM award_counters WHERE unit_id = ?").bind(SEED.unitP6).run();
+    await db.prepare("INSERT INTO award_counters VALUES (9, 0, 7, 'CA_NHAN', 3)").run();
+    const found = await drift();
+    expect(found.length).toBeGreaterThanOrEqual(3);
+    expect(found.map((r) => r.unit_id)).toEqual(
+      expect.arrayContaining([SEED.unitP1, SEED.unitP6, 9]),
+    );
+
+    await db.batch(statements(recomputeSql).map((q) => db.prepare(q)));
+    expect(await drift()).toEqual([]);
+    expect((await counters()).results).toEqual((await live()).results);
   });
 });

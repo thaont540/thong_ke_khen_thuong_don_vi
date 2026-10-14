@@ -1,6 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   type AwardInput,
+  type AwardUpdateInput,
   awardListResponseSchema,
   awardMutationResponseSchema,
   awardRecordSchema,
@@ -70,7 +71,7 @@ export const useCreateAward = () =>
   );
 
 export const useUpdateAward = () =>
-  useAwardMutation((v: { id: number; body: AwardInput }) =>
+  useAwardMutation((v: { id: number; body: AwardUpdateInput }) =>
     api.put(`/api/awards/${v.id}`, { body: v.body, schema: awardMutationResponseSchema }),
   );
 

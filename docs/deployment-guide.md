@@ -69,7 +69,9 @@ Rollback code: `npx wrangler rollback` (thêm `--env staging` cho staging). Roll
 |---|---|
 | push `develop` | deploy staging (environment `staging`) |
 | push `master` | deploy production (environment `production`, chờ reviewer duyệt) |
-| Run workflow, chọn `target` | staging hoặc production |
+| Run workflow, chọn `target` | staging (từ nhánh bất kỳ) hoặc production (**chỉ chạy khi ref là `master`**) |
+
+Mỗi môi trường có nhóm concurrency riêng (`deploy-staging`, `deploy-production`, không hủy lượt đang chạy). `CLOUDFLARE_*` chỉ được gắn vào job deploy, không có trong job `check`. Thiếu secret thì job deploy in `::warning::` và bỏ qua các bước deploy (workflow xanh nhưng có cảnh báo).
 
 Mỗi job deploy kết thúc bằng smoke test `GET /api/health`. CI chung (`ci.yml`) vẫn chạy trên mọi push/PR.
 
@@ -81,7 +83,7 @@ Mỗi job deploy kết thúc bằng smoke test `GET /api/health`. CI chung (`ci.
 | `CLOUDFLARE_ACCOUNT_ID` | `73f25c30ebdac673580327d9385d6ca6` |
 | `BACKUP_AGE_RECIPIENT` | Khóa **công khai** age (`age1...`) để mã hóa backup |
 
-Settings > Environments: tạo `staging` (không rào) và `production` với **Required reviewers**. Repo phải để private. Khóa riêng age do quản trị đơn vị giữ offline, không đưa lên GitHub.
+**Đặt `CLOUDFLARE_API_TOKEN` và `CLOUDFLARE_ACCOUNT_ID` là Environment secrets** (Settings > Environments > `staging` / `production`), không đặt ở repo-level; token staging chỉ cần quyền trên D1/Worker staging. `BACKUP_AGE_RECIPIENT` và token backup đặt ở repo secrets (workflow backup không dùng environment). Settings > Environments: tạo `staging` (không rào) và `production` với **Required reviewers** và **Deployment branches = master**. Repo phải để private. Khóa riêng age do quản trị đơn vị giữ offline, không đưa lên GitHub.
 
 Sinh khóa age: `age-keygen -o age-backup.key` (in ra dòng `Public key: age1...`).
 
@@ -97,7 +99,7 @@ Sinh khóa age: `age-keygen -o age-backup.key` (in ra dòng `Public key: age1...
 
 ## 8. Custom domain và WAF (làm khi có domain, câu hỏi mở Q3)
 
-Hiện chưa có domain: không áp được rule WAF trên `*.workers.dev`. Biện pháp chống dò mật khẩu hiện tại là khóa tài khoản trong D1 (5 lần sai -> khóa 15 phút, `login-attempt-guard.ts`).
+Hiện chưa có domain: không áp được rule WAF trên `*.workers.dev`. Biện pháp chống dò mật khẩu hiện tại: (1) khóa tài khoản trong D1 (5 lần sai -> khóa 15 phút, `login-attempt-guard.ts`; thử trong lúc khóa không kéo dài khóa và không lộ tài khoản đang khóa), (2) giới hạn 10 request/60s theo IP bằng Workers Rate Limiting binding `LOGIN_LIMITER` (`ratelimits` trong `wrangler.jsonc`, namespace_id `1001` prod / `1002` staging; trả 429). Binding không cần domain. Nếu bị khóa mất Quản trị duy nhất: `npm run create-admin` (break-glass).
 
 Khi có domain trên Cloudflare zone:
 1. Thêm route/custom domain cho Worker trong `wrangler.jsonc` (`routes` với `custom_domain: true`), `npm run cf-typegen`, deploy.

@@ -79,16 +79,15 @@ describe("POST /api/auth/login", () => {
     expect(after?.n).toBe(before?.n);
   });
 
-  it("a parallel burst cannot exceed 5 password attempts; correct login afterwards is 423", async () => {
+  it("a parallel burst cannot exceed 5 password attempts; every wrong guess stays a generic 401", async () => {
     const results = await Promise.all(
       Array.from({ length: 10 }, (_, i) => login("admin1", `bad-password-${i}`)),
     );
-    const statuses = results.map((r) => r.status);
-    expect(statuses.filter((s) => s === 401)).toHaveLength(5);
-    expect(statuses.filter((s) => s === 423)).toHaveLength(5);
+    expect(results.map((r) => r.status)).toEqual(Array(10).fill(401));
     const row = await userRow(env.DB, 1);
     expect(row?.locked_until).not.toBeNull();
     expect(await audits("LOCK")).toHaveLength(1);
+    // Only the 5 reserved attempts count and are audited; the other 5 write nothing.
     expect((await audits("LOGIN_FAILED")).length).toBe(5);
 
     const res = await login("admin1", TEST_PASSWORD);
@@ -96,7 +95,7 @@ describe("POST /api/auth/login", () => {
     expect(await sessionCount(env.DB)).toBe(0);
   });
 
-  it("locks after 5 consecutive failures; correct password then gets 423", async () => {
+  it("locks after 5 consecutive failures; only the correct password learns it is locked (423)", async () => {
     for (let i = 0; i < 5; i++) expect((await login("admin1", "bad-password")).status).toBe(401);
     const row = await userRow(env.DB, 1);
     expect(row?.locked_until).not.toBeNull();
@@ -107,6 +106,27 @@ describe("POST /api/auth/login", () => {
     expect(res.status).toBe(423);
     expect((await errorOf(res)).code).toBe("ACCOUNT_LOCKED");
     expect(await sessionCount(env.DB)).toBe(0);
+  });
+
+  it("a locked account answers a wrong password exactly like an unknown user (no enumeration)", async () => {
+    for (let i = 0; i < 5; i++) await login("admin1", "bad-password");
+    const lockedWrong = await login("admin1", "another-wrong");
+    const unknown = await login("nobody", "another-wrong");
+    expect(lockedWrong.status).toBe(401);
+    expect(await errorOf(lockedWrong)).toEqual(await errorOf(unknown));
+  });
+
+  it("attempts during the lock window neither extend the lock nor count or audit", async () => {
+    for (let i = 0; i < 5; i++) await login("admin1", "bad-password");
+    const before = await userRow(env.DB, 1);
+    const failedBefore = (await audits("LOGIN_FAILED")).length;
+    for (let i = 0; i < 3; i++) await login("admin1", "wrong-again");
+    await login("admin1", TEST_PASSWORD);
+    const after = await userRow(env.DB, 1);
+    expect(after?.locked_until).toBe(before?.locked_until);
+    expect(after?.failed_login_count).toBe(before?.failed_login_count);
+    expect((await audits("LOGIN_FAILED")).length).toBe(failedBefore);
+    expect(await audits("LOCK")).toHaveLength(1);
   });
 
   it("an expired lock allows login and resets counters", async () => {
@@ -127,11 +147,15 @@ describe("POST /api/auth/login", () => {
     expect((await userRow(env.DB, 1))?.failed_login_count).toBe(0);
   });
 
-  it("deactivated account gets 423", async () => {
+  it("deactivated account: 423 only with the correct password, generic 401 otherwise", async () => {
     await env.DB.prepare("UPDATE users SET is_active = 0 WHERE id = 1").run();
     const res = await login("admin1", TEST_PASSWORD);
     expect(res.status).toBe(423);
     expect((await errorOf(res)).message).toBe("Tài khoản đang bị khóa");
+    const wrong = await login("admin1", "wrong-password");
+    expect(wrong.status).toBe(401);
+    expect((await errorOf(wrong)).message).toBe("Tên đăng nhập hoặc mật khẩu không đúng");
+    expect((await userRow(env.DB, 1))?.failed_login_count).toBe(0);
   });
 
   it("rehashes the stored password when its iteration count is below the constant", async () => {

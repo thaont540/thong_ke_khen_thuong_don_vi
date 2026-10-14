@@ -35,7 +35,14 @@ export const importRequestSchema = z.object({
   include_duplicates: z.boolean().optional().default(false),
   /** Rows the browser already rejected (informational; stored when the batch row is created). */
   client_error_rows: z.number().int().min(0).max(IMPORT_MAX_ROWS).optional().default(0),
-  rows: z.array(importRowSchema).min(1).max(IMPORT_LOT_SIZE),
+  rows: z
+    .array(importRowSchema)
+    .min(1)
+    .max(IMPORT_LOT_SIZE)
+    // Results are matched to rows by row_number, so it must identify a row unambiguously.
+    .refine((rows) => new Set(rows.map((r) => r.row_number)).size === rows.length, {
+      message: "Số dòng (row_number) bị trùng trong cùng một lô",
+    }),
 });
 
 export const importRowResultSchema = z.object({

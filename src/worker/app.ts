@@ -6,6 +6,7 @@ import {
   apiSecurityHeaders,
   authBodyLimit,
 } from "./middleware/api-hardening-middleware";
+import { loginRateLimit } from "./middleware/login-rate-limit-middleware";
 import { mustChangePasswordGate } from "./middleware/must-change-password-gate";
 import { originCheck } from "./middleware/origin-check-middleware";
 import { sessionAuth } from "./middleware/session-auth-middleware";
@@ -26,6 +27,7 @@ export const app = new Hono<AppEnv>();
 app.use("/api/*", apiSecurityHeaders);
 app.use("/api/*", originCheck);
 app.use("/api/*", apiBodyLimit);
+app.post("/api/auth/login", loginRateLimit);
 app.use("/api/auth/*", authBodyLimit);
 app.use("/api/*", sessionAuth);
 app.use("/api/*", mustChangePasswordGate);

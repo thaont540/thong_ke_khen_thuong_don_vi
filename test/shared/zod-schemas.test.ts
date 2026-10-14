@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { changePasswordRequestSchema } from "../../src/shared/schemas/auth-schemas";
 import { importRequestSchema } from "../../src/shared/schemas/award-import-schemas";
-import { awardInputSchema } from "../../src/shared/schemas/award-schemas";
+import { awardInputSchema, awardUpdateSchema } from "../../src/shared/schemas/award-schemas";
 import { awardListQuerySchema } from "../../src/shared/schemas/list-query-schemas";
 import { officerInputSchema } from "../../src/shared/schemas/officer-schemas";
 import { unitUpsertSchema } from "../../src/shared/schemas/unit-schemas";
@@ -15,6 +15,18 @@ const awardBase = {
   authority_id: 4,
   achievement: "Hoàn thành tốt",
 };
+
+describe("awardUpdateSchema", () => {
+  const base = { subject: "CA_NHAN", officer_id: 3, ...awardBase };
+  it("requires the updated_at token; create schema ignores it", () => {
+    expect(awardUpdateSchema.safeParse(base).success).toBe(false);
+    expect(awardUpdateSchema.safeParse({ ...base, updated_at: "" }).success).toBe(false);
+    expect(
+      awardUpdateSchema.safeParse({ ...base, updated_at: "2026-09-15 08:00:00.000" }).success,
+    ).toBe(true);
+    expect(awardInputSchema.safeParse(base).success).toBe(true);
+  });
+});
 
 describe("awardInputSchema", () => {
   it("individual requires officer_id; trims; defaults null", () => {
@@ -149,9 +161,32 @@ describe("unit, list query, import schemas", () => {
     const mk = (n: number) => ({
       file_name: "f.xlsx",
       total_rows: n,
-      rows: Array.from({ length: n }, () => row),
+      rows: Array.from({ length: n }, (_, i) => ({ ...row, row_number: i + 2 })),
     });
     expect(importRequestSchema.safeParse(mk(30)).success).toBe(true);
     expect(importRequestSchema.safeParse(mk(31)).success).toBe(false);
+  });
+
+  it("rejects duplicate row_number inside one lot", () => {
+    const row = {
+      subject: "Cá nhân",
+      unit: "Phòng 6",
+      form: "Danh hiệu",
+      award_name: "x",
+      year: 2026,
+      decision_number: "1",
+      decision_date: "15/09/2026",
+      achievement: "x",
+    };
+    const mk = (a: number, b: number) => ({
+      file_name: "f.xlsx",
+      total_rows: 2,
+      rows: [
+        { ...row, row_number: a },
+        { ...row, row_number: b },
+      ],
+    });
+    expect(importRequestSchema.safeParse(mk(2, 3)).success).toBe(true);
+    expect(importRequestSchema.safeParse(mk(2, 2)).success).toBe(false);
   });
 });

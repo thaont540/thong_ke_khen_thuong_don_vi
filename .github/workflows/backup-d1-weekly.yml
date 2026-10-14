@@ -17,15 +17,29 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       BACKUP_AGE_RECIPIENT: ${{ secrets.BACKUP_AGE_RECIPIENT }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check secrets
+        id: gate
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ] || [ -z "$BACKUP_AGE_RECIPIENT" ]; then
+            echo "::warning title=Backup bị bỏ qua::Thiếu secret CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID hoặc BACKUP_AGE_RECIPIENT (Settings > Secrets and variables > Actions). Backup chưa chạy."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.gate.outputs.enabled == 'true'
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - if: steps.gate.outputs.enabled == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      - if: steps.gate.outputs.enabled == 'true'
+        run: npm ci
       - name: Install age
+        if: steps.gate.outputs.enabled == 'true'
         run: sudo apt-get update && sudo apt-get install -y age
       - name: Export, compress, encrypt
+        if: steps.gate.outputs.enabled == 'true'
         run: |
           set -euo pipefail
           test -n "$BACKUP_AGE_RECIPIENT" || { echo "Thiếu secret BACKUP_AGE_RECIPIENT"; exit 1; }
@@ -37,7 +51,8 @@ jobs:
           shred -u backup.sql.gz || rm -f backup.sql.gz
           ls -l ./*.age
           echo "BACKUP_FILE=app-nghia-${stamp}.sql.gz.age" >> "$GITHUB_ENV"
-      - uses: actions/upload-artifact@v4
+      - if: steps.gate.outputs.enabled == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: d1-backup-${{ github.run_id }}
           path: "*.sql.gz.age"

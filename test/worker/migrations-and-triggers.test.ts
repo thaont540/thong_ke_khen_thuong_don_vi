@@ -47,11 +47,19 @@ describe("seed counts (§8)", () => {
       "ix_awards_unit_team",
       "ix_awards_officer",
       "ix_awards_type",
-      "ix_awards_decision",
       "trg_import_batches_row_cap",
       "ix_awards_import_batch",
     ])
       expect(names).toContain(n);
+  });
+
+  it("the unused decision_number index is gone (migration 0005)", async () => {
+    const names = (
+      await env.DB.prepare("SELECT name FROM sqlite_master WHERE type = 'index'").all<{
+        name: string;
+      }>()
+    ).results.map((r) => r.name);
+    expect(names).not.toContain("ix_awards_decision");
   });
 });
 

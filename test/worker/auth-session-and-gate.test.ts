@@ -42,6 +42,13 @@ describe("session middleware", () => {
     expect((await api("/api/me", { token: ok })).status).toBe(401);
   });
 
+  it("a session older than 7 days is rejected even if recently used and unexpired", async () => {
+    const old = await createSession(env.DB, 1, { createdAgoSeconds: 7 * 86400 + 60 });
+    expect((await api("/api/me", { token: old })).status).toBe(401);
+    const fresh = await createSession(env.DB, 1, { createdAgoSeconds: 6 * 86400 });
+    expect((await api("/api/me", { token: fresh })).status).toBe(200);
+  });
+
   it("/api/health stays public", async () => {
     expect((await api("/api/health")).status).toBe(200);
   });

@@ -19,6 +19,13 @@ describe("cron cleanup", () => {
     expect(await sessionCount(env.DB)).toBe(1);
   });
 
+  it("removes sessions older than the 7 day absolute lifetime", async () => {
+    await createSession(env.DB, 1, { createdAgoSeconds: 8 * 86400 });
+    await createSession(env.DB, 1, { createdAgoSeconds: 86400 });
+    expect(await cleanupExpiredSessions(env.DB)).toBe(1);
+    expect(await sessionCount(env.DB)).toBe(1);
+  });
+
   it("the scheduled handler runs the cleanup", async () => {
     await createSession(env.DB, 1, { expiresInSeconds: -60 });
     const pending: Promise<unknown>[] = [];

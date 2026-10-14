@@ -20,6 +20,8 @@ export const ERROR_CODE = {
   PASSWORD_CHANGE_REQUIRED: "PASSWORD_CHANGE_REQUIRED",
   /** 423: account deactivated or temporarily locked after failed logins. */
   ACCOUNT_LOCKED: "ACCOUNT_LOCKED",
+  /** 429: per-IP login throttle. */
+  RATE_LIMITED: "RATE_LIMITED",
   NOT_FOUND: "NOT_FOUND",
   CONFLICT: "CONFLICT",
   DUPLICATE: "DUPLICATE",

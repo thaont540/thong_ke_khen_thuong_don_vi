@@ -6,6 +6,7 @@ import {
   collectiveBody,
   insertOfficer,
   personalBody,
+  putAward,
   seedAward,
   send,
   setupAwardTest,
@@ -92,7 +93,7 @@ describe("BR-08 duplicate warning", () => {
       unitId: SEED.unitP6,
       typeId: SEED.typeCstdCoSo,
     });
-    expect((await send(editor, "PUT", `/api/awards/${a}`, personalBody(1))).status).toBe(200);
+    expect((await putAward(editor, a, personalBody(1))).status).toBe(200);
     const b = await seedAward({
       subject: "CA_NHAN",
       officerId: 1,
@@ -100,12 +101,7 @@ describe("BR-08 duplicate warning", () => {
       typeId: SEED.typeGiayKhen,
       decision: "9/QĐ",
     });
-    const res = await send(
-      editor,
-      "PUT",
-      `/api/awards/${b}`,
-      personalBody(1, { award_type_id: SEED.typeCstdCoSo }),
-    );
+    const res = await putAward(editor, b, personalBody(1, { award_type_id: SEED.typeCstdCoSo }));
     expect(res.status).toBe(409);
     expect((await dupsOf(res)).map((d) => d.id)).toEqual([a]);
   });

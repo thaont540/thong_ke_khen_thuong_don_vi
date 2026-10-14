@@ -90,6 +90,14 @@ export const collectiveBody = (unitId: number, teamId: number | null, over = {})
 export const send = (token: string, method: string, path: string, body?: unknown) =>
   api(path, { method, token, ...(body === undefined ? {} : { body }) });
 
+/** PUT /api/awards/:id with the loaded `updated_at` filled in (required token) unless given. */
+export async function putAward(token: string, id: number | string, body: Record<string, unknown>) {
+  let updatedAt = "unknown";
+  const loaded = await send(token, "GET", `/api/awards/${id}`);
+  if (loaded.ok) updatedAt = ((await loaded.json()) as { updated_at: string }).updated_at;
+  return send(token, "PUT", `/api/awards/${id}`, { updated_at: updatedAt, ...body });
+}
+
 export const count = async (sql: string, ...binds: (string | number)[]): Promise<number> =>
   (
     (await env.DB.prepare(sql)

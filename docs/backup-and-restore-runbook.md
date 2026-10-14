@@ -101,6 +101,22 @@ WHERE officer_id = :officer_id
 Câu cuối chỉ khôi phục các khen thưởng bị xóa cùng đợt xóa cán bộ; nếu muốn chắc, đối chiếu thủ công bằng `audit_logs` (entity `officer`, action `DELETE`).
 Đơn vị/đội khi xóa là xóa cứng và bị chặn khi còn dữ liệu tham chiếu (kể cả bản ghi đã xóa mềm), nên không có quy trình khôi phục riêng; dùng Time Travel nếu lỡ xóa.
 
+## 5b. Kiểm tra và dựng lại bộ đếm `award_counters`
+
+Bộ đếm do trigger duy trì; có thể lệch nếu khôi phục một phần dữ liệu hoặc chạy SQL tay. Kiểm tra (kết quả rỗng = đúng):
+
+```bash
+npx wrangler d1 execute app-nghia --remote --file scripts/check-award-counter-drift.sql
+```
+
+Có dòng trả về thì dựng lại từ bảng `awards` (an toàn, chạy lại được):
+
+```bash
+npx wrangler d1 execute app-nghia --remote --file scripts/recompute-award-counters.sql
+```
+
+Cả hai script có test (`test/worker/award-counters.test.ts`).
+
 ## 6. Sự cố thường gặp
 
 | Triệu chứng | Xử lý |

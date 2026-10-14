@@ -54,12 +54,13 @@ export function useAwardFormSave(a: Args) {
       return;
     }
     const body = formValuesToPayload(a.values, confirmDuplicate);
+    if (a.editId !== null && !a.updatedAt) {
+      setFormError("Chưa tải xong bản ghi, vui lòng thử lại sau giây lát.");
+      return;
+    }
     try {
-      if (a.editId !== null) {
-        await update.mutateAsync({
-          id: a.editId,
-          body: a.updatedAt ? { ...body, updated_at: a.updatedAt } : body,
-        });
+      if (a.editId !== null && a.updatedAt) {
+        await update.mutateAsync({ id: a.editId, body: { ...body, updated_at: a.updatedAt } });
       } else await create.mutateAsync(body);
     } catch (e) {
       handleError(e, after);

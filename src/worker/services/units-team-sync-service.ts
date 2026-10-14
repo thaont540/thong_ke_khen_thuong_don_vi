@@ -25,11 +25,24 @@ export interface TeamSyncPlan {
 /** Largest write batch we allow (D1 batches stay well below the platform cap). */
 export const MAX_BATCH_STATEMENTS = 50;
 
-const nextSuffix = (rows: readonly TeamRow[]): number =>
-  rows.reduce((max, r) => {
-    const m = /-T(\d+)$/i.exec(r.code);
+const maxSuffix = (codes: readonly string[]): number =>
+  codes.reduce((max, code) => {
+    const m = /-T(\d+)$/i.exec(code);
     return m?.[1] ? Math.max(max, Number(m[1])) : max;
-  }, 0) + 1;
+  }, 0);
+
+/**
+ * Next free `<unitCode>-T<n>` suffix, looked up across ALL teams: after a unit rename another
+ * unit's teams may still carry the new prefix, and teams.code is globally UNIQUE.
+ */
+async function nextSuffix(d1: D1Database, unitCode: string, own: readonly TeamRow[]) {
+  const prefix = `${unitCode}-T`;
+  const { results } = await d1
+    .prepare("SELECT code FROM teams WHERE substr(code, 1, length(?)) = ?")
+    .bind(prefix, prefix)
+    .all<{ code: string }>();
+  return maxSuffix([...results.map((r) => r.code), ...own.map((t) => t.code)]) + 1;
+}
 
 /** Rows referencing a team, soft-deleted ones included (FK + clarification: they block deletion). */
 async function teamUsage(d1: D1Database, teamId: number): Promise<BlockingUsage> {
@@ -80,7 +93,7 @@ export async function planTeamSync(
     detail.removed.push(old.name);
   }
 
-  let suffix = nextSuffix(unit.existing);
+  let suffix = await nextSuffix(d1, unit.code, unit.existing);
   let sort = unit.existing.length + 1;
   for (const t of teams) {
     const old = t.id === undefined ? undefined : byId.get(t.id);

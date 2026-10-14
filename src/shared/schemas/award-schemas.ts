@@ -21,24 +21,38 @@ const awardCommonShape = {
     .transform((v) => (v ? v : null)),
   /** Resend with true after a 409 DUPLICATE to save anyway (BR-08). */
   confirm_duplicate: z.boolean().optional(),
-  /** PUT only: `updated_at` of the record as loaded; a stale value is rejected with 409. */
-  updated_at: z.string().max(40).optional(),
 };
 
+/** PUT only: `updated_at` of the record as loaded; a stale value is rejected with 409. */
+const updatedAtToken = { updated_at: z.string().trim().min(1).max(40) };
+
+function buildAwardSchema<T extends z.ZodRawShape>(extra: T) {
+  return z.discriminatedUnion("subject", [
+    z.object({
+      subject: z.literal("CA_NHAN"),
+      officer_id: idSchema,
+      ...awardCommonShape,
+      ...extra,
+    }),
+    z.object({
+      subject: z.literal("TAP_THE"),
+      unit_id: idSchema,
+      team_id: idSchema.nullish().transform((v) => v ?? null),
+      ...awardCommonShape,
+      ...extra,
+    }),
+  ]);
+}
+
 /**
- * POST /api/awards, PUT /api/awards/:id.
+ * POST /api/awards.
  * CA_NHAN: unit/team are derived from the officer server-side (BR-02).
  * TAP_THE: unit required, team null = whole unit.
  */
-export const awardInputSchema = z.discriminatedUnion("subject", [
-  z.object({ subject: z.literal("CA_NHAN"), officer_id: idSchema, ...awardCommonShape }),
-  z.object({
-    subject: z.literal("TAP_THE"),
-    unit_id: idSchema,
-    team_id: idSchema.nullish().transform((v) => v ?? null),
-    ...awardCommonShape,
-  }),
-]);
+export const awardInputSchema = buildAwardSchema({});
+
+/** PUT /api/awards/:id: same body plus the REQUIRED optimistic-concurrency token. */
+export const awardUpdateSchema = buildAwardSchema(updatedAtToken);
 
 /** One award row as listed (F01), shown in F02 history and loaded for edit (F09). */
 export const awardRecordSchema = z.object({
@@ -105,6 +119,7 @@ export const awardDuplicateErrorSchema = z.object({
 export const awardMutationResponseSchema = z.object({ id: idSchema });
 
 export type AwardInput = z.infer<typeof awardInputSchema>;
+export type AwardUpdateInput = z.infer<typeof awardUpdateSchema>;
 export type AwardRecord = z.infer<typeof awardRecordSchema>;
 export type AwardStats = z.infer<typeof awardStatsSchema>;
 export type AwardDuplicate = z.infer<typeof awardDuplicateSchema>;

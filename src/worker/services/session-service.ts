@@ -1,5 +1,5 @@
 import type { Role } from "../../shared/domain-enums";
-import { SESSION_TTL_SECONDS } from "../lib/session-cookie";
+import { SESSION_ABSOLUTE_TTL_SECONDS, SESSION_TTL_SECONDS } from "../lib/session-cookie";
 import { addSeconds, sqlTimestamp } from "../lib/sql-timestamp";
 import type { SessionInfo, SessionUser } from "../types/hono-env";
 
@@ -46,7 +46,7 @@ export function createSessionStatement(
 
 /**
  * One SELECT (session JOIN user, active only, unexpired). Adds one UPDATE only when
- * last_seen_at is older than 15 minutes (sliding 8h expiry).
+ * last_seen_at is older than 15 minutes (sliding 8h expiry, capped at 7 days since login).
  */
 export async function lookupSession(
   d1: D1Database,
@@ -59,9 +59,9 @@ export async function lookupSession(
       `SELECT s.token_hash, s.expires_at, s.last_seen_at,
               u.id, u.username, u.full_name, u.role, u.must_change_password
          FROM sessions s JOIN users u ON u.id = s.user_id
-        WHERE s.token_hash = ? AND s.expires_at > ? AND u.is_active = 1`,
+        WHERE s.token_hash = ? AND s.expires_at > ? AND s.created_at > ? AND u.is_active = 1`,
     )
-    .bind(tokenHash, nowTs)
+    .bind(tokenHash, nowTs, sqlTimestamp(addSeconds(now, -SESSION_ABSOLUTE_TTL_SECONDS)))
     .first<SessionRow>();
   if (!row) return null;
 

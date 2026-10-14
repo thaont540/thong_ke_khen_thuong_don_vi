@@ -321,12 +321,12 @@ Hệ thống tự quản lý tài khoản trong bảng users, không dùng Cloud
 
 | Màn hình | Trường | Quy tắc |
 | --- | --- | --- |
-| Đăng nhập | Tên đăng nhập, Mật khẩu | Sai thì báo chung "Tên đăng nhập hoặc mật khẩu không đúng", không nói rõ sai phần nào. Tài khoản bị khóa thì báo "Tài khoản đang bị khóa" |
+| Đăng nhập | Tên đăng nhập, Mật khẩu | Sai thì báo chung "Tên đăng nhập hoặc mật khẩu không đúng", không nói rõ sai phần nào. Tài khoản bị khóa (đăng nhập sai nhiều lần hoặc bị Quản trị khóa): chỉ khi nhập **đúng** mật khẩu mới báo "Tài khoản đang bị khóa"; nhập sai vẫn báo chung như trên để không dò được tên đăng nhập. Quá 10 lần thử/phút từ một IP thì báo "Bạn thử quá nhiều lần, vui lòng đợi rồi thử lại" |
 | Đổi mật khẩu | Mật khẩu hiện tại, Mật khẩu mới, Nhập lại | Mật khẩu mới tối thiểu 10 ký tự, khác mật khẩu cũ, hai ô nhập khớp nhau |
 
-- **Phiên đăng nhập:** token ngẫu nhiên 32 byte trong cookie `HttpOnly; Secure; SameSite=Strict`. Bảng sessions chỉ lưu bản băm SHA-256 của token. Phiên hết hạn sau 8 giờ không hoạt động; `last_seen_at` chỉ cập nhật khi đã quá 15 phút để tiết kiệm lượt ghi D1.
+- **Phiên đăng nhập:** token ngẫu nhiên 32 byte trong cookie `HttpOnly; Secure; SameSite=Strict`. Bảng sessions chỉ lưu bản băm SHA-256 của token. Phiên hết hạn sau 8 giờ không hoạt động và tối đa 7 ngày kể từ lúc đăng nhập; `last_seen_at` chỉ cập nhật khi đã quá 15 phút để tiết kiệm lượt ghi D1.
 - **Mật khẩu:** băm bằng PBKDF2-SHA256 qua WebCrypto, mỗi người một salt riêng, 100.000 vòng lặp (mức tối đa Workers cho phép).
-- **Chống dò mật khẩu:** sai 5 lần liên tiếp thì khóa tài khoản 15 phút; thêm rule giới hạn tần suất cho `/api/auth/login` trên Cloudflare.
+- **Chống dò mật khẩu:** sai 5 lần liên tiếp thì khóa tài khoản 15 phút. Các lần thử trong thời gian khóa không được tính thêm và không kéo dài thời gian khóa (kẻ lạ không khóa dài hạn được tài khoản). Ngoài ra `/api/auth/login` giới hạn 10 lần/phút theo IP (Workers Rate Limiting binding).
 - **Bắt đổi mật khẩu:** tài khoản mới tạo hoặc vừa được đặt lại mật khẩu phải đổi mật khẩu trước khi dùng bất kỳ chức năng nào.
 - **Đổi mật khẩu thành công:** hủy mọi phiên khác của người đó, giữ phiên hiện tại.
 - **Đăng xuất:** xóa phiên trong database và xóa cookie. Nút đăng xuất và đổi mật khẩu nằm ở góc menu, kèm họ tên và vai trò người đang đăng nhập.

@@ -1,6 +1,7 @@
 import { AUDIT_ACTION } from "../../shared/domain-enums";
 import { normalizeText } from "../../shared/normalize-text";
 import type { OfficerInput } from "../../shared/schemas/officer-schemas";
+import { AppError } from "../lib/app-error";
 import { auditStatement } from "../lib/audit-log-statement";
 import { sqlTimestamp } from "../lib/sql-timestamp";
 import {
@@ -61,17 +62,24 @@ async function insertOfficer(d1: D1Database, actorId: number, i: OfficerInput): 
   return id;
 }
 
+const CODE_RETRIES = 5;
+
+/** MAX+1 code collisions under concurrent creates are retried; badge conflicts map to 409. */
+async function insertWithCodeRetry(d1: D1Database, actorId: number, i: OfficerInput) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await insertOfficer(d1, actorId, i);
+    } catch (err) {
+      if (isBadgeConflict(err)) throw badgeTakenError();
+      if (!isCodeConflict(err) || attempt >= CODE_RETRIES) throw err;
+    }
+  }
+}
+
 export async function createOfficer(d1: D1Database, actorId: number, input: OfficerInput) {
   await assertOfficerRefs(d1, input);
   await assertBadgeFree(d1, input.badge_number, null);
-  let id: number;
-  try {
-    id = await insertOfficer(d1, actorId, input);
-  } catch (err) {
-    if (isBadgeConflict(err)) throw badgeTakenError();
-    if (!isCodeConflict(err)) throw err;
-    id = await insertOfficer(d1, actorId, input); // lost the code race once: retry
-  }
+  const id = await insertWithCodeRetry(d1, actorId, input);
   return findActiveOfficer(d1, id);
 }
 
@@ -158,6 +166,8 @@ export async function deleteOfficer(
       onlyIfPreviousChanged: true,
     }),
   ]);
+  // Concurrent delete already won: the officer UPDATE matched nothing and no audit row was written.
+  if (results[2]?.meta.changes === 0) throw AppError.notFound("Không tìm thấy cán bộ");
   return { deleted_awards: (results[0]?.results[0] as { n: number } | undefined)?.n ?? 0 };
 }
 

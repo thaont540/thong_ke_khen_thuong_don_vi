@@ -5,6 +5,7 @@ import {
   count,
   insertOfficer,
   personalBody,
+  putAward,
   seedAward,
   send,
   setupAwardTest,
@@ -35,18 +36,16 @@ describe("PUT /api/awards/:id concurrency", () => {
     const loaded = (await (await send(editor, "GET", `/api/awards/${id}`)).json()) as {
       updated_at: string;
     };
-    const first = await send(
+    const first = await putAward(
       editor,
-      "PUT",
-      `/api/awards/${id}`,
+      id,
       personalBody(1, { achievement: "Người A", updated_at: loaded.updated_at }),
     );
     expect(first.status).toBe(200);
 
-    const stale = await send(
+    const stale = await putAward(
       editor,
-      "PUT",
-      `/api/awards/${id}`,
+      id,
       personalBody(1, { achievement: "Người B", updated_at: loaded.updated_at }),
     );
     expect(stale.status).toBe(409);
@@ -60,10 +59,9 @@ describe("PUT /api/awards/:id concurrency", () => {
       updated_at: string;
     };
     expect(reloaded.updated_at).not.toBe(loaded.updated_at);
-    const ok = await send(
+    const ok = await putAward(
       editor,
-      "PUT",
-      `/api/awards/${id}`,
+      id,
       personalBody(1, { achievement: "Người B", updated_at: reloaded.updated_at }),
     );
     expect(ok.status).toBe(200);
@@ -82,18 +80,34 @@ describe("PUT /api/awards/:id concurrency", () => {
     const statuses = (
       await Promise.all(
         ["A", "B", "C"].map((n) =>
-          send(
-            editor,
-            "PUT",
-            `/api/awards/${id}`,
-            personalBody(1, { achievement: n, updated_at: loaded.updated_at }),
-          ),
+          putAward(editor, id, personalBody(1, { achievement: n, updated_at: loaded.updated_at })),
         ),
       )
     ).map((r) => r.status);
     expect(statuses.filter((s) => s === 200)).toHaveLength(1);
     expect(statuses.filter((s) => s === 409)).toHaveLength(2);
     expect(await audits("UPDATE")).toBe(1);
+  });
+
+  it("a PUT without updated_at is rejected with 400 and changes nothing", async () => {
+    const id = await seedAward({
+      subject: "CA_NHAN",
+      officerId: 1,
+      unitId: SEED.unitP6,
+      typeId: SEED.typeCstdCoSo,
+    });
+    const res = await send(
+      editor,
+      "PUT",
+      `/api/awards/${id}`,
+      personalBody(1, { achievement: "X" }),
+    );
+    expect(res.status).toBe(400);
+    const body = (await res.json()) as { error: { code: string; fields?: Record<string, string> } };
+    expect(body.error.code).toBe("VALIDATION");
+    expect(body.error.fields).toHaveProperty("updated_at");
+    expect(await row(id)).not.toMatchObject({ achievement: "X" });
+    expect(await audits("UPDATE")).toBe(0);
   });
 
   it("update to an officer deleted meanwhile is rejected (no award pointing at a deleted officer)", async () => {
@@ -104,7 +118,7 @@ describe("PUT /api/awards/:id concurrency", () => {
       typeId: SEED.typeCstdCoSo,
     });
     await env.DB.prepare("UPDATE officers SET deleted_at = datetime('now') WHERE id = 1").run();
-    const res = await send(editor, "PUT", `/api/awards/${id}`, personalBody(1));
+    const res = await putAward(editor, id, personalBody(1));
     expect(res.status).toBe(422);
     expect(await audits("UPDATE")).toBe(0);
   });

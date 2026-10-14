@@ -31,8 +31,18 @@ export interface LoginResult {
 const invalidCredentials = () => AppError.unauthorized("Tên đăng nhập hoặc mật khẩu không đúng");
 
 /**
+ * Blocked account (locked or admin-deactivated): the password is still verified so a stranger
+ * cannot tell blocked from unknown/wrong (no enumeration) or extend the lock (no writes at all).
+ * Only the holder of the correct password learns the account is blocked (423).
+ */
+async function rejectBlocked(password: string, passwordHash: string): Promise<never> {
+  const verdict = await verifyPassword(password, passwordHash);
+  throw verdict.ok ? AppError.accountLocked() : invalidCredentials();
+}
+
+/**
  * Query budget: 1 SELECT + 1 reservation UPDATE + 1 batch. PBKDF2 derivations: 1 (+1 when rehashing to a higher N).
- * Throws 401 (generic) or 423 (inactive / locked).
+ * Throws 401 (generic) or 423 (inactive / locked, only with the correct password).
  */
 export async function login(
   d1: D1Database,
@@ -50,7 +60,7 @@ export async function login(
 
   const nowTs = sqlTimestamp(now);
   if (user && (user.is_active !== 1 || (user.locked_until && user.locked_until > nowTs))) {
-    throw AppError.accountLocked();
+    return rejectBlocked(input.password, user.password_hash);
   }
 
   if (!user) {
@@ -61,7 +71,7 @@ export async function login(
 
   // Reserve the attempt atomically before verifying so parallel bursts cannot exceed the limit.
   const reservation = await reserveAttempt(d1, user.id, now);
-  if (!reservation) throw AppError.accountLocked();
+  if (!reservation) return rejectBlocked(input.password, user.password_hash);
 
   const verdict = await verifyPassword(input.password, user.password_hash);
   if (!verdict.ok) {

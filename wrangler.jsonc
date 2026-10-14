@@ -18,6 +18,10 @@
       "migrations_dir": "migrations"
     }
   ],
+  // Per-IP throttle for POST /api/auth/login (code skips it when the binding is absent)
+  "ratelimits": [
+    { "name": "LOGIN_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
+  ],
   // UTC: 17:00 = 00:00 Vietnam time
   "triggers": { "crons": ["0 17 * * *"] },
   "env": {
@@ -32,6 +36,9 @@
           "database_id": "f9bcb8d3-e69e-421b-a96a-e7baa4971492",
           "migrations_dir": "migrations"
         }
+      ],
+      "ratelimits": [
+        { "name": "LOGIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } }
       ],
       "triggers": { "crons": ["0 17 * * *"] }
     }

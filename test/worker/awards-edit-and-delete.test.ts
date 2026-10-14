@@ -7,6 +7,7 @@ import {
   count,
   insertOfficer,
   personalBody,
+  putAward,
   seedAward,
   send,
   setupAwardTest,
@@ -36,12 +37,7 @@ describe("PUT /api/awards/:id (BR-02 edit rule)", () => {
       typeId: SEED.typeCstdCoSo,
     });
     await env.DB.prepare("UPDATE officers SET unit_id = 7, team_id = 12 WHERE id = 1").run();
-    const res = await send(
-      editor,
-      "PUT",
-      `/api/awards/${id}`,
-      personalBody(1, { achievement: "Đã sửa" }),
-    );
+    const res = await putAward(editor, id, personalBody(1, { achievement: "Đã sửa" }));
     expect(res.status).toBe(200);
     expect(await row(id)).toMatchObject({
       unit_id: SEED.unitP6,
@@ -58,7 +54,7 @@ describe("PUT /api/awards/:id (BR-02 edit rule)", () => {
       teamId: SEED.teamP6Ct1,
       typeId: SEED.typeCstdCoSo,
     });
-    expect((await send(editor, "PUT", `/api/awards/${id}`, personalBody(2))).status).toBe(200);
+    expect((await putAward(editor, id, personalBody(2))).status).toBe(200);
     expect(await row(id)).toMatchObject({ officer_id: 2, unit_id: 7, team_id: SEED.teamP7Dd1 });
   });
 
@@ -69,15 +65,13 @@ describe("PUT /api/awards/:id (BR-02 edit rule)", () => {
       unitId: SEED.unitP6,
       typeId: SEED.typeCstdCoSo,
     });
-    expect(
-      (await send(editor, "PUT", `/api/awards/${id}`, collectiveBody(SEED.unitP6, null))).status,
-    ).toBe(200);
+    expect((await putAward(editor, id, collectiveBody(SEED.unitP6, null))).status).toBe(200);
     expect(await row(id)).toMatchObject({
       subject: "TAP_THE",
       officer_id: null,
       unit_id: SEED.unitP6,
     });
-    expect((await send(editor, "PUT", `/api/awards/${id}`, personalBody(2))).status).toBe(200);
+    expect((await putAward(editor, id, personalBody(2))).status).toBe(200);
     expect(await row(id)).toMatchObject({ subject: "CA_NHAN", officer_id: 2, unit_id: 7 });
   });
 
@@ -88,7 +82,7 @@ describe("PUT /api/awards/:id (BR-02 edit rule)", () => {
       unitId: SEED.unitP6,
       typeId: SEED.typeCstdCoSo,
     });
-    await send(editor, "PUT", `/api/awards/${id}`, personalBody(1, { year: 2025 }));
+    await putAward(editor, id, personalBody(1, { year: 2025 }));
     const log = await env.DB.prepare(
       "SELECT entity_id, detail FROM audit_logs WHERE action = 'UPDATE'",
     ).first<{ entity_id: number; detail: string }>();
@@ -108,7 +102,7 @@ describe("PUT /api/awards/:id (BR-02 edit rule)", () => {
       deleted: true,
     });
     for (const id of [gone, 9999, "abc"]) {
-      expect((await send(editor, "PUT", `/api/awards/${id}`, personalBody(1))).status).toBe(404);
+      expect((await putAward(editor, id, personalBody(1))).status).toBe(404);
     }
   });
 });

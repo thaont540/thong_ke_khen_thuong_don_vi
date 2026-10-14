@@ -58,15 +58,15 @@ export function buildAwardFilter(query: AwardListQuery, names?: CollectiveNames)
     binds.push(pattern, pattern);
     const teamIds = idList(names?.teams ?? [], term);
     if (teamIds.length > 0) {
-      ors.push(`(a.subject = 'TAP_THE' AND a.team_id IN (${teamIds.map(() => "?").join(",")}))`);
-      binds.push(...teamIds);
+      ors.push(`(a.subject = 'TAP_THE' AND a.team_id IN (SELECT value FROM json_each(?)))`);
+      binds.push(JSON.stringify(teamIds)); // one bound param: D1 allows only 100 per statement
     }
     const unitIds = idList(names?.units ?? [], term);
     if (unitIds.length > 0) {
       ors.push(
-        `(a.subject = 'TAP_THE' AND a.team_id IS NULL AND a.unit_id IN (${unitIds.map(() => "?").join(",")}))`,
+        `(a.subject = 'TAP_THE' AND a.team_id IS NULL AND a.unit_id IN (SELECT value FROM json_each(?)))`,
       );
-      binds.push(...unitIds);
+      binds.push(JSON.stringify(unitIds));
     }
     parts.push(`(${ors.join(" OR ")})`);
   }

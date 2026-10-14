@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { AWARD_WRITER_ROLES } from "../../shared/role-permissions";
-import { awardInputSchema } from "../../shared/schemas/award-schemas";
+import { awardInputSchema, awardUpdateSchema } from "../../shared/schemas/award-schemas";
 import { awardListQuerySchema } from "../../shared/schemas/list-query-schemas";
 import { parseIdParam, parseJsonBody } from "../lib/parse-request";
 import { requireRole } from "../middleware/require-role-middleware";
@@ -31,7 +31,7 @@ awardsRoutes.post("/", writers, async (c) => {
 
 awardsRoutes.put("/:id", writers, async (c) => {
   const id = parseIdParam(c.req.param("id"));
-  const body = await parseJsonBody(c, awardInputSchema);
+  const body = await parseJsonBody(c, awardUpdateSchema);
   const master = await getMasterData(c.env.DB);
   return c.json(await updateAward(c.env.DB, master, c.var.user.id, id, body));
 });

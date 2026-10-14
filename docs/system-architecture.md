@@ -40,8 +40,8 @@ Lỗi đi qua `handleError` (`lib/error-handler.ts`), trả `{ error: { code, me
 ## 3. Xác thực và phiên
 
 - Mật khẩu: PBKDF2-SHA256, 100000 vòng (trần của workerd), chuỗi `pbkdf2$sha256$<n>$<salt>$<hash>` nên đổi n được sau này.
-- Cookie `__Host-sid`: HttpOnly, Secure, SameSite=Strict, TTL 8 giờ. DB chỉ lưu SHA-256 của token (`sessions.token_hash`). Gia hạn trượt khi phiên cũ hơn 15 phút; cron xóa phiên hết hạn.
-- Khóa tài khoản: 5 lần sai -> khóa 15 phút. `login-attempt-guard.ts` đặt trước lượt thử bằng một `UPDATE` có điều kiện (nguyên tử) **trước** khi băm, nên request song song không vượt được ngưỡng. Admin mở khóa tạm qua PUT user.
+- Cookie `__Host-sid`: HttpOnly, Secure, SameSite=Strict, TTL 8 giờ trượt, tối đa 7 ngày từ lúc đăng nhập (`sessions.created_at`). DB chỉ lưu SHA-256 của token (`sessions.token_hash`). Gia hạn trượt khi phiên cũ hơn 15 phút; cron xóa phiên hết hạn.
+- Khóa tài khoản: 5 lần sai -> khóa 15 phút. `login-attempt-guard.ts` đặt trước lượt thử bằng một `UPDATE` có điều kiện (nguyên tử) **trước** khi băm, nên request song song không vượt được ngưỡng. Admin mở khóa tạm qua PUT user. Tài khoản đang khóa hoặc bị vô hiệu: server vẫn băm và so mật khẩu, sai -> 401 chung (giống user không tồn tại), đúng -> 423; không ghi D1, không kéo dài khóa. `login-rate-limit-middleware.ts` giới hạn 10 request/60s theo `CF-Connecting-IP` bằng binding `LOGIN_LIMITER` (`ratelimits` trong `wrangler.jsonc`, namespace_id 1001 prod, 1002 staging); vắng binding hoặc IP thì bỏ qua, lỗi binding thì cho qua (fail open). Mọi `/api/*` trả `Cache-Control: no-store`.
 - Vai trò: ADMIN (toàn bộ), EDITOR (xem, thêm/sửa/xóa khen thưởng, import), VIEWER (chỉ xem). Ma trận ở `src/shared/role-permissions.ts`, kiểm thử bằng các file `rbac-matrix-*.test.ts`.
 - Mọi thao tác ghi và đăng nhập ghi vào `audit_logs`.
 

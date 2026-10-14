@@ -33,19 +33,20 @@ export function api(path: string, o: ApiOptions = {}): Promise<Response> {
 export async function createSession(
   db: D1Database,
   userId: number,
-  o: { expiresInSeconds?: number; lastSeenAgoSeconds?: number } = {},
+  o: { expiresInSeconds?: number; lastSeenAgoSeconds?: number; createdAgoSeconds?: number } = {},
 ): Promise<string> {
   const token = generateSessionToken();
   const now = new Date();
   await db
     .prepare(
-      "INSERT INTO sessions (token_hash, user_id, expires_at, last_seen_at) VALUES (?, ?, ?, ?)",
+      "INSERT INTO sessions (token_hash, user_id, expires_at, last_seen_at, created_at) VALUES (?, ?, ?, ?, ?)",
     )
     .bind(
       await hashSessionToken(token),
       userId,
       sqlTimestamp(addSeconds(now, o.expiresInSeconds ?? 8 * 3600)),
       sqlTimestamp(addSeconds(now, -(o.lastSeenAgoSeconds ?? 0))),
+      sqlTimestamp(addSeconds(now, -(o.createdAgoSeconds ?? 0))),
     )
     .run();
   return token;

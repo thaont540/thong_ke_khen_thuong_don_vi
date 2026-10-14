@@ -14,6 +14,14 @@
 - Phase 09: workflow `deploy.yml` (staging/production), `backup-d1-weekly.yml` (export mã hóa age), tài liệu triển khai, backup, kiến trúc, quy chuẩn, roadmap, README.
 - Migration 0003 `award_counters` (thống kê bằng bảng đếm, index danh sách theo đơn vị). Migration 0004 trigger giới hạn số dòng đợt import.
 
+### Security / Fixed (review vòng 2)
+- PUT `/api/awards/:id` bắt buộc `updated_at` (khóa lạc quan không còn bị bỏ qua).
+- Đăng nhập: tài khoản khóa/vô hiệu chỉ báo 423 khi đúng mật khẩu, sai báo 401 chung và không kéo dài khóa; giới hạn 10 lần/phút theo IP (binding `LOGIN_LIMITER`, 429).
+- Phiên tối đa 7 ngày; `Cache-Control: no-store` cho mọi `/api/*`.
+- Import: từ chối file bị cắt bớt dòng, `row_number` trùng trong lô; tìm kiếm không vượt giới hạn 100 tham số D1; mã cán bộ thử lại tối đa 5 lần; mã đội không trùng sau khi đổi mã đơn vị; xóa cán bộ đã bị xóa trả 404.
+- Migration 0005 bỏ index không dùng `ix_awards_decision`; script kiểm tra/dựng lại `award_counters`.
+- Workflow: deploy production chỉ từ `master`, secrets chỉ trong job deploy, concurrency theo môi trường, bỏ qua có cảnh báo khi thiếu secret; CI `permissions: contents: read`, ghim action theo SHA, e2e bắt buộc.
+
 ### Changed
 - Giới hạn import Excel: 5 MB và 100 dòng mỗi file (trước đây 1000 dòng) - `21f264e`.
 - Logo sidebar dùng quốc kỳ Việt Nam - `bca5ea0`.

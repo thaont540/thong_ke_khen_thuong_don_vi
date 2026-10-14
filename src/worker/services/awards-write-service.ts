@@ -1,6 +1,6 @@
 import { AUDIT_ACTION } from "../../shared/domain-enums";
 import { ERROR_CODE } from "../../shared/schemas/api-common-schemas";
-import type { AwardInput } from "../../shared/schemas/award-schemas";
+import type { AwardInput, AwardUpdateInput } from "../../shared/schemas/award-schemas";
 import type { MasterDataDto } from "../../shared/schemas/master-data-dto";
 import { AppError } from "../lib/app-error";
 import { auditStatement } from "../lib/audit-log-statement";
@@ -88,11 +88,11 @@ export async function updateAward(
   master: MasterDataDto,
   userId: number,
   id: number,
-  input: AwardInput,
+  input: AwardUpdateInput,
 ): Promise<{ id: number }> {
   assertValidAward(master, input);
   const before = await findActiveAward(d1, id);
-  if (input.updated_at !== undefined && input.updated_at !== before.updated_at) throw staleRecord();
+  if (input.updated_at !== before.updated_at) throw staleRecord();
   await guardDuplicates(d1, input, id);
 
   // BR-02: same officer keeps the stored unit/team; another officer takes their current unit/team.

@@ -101,8 +101,12 @@ export async function parseImportContent(
   if (rows.length === 0) {
     throw new ImportFileError(`File "${fileName}" không có dòng dữ liệu nào ở sheet đầu tiên.`);
   }
-  if (rows.length > IMPORT_MAX_ROWS) {
-    const count = Math.max(rows.length, ws ? (declaredDataRows(XLSX, ws) ?? 0) : 0);
+  // Rows past the read cap are never inspected: a sheet that declares more than we read is
+  // rejected instead of silently dropping them (blank rows in between must not hide them).
+  const declared = ws ? (declaredDataRows(XLSX, ws) ?? 0) : 0;
+  const truncated = declared > SHEET_ROWS_CAP - 1;
+  if (rows.length > IMPORT_MAX_ROWS || truncated) {
+    const count = Math.max(rows.length, declared);
     throw new ImportFileError(`File có ${count} dòng, tối đa ${IMPORT_MAX_ROWS} dòng mỗi lần nhập`);
   }
   return { rows, warnings: [] };
