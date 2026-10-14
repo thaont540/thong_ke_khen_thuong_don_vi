@@ -37,3 +37,4 @@ Kế hoạch chi tiết: `plans/261014-1644-awards-management-system/plan.md`. C
 - FTS5 cho tìm kiếm theo tên nếu số bản ghi vượt ~10.000 hoặc dòng đọc D1 tiến gần hạn mức ngày.
 - Hạ số vòng PBKDF2 (kèm rehash khi đăng nhập) nếu xuất hiện lỗi 1102 trên production.
 - Chuyển lên Workers Paid nếu giới hạn free trở thành rào cản (hiện quyết định giữ free).
+- Rate limit đăng nhập theo IP (`LOGIN_LIMITER`) chưa thấy chặn trên gói free khi đo 14/10/2026; cần custom domain + rule WAF để có giới hạn tần suất thật.

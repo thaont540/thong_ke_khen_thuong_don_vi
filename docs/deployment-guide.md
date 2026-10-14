@@ -99,7 +99,7 @@ Sinh khóa age: `age-keygen -o age-backup.key` (in ra dòng `Public key: age1...
 
 ## 8. Custom domain và WAF (làm khi có domain, câu hỏi mở Q3)
 
-Hiện chưa có domain: không áp được rule WAF trên `*.workers.dev`. Biện pháp chống dò mật khẩu hiện tại: (1) khóa tài khoản trong D1 (5 lần sai -> khóa 15 phút, `login-attempt-guard.ts`; thử trong lúc khóa không kéo dài khóa và không lộ tài khoản đang khóa), (2) giới hạn 10 request/60s theo IP bằng Workers Rate Limiting binding `LOGIN_LIMITER` (`ratelimits` trong `wrangler.jsonc`, namespace_id `1001` prod / `1002` staging; trả 429). Binding không cần domain. Nếu bị khóa mất Quản trị duy nhất: `npm run create-admin` (break-glass).
+Hiện chưa có domain: không áp được rule WAF trên `*.workers.dev`. Biện pháp chống dò mật khẩu hiện tại: (1) khóa tài khoản trong D1 (5 lần sai -> khóa 15 phút, `login-attempt-guard.ts`; thử trong lúc khóa không kéo dài khóa và không lộ tài khoản đang khóa), (2) giới hạn 10 request/60s theo IP bằng Workers Rate Limiting binding `LOGIN_LIMITER` (`ratelimits` trong `wrangler.jsonc`, namespace_id `1001` prod / `1002` staging; trả 429). **Đo thực tế 14/10/2026 trên staging (gói free, `*.workers.dev`): 40 request liên tiếp cùng IP đều không bị 429** — binding chạy không lỗi nhưng chưa chặn (Cloudflare mô tả binding là "permissive, eventually consistent"; chưa rõ gói free có áp dụng). Coi đây là lớp phụ, không dựa vào nó; lớp chính là khóa tài khoản, và rule WAF khi có domain. Binding không cần domain. Nếu bị khóa mất Quản trị duy nhất: `npm run create-admin` (break-glass).
 
 Khi có domain trên Cloudflare zone:
 1. Thêm route/custom domain cho Worker trong `wrangler.jsonc` (`routes` với `custom_domain: true`), `npm run cf-typegen`, deploy.
