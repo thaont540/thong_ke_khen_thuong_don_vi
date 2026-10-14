@@ -12,6 +12,7 @@ const TRIGGER_MESSAGES = [
   "Loại không thuộc hình thức khen thưởng đã chọn",
   "Đơn vị còn cán bộ hoặc khen thưởng",
   "Đội còn cán bộ hoặc khen thưởng",
+  "Vượt quá số dòng đã khai báo của đợt import",
 ] as const;
 
 /**

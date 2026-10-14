@@ -58,6 +58,7 @@ export function AwardFormScreen({ editing, initial, master, officers, backSearch
   };
   const saver = useAwardFormSave({
     editId: editing?.id ?? null,
+    updatedAt: editing?.updated_at,
     values,
     needsVariant: dep.needsVariant,
     who,

@@ -135,6 +135,20 @@ describe("F08 users page", () => {
     expect(api.calls.find((c) => c.method === "PUT")?.body).toEqual({ is_active: false });
   });
 
+  it("temporarily locked (still active) user shows Mở khóa and PUTs is_active=true", async () => {
+    const api = mockApi({
+      "GET /api/me": { body: admin },
+      "GET /api/users": page([selfRow, makeUser({ is_locked: true })]),
+      "PUT /api/users/2": { body: makeUser() },
+    });
+    const user = userEvent.setup();
+    renderApp("/users");
+    await user.click(await screen.findByRole("button", { name: "Mở khóa bien.tap" }));
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Mở khóa" }));
+    expect(await screen.findByText("Đã mở khóa tài khoản")).toBeInTheDocument();
+    expect(api.calls.find((c) => c.method === "PUT")?.body).toEqual({ is_active: true });
+  });
+
   it("reset password shows the new temp password once", async () => {
     mockApi({
       "GET /api/me": { body: admin },

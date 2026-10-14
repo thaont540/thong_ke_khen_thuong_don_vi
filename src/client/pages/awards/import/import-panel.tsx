@@ -58,8 +58,8 @@ export function ImportPanel() {
       {wf.partial ? (
         <p className="alert-inline import-notice" role="alert">
           Đã lưu {wf.partial.savedCount} khen thưởng
-          {wf.partial.batchId ? ` (đợt import #${wf.partial.batchId})` : ""} trước khi gặp lỗi. Tải
-          lại file để nhập tiếp: các dòng đã lưu sẽ được báo là có thể trùng.
+          {wf.partial.batchId ? ` (đợt import #${wf.partial.batchId})` : ""} trước khi gặp lỗi. Bấm
+          nhập để tiếp tục với các dòng còn lại (các dòng đã lưu sẽ không được gửi lại).
         </p>
       ) : null}
       {wf.warnings.map((w) => (

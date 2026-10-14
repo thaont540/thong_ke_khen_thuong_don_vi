@@ -122,11 +122,20 @@ describe("readImportFile", () => {
     expect(await messageOf(readImportFile(new File(["x"], "a.pdf")))).toContain(".xlsx");
     const big = new File(["x"], "big.xlsx");
     Object.defineProperty(big, "size", { value: IMPORT_MAX_BYTES + 1 });
-    expect(await messageOf(readImportFile(big))).toContain("5 MB");
-    const many = Array.from({ length: 1001 }, () => sheetRow());
-    expect(await messageOf(readImportFile(xlsxFile([HEADERS, ...many])))).toContain("1.000");
-    const exactly = Array.from({ length: 1000 }, () => sheetRow());
-    expect((await readImportFile(xlsxFile([HEADERS, ...exactly]))).rows).toHaveLength(1000);
+    expect(await messageOf(readImportFile(big))).toBe("File vượt quá 5 MB");
+    const many = Array.from({ length: 101 }, () => sheetRow());
+    expect(await messageOf(readImportFile(xlsxFile([HEADERS, ...many])))).toBe(
+      "File có 101 dòng, tối đa 100 dòng mỗi lần nhập",
+    );
+    const exactly = Array.from({ length: 100 }, () => sheetRow());
+    expect((await readImportFile(xlsxFile([HEADERS, ...exactly]))).rows).toHaveLength(100);
+  });
+
+  it("parses at most header + 101 rows (sheetRows cap) yet reports the declared row count", async () => {
+    const many = Array.from({ length: 500 }, () => sheetRow());
+    expect(await messageOf(readImportFile(xlsxFile([HEADERS, ...many])))).toBe(
+      "File có 500 dòng, tối đa 100 dòng mỗi lần nhập",
+    );
   });
 
   it("rejects bytes that are not a spreadsheet (SheetJS falls back to text -> no header columns)", async () => {

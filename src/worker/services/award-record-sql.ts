@@ -7,7 +7,7 @@ export const AWARD_RECORD_COLUMNS = `
   a.award_type_id, t.name AS award_type_name, t.form AS form,
   a.award_variant_id, v.name AS award_variant_name,
   a.year, a.decision_number, a.decision_date,
-  a.authority_id, au.name AS authority_name, a.achievement, a.note`;
+  a.authority_id, au.name AS authority_name, a.achievement, a.note, a.updated_at`;
 
 export const AWARD_RECORD_JOINS = `
   FROM awards a

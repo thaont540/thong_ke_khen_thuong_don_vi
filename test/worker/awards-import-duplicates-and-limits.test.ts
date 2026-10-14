@@ -136,7 +136,7 @@ describe("limits and batch ownership", () => {
 
   it.each([
     ["empty rows", { rows: [] }],
-    ["total_rows over 1000", { total_rows: 1001 }],
+    ["total_rows over 100", { total_rows: 101 }],
     ["missing file name", { file_name: "" }],
   ])("rejects invalid body: %s", async (_n, over) => {
     expect((await post(tokens.editor, importBody([importRow(2)], over))).status).toBe(400);
@@ -164,10 +164,10 @@ describe("limits and batch ownership", () => {
     expect(await count("SELECT COUNT(*) n FROM awards")).toBe(1);
   });
 
-  it("imports a 1000-row file as 34 sequential lots into one batch", async () => {
+  it("imports a 100-row file as 4 sequential lots into one batch", async () => {
     for (let n = 3; n <= 10; n++) await insertOfficer(env.DB, { id: n });
     let batchId: number | undefined;
-    const rows = Array.from({ length: 1000 }, (_, i) =>
+    const rows = Array.from({ length: 100 }, (_, i) =>
       importRow(i + 2, {
         officer_code: `CB${String((i % 10) + 1).padStart(3, "0")}`,
         year: 1990 + Math.floor(i / 10),
@@ -179,15 +179,20 @@ describe("limits and batch ownership", () => {
     for (let i = 0; i < rows.length; i += 30) {
       const res = await lot(
         tokens.editor,
-        importBody(rows.slice(i, i + 30), { total_rows: 1000, batch_id: batchId }),
+        importBody(rows.slice(i, i + 30), { total_rows: 100, batch_id: batchId }),
       );
       expect(res.imported_count).toBe(res.results.length);
       batchId = res.batch_id ?? undefined;
       lots++;
     }
-    expect(lots).toBe(34);
-    expect(await batchRow()).toMatchObject({ total_rows: 1000, imported_rows: 1000 });
-    expect(await count("SELECT COUNT(*) n FROM awards")).toBe(1000);
-    expect(await count("SELECT COUNT(*) n FROM audit_logs WHERE action = 'IMPORT'")).toBe(34);
+    expect(lots).toBe(4);
+    expect(await batchRow()).toMatchObject({ total_rows: 100, imported_rows: 100 });
+    expect(await count("SELECT COUNT(*) n FROM awards")).toBe(100);
+    expect(await count("SELECT COUNT(*) n FROM audit_logs WHERE action = 'IMPORT'")).toBe(4);
   }, 60_000);
+
+  it("a 101-row batch cannot be declared or saved: 101st row is rejected", async () => {
+    const declared = await post(tokens.editor, importBody([importRow(2)], { total_rows: 101 }));
+    expect(declared.status).toBe(400);
+  });
 });

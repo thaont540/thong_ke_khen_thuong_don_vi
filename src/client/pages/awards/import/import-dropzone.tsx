@@ -42,7 +42,7 @@ export function ImportDropzone({ disabled, onFile }: Props) {
         }}
       />
       <strong>Kéo thả file vào đây, hoặc bấm để chọn file</strong>
-      <span className="hint">Hỗ trợ .xlsx, .xls, .csv (tối đa 1.000 dòng, 5 MB)</span>
+      <span className="hint">Hỗ trợ .xlsx, .xls, .csv (tối đa 100 dòng, 5 MB)</span>
     </label>
   );
 }

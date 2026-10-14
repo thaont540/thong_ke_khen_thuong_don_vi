@@ -1,6 +1,7 @@
 import type { UserDto } from "../../../shared/schemas/user-schemas";
 import { StatusBadge } from "../../components/ui/status-badge";
 import { ROLE_LABEL } from "../../layout/user-menu";
+import { isLockedOut } from "./user-lock-state";
 
 function formatLastLogin(iso: string | null): string {
   if (!iso) return "Chưa đăng nhập";
@@ -71,10 +72,10 @@ export function UsersTable({ items, selfId, onEdit, onReset, onToggle, onDelete 
                       <button
                         type="button"
                         className="btn btn-sm"
-                        aria-label={`${u.is_active ? "Khóa" : "Mở khóa"} ${u.username}`}
+                        aria-label={`${isLockedOut(u) ? "Mở khóa" : "Khóa"} ${u.username}`}
                         onClick={() => onToggle(u)}
                       >
-                        {u.is_active ? "Khóa" : "Mở khóa"}
+                        {isLockedOut(u) ? "Mở khóa" : "Khóa"}
                       </button>
                       <button
                         type="button"

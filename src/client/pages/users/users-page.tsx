@@ -14,6 +14,7 @@ import {
   useUsersList,
 } from "./use-users-queries";
 import { UserFormModal } from "./user-form-modal";
+import { isLockedOut } from "./user-lock-state";
 import { UsersTable } from "./users-table";
 import { UsersToolbar } from "./users-toolbar";
 
@@ -54,10 +55,10 @@ export function UsersPage() {
 
   const onToggle = (u: UserDto) =>
     update.mutate(
-      { id: u.id, body: { is_active: !u.is_active } },
+      { id: u.id, body: { is_active: isLockedOut(u) } },
       {
         onSuccess: () => {
-          toast(u.is_active ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản");
+          toast(!isLockedOut(u) ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản");
           close();
         },
         onError: fail,
@@ -162,14 +163,14 @@ export function UsersPage() {
       ) : null}
       {dialog?.kind === "toggle" ? (
         <ConfirmDialog
-          title={dialog.user.is_active ? "Khóa tài khoản" : "Mở khóa tài khoản"}
+          title={!isLockedOut(dialog.user) ? "Khóa tài khoản" : "Mở khóa tài khoản"}
           message={
-            dialog.user.is_active
+            !isLockedOut(dialog.user)
               ? `Khóa tài khoản ${dialog.user.username}? Người này sẽ bị đăng xuất ngay.`
               : `Mở khóa tài khoản ${dialog.user.username}?`
           }
-          confirmLabel={dialog.user.is_active ? "Khóa" : "Mở khóa"}
-          danger={dialog.user.is_active}
+          confirmLabel={!isLockedOut(dialog.user) ? "Khóa" : "Mở khóa"}
+          danger={!isLockedOut(dialog.user)}
           busy={update.isPending}
           onConfirm={() => onToggle(dialog.user)}
           onCancel={close}

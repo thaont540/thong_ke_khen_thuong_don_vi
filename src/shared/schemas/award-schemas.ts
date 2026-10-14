@@ -21,6 +21,8 @@ const awardCommonShape = {
     .transform((v) => (v ? v : null)),
   /** Resend with true after a 409 DUPLICATE to save anyway (BR-08). */
   confirm_duplicate: z.boolean().optional(),
+  /** PUT only: `updated_at` of the record as loaded; a stale value is rejected with 409. */
+  updated_at: z.string().max(40).optional(),
 };
 
 /**
@@ -61,6 +63,8 @@ export const awardRecordSchema = z.object({
   authority_name: z.string(),
   achievement: z.string(),
   note: z.string().nullable(),
+  /** Optimistic-concurrency token: send back unchanged on PUT. */
+  updated_at: z.string(),
 });
 
 export const awardStatsSchema = z.object({

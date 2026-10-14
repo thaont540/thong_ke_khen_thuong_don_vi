@@ -19,6 +19,8 @@ export type AfterSave = "list" | "more";
 interface Args {
   /** Record being edited (F09), null when adding (F03). */
   editId: number | null;
+  /** `updated_at` of the loaded record (optimistic concurrency), edit mode only. */
+  updatedAt?: string | undefined;
   values: AwardFormValues;
   needsVariant: boolean;
   /** Officer / team / unit name used in the success toast and duplicate dialog. */
@@ -53,8 +55,12 @@ export function useAwardFormSave(a: Args) {
     }
     const body = formValuesToPayload(a.values, confirmDuplicate);
     try {
-      if (a.editId !== null) await update.mutateAsync({ id: a.editId, body });
-      else await create.mutateAsync(body);
+      if (a.editId !== null) {
+        await update.mutateAsync({
+          id: a.editId,
+          body: a.updatedAt ? { ...body, updated_at: a.updatedAt } : body,
+        });
+      } else await create.mutateAsync(body);
     } catch (e) {
       handleError(e, after);
       return;

@@ -48,6 +48,8 @@ describe("seed counts (§8)", () => {
       "ix_awards_officer",
       "ix_awards_type",
       "ix_awards_decision",
+      "trg_import_batches_row_cap",
+      "ix_awards_import_batch",
     ])
       expect(names).toContain(n);
   });

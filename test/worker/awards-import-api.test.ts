@@ -74,8 +74,8 @@ describe("POST /api/awards/import: commit", () => {
     expect(audits.results).toHaveLength(1);
     expect(audits.results[0]).toMatchObject({ entity: "import_batch", entity_id: batch?.id });
     expect(JSON.parse(audits.results[0]?.detail ?? "{}")).toMatchObject({
-      saved_ids_count: 2,
-      rows: [2, 3],
+      saved_count: 2,
+      attempted_count: 2,
     });
   });
 

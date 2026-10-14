@@ -7,7 +7,6 @@ import { HEADERS, sheetRow, xlsxFile } from "./helpers/import-file-builders";
 import { makeMe, mockApi, type RecordedCall, renderApp } from "./helpers/render-with-providers";
 
 afterEach(() => vi.unstubAllGlobals());
-
 interface LotBody {
   dry_run?: boolean;
   batch_id?: number;
@@ -152,7 +151,24 @@ describe("F04 import panel", () => {
     expect(await screen.findByText(/Đã lưu 30 khen thưởng \(đợt import #77\)/)).toBeInTheDocument();
     expect(screen.getByText("Lỗi máy chủ")).toBeInTheDocument();
     expect(lots(calls, false)).toHaveLength(2);
-    expect(screen.getByRole("button", { name: "Nhập 40 dòng hợp lệ" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Nhập 10 dòng hợp lệ" })).toBeEnabled();
+  });
+
+  it("retry after a failed lot resends only the lots that did not succeed, on the same batch", async () => {
+    const { calls } = setup(importHandler({ failLot: 2 }));
+    const user = await openImportTab();
+    const body = Array.from({ length: 70 }, (_, i) => sheetRow({ Năm: 1990 + i }));
+    await upload(user, xlsxFile([HEADERS, ...body]));
+    await user.click(await screen.findByRole("button", { name: "Nhập 70 dòng hợp lệ" }));
+    await screen.findByText("Lỗi máy chủ");
+    await user.click(screen.getByRole("button", { name: "Nhập 40 dòng hợp lệ" }));
+
+    expect(await screen.findByText("Đã nhập 70 khen thưởng")).toBeInTheDocument();
+    const commits = lots(calls, false);
+    expect(commits.map((b) => b.rows.length)).toEqual([30, 30, 30, 10]);
+    expect(commits.map((b) => b.batch_id)).toEqual([undefined, 77, 77, 77]);
+    const sent = commits.flatMap((b) => b.rows.map((r) => r.row_number));
+    expect(new Set(sent).size).toBe(sent.length - 30);
   });
 
   it("rejects a file with missing columns and allows picking another file", async () => {

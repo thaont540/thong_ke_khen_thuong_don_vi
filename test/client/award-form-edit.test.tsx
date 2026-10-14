@@ -42,6 +42,7 @@ describe("F09 edit form", () => {
       await screen.findByText("Đã cập nhật khen thưởng của Nguyễn Văn An"),
     ).toBeInTheDocument();
     expect(api.calls.find((c) => c.method === "PUT")?.body).toMatchObject({
+      updated_at: "2026-09-15 08:00:00.000",
       achievement: "Đã sửa",
       officer_id: 5,
     });

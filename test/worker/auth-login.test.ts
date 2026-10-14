@@ -61,13 +61,39 @@ describe("POST /api/auth/login", () => {
     expect(a.message).toBe("Tên đăng nhập hoặc mật khẩu không đúng");
     expect(wrong.headers.get("set-cookie")).toBeNull();
 
+    // Known user is audited; the unknown username writes nothing to D1 (quota amplification).
     const failed = await audits("LOGIN_FAILED");
-    expect(failed.map((r) => r.user_id ?? 0).sort()).toEqual([0, 1]);
-    expect(failed.map((r) => JSON.parse(r.detail ?? "{}").username).sort()).toEqual([
-      "admin1",
-      "nobody",
-    ]);
+    expect(failed.map((r) => r.user_id)).toEqual([1]);
+    expect(failed.map((r) => JSON.parse(r.detail ?? "{}").username)).toEqual(["admin1"]);
     expect(JSON.stringify(failed)).not.toContain("wrong-password");
+  });
+
+  it("unknown usernames cause no D1 writes at all", async () => {
+    const before = await env.DB.prepare("SELECT COUNT(*) AS n FROM audit_logs").first<{
+      n: number;
+    }>();
+    for (let i = 0; i < 3; i++) expect((await login(`ghost${i}`, "bad-password")).status).toBe(401);
+    const after = await env.DB.prepare("SELECT COUNT(*) AS n FROM audit_logs").first<{
+      n: number;
+    }>();
+    expect(after?.n).toBe(before?.n);
+  });
+
+  it("a parallel burst cannot exceed 5 password attempts; correct login afterwards is 423", async () => {
+    const results = await Promise.all(
+      Array.from({ length: 10 }, (_, i) => login("admin1", `bad-password-${i}`)),
+    );
+    const statuses = results.map((r) => r.status);
+    expect(statuses.filter((s) => s === 401)).toHaveLength(5);
+    expect(statuses.filter((s) => s === 423)).toHaveLength(5);
+    const row = await userRow(env.DB, 1);
+    expect(row?.locked_until).not.toBeNull();
+    expect(await audits("LOCK")).toHaveLength(1);
+    expect((await audits("LOGIN_FAILED")).length).toBe(5);
+
+    const res = await login("admin1", TEST_PASSWORD);
+    expect(res.status).toBe(423);
+    expect(await sessionCount(env.DB)).toBe(0);
   });
 
   it("locks after 5 consecutive failures; correct password then gets 423", async () => {

@@ -4,10 +4,13 @@ import type {
   ImportRowResult,
 } from "../../shared/schemas/award-import-schemas";
 import type { MasterDataDto } from "../../shared/schemas/master-data-dto";
+import { AppError } from "../lib/app-error";
 import {
   assertBatchOwned,
   createImportBatch,
+  discardEmptyBatch,
   lotClosingStatements,
+  type OwnedBatch,
 } from "./award-import-batch-store";
 import { type CheckedRow, checkImportLot } from "./award-import-lot-checker";
 import { insertAwardStatement } from "./award-write-statements";
@@ -36,7 +39,12 @@ export async function importAwardsLot(
   userId: number,
   req: ImportRequest,
 ): Promise<ImportResponse> {
-  if (!req.dry_run && req.batch_id !== undefined) await assertBatchOwned(d1, req.batch_id, userId);
+  // Declared size and progress of an existing batch are authoritative; the request's total_rows is
+  // only used when the first lot creates the batch.
+  const existing: OwnedBatch | null =
+    !req.dry_run && req.batch_id !== undefined
+      ? await assertBatchOwned(d1, req.batch_id, userId)
+      : null;
 
   const checked = await checkImportLot(d1, master, req.rows);
   const results = checked.map(baseResult);
@@ -49,27 +57,40 @@ export async function importAwardsLot(
     return { batch_id: req.dry_run ? null : (req.batch_id ?? null), imported_count: 0, results };
   }
 
-  const batchId =
-    req.batch_id ??
-    (await createImportBatch(d1, userId, {
-      name: req.file_name,
-      totalRows: req.total_rows,
-      errorRows: req.client_error_rows,
-    }));
+  const capacity = (existing?.totalRows ?? req.total_rows) - (existing?.importedRows ?? 0);
+  if (savable.length > capacity) {
+    throw AppError.constraint("Vượt quá số dòng đã khai báo của đợt import");
+  }
+
+  const createdBatchId = existing
+    ? null
+    : await createImportBatch(d1, userId, {
+        name: req.file_name,
+        totalRows: req.total_rows,
+        errorRows: req.client_error_rows,
+      });
+  const batchId = existing?.id ?? (createdBatchId as number);
   const inserts = savable.map((c) =>
     insertAwardStatement(d1, userId, c.check.input as NonNullable<typeof c.check.input>, batchId),
   );
   const serverErrorRows = results.filter((r) => r.status === "ERROR").length;
-  const outcomes = await d1.batch([
-    ...inserts,
-    ...lotClosingStatements(d1, {
-      batchId,
-      userId,
-      fileName: req.file_name,
-      serverErrorRows,
-      savedRowNumbers: savable.map((c) => c.row.row_number),
-    }),
-  ]);
+  let outcomes: D1Result[];
+  try {
+    outcomes = await d1.batch([
+      ...inserts,
+      ...lotClosingStatements(d1, {
+        batchId,
+        userId,
+        fileName: req.file_name,
+        serverErrorRows,
+        attemptedRows: savable.length,
+      }),
+    ]);
+  } catch (err) {
+    // Cleanup is best effort: the insert failure below is the error the caller must see.
+    if (createdBatchId !== null) await discardEmptyBatch(d1, createdBatchId).catch(() => undefined);
+    throw err;
+  }
 
   let imported = 0;
   savable.forEach((c, n) => {

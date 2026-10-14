@@ -4,11 +4,9 @@ import { AppError } from "../lib/app-error";
 import { auditStatement } from "../lib/audit-log-statement";
 import { hashPassword, PBKDF2_ITERATIONS, verifyPassword } from "../lib/password-hash";
 import { generateSessionToken, hashSessionToken } from "../lib/session-token";
-import { addSeconds, sqlTimestamp } from "../lib/sql-timestamp";
+import { sqlTimestamp } from "../lib/sql-timestamp";
+import { failureAuditStatements, reserveAttempt } from "./login-attempt-guard";
 import { createSessionStatement } from "./session-service";
-
-export const MAX_FAILED_LOGINS = 5;
-export const LOCK_SECONDS = 15 * 60;
 
 /** Hash of a throw-away password: unknown usernames still pay one PBKDF2 derivation. */
 const DUMMY_HASH = `pbkdf2$sha256$${PBKDF2_ITERATIONS}$euzO62SrwOS1AfUyGRYxrg==$arAMBDT9iqYBtNoeLnNgf3XWl79Eh4p3n9fb97lKdpQ=`;
@@ -33,7 +31,7 @@ export interface LoginResult {
 const invalidCredentials = () => AppError.unauthorized("Tên đăng nhập hoặc mật khẩu không đúng");
 
 /**
- * Query budget: 1 SELECT + 1 batch. PBKDF2 derivations: 1 (+1 when rehashing to a higher N).
+ * Query budget: 1 SELECT + 1 reservation UPDATE + 1 batch. PBKDF2 derivations: 1 (+1 when rehashing to a higher N).
  * Throws 401 (generic) or 423 (inactive / locked).
  */
 export async function login(
@@ -55,9 +53,21 @@ export async function login(
     throw AppError.accountLocked();
   }
 
-  const verdict = await verifyPassword(input.password, user?.password_hash ?? DUMMY_HASH);
-  if (!user || !verdict.ok) {
-    await recordFailure(d1, user, input.username, now);
+  if (!user) {
+    // Unknown username: pay one derivation, write nothing (no audit row, no user to update).
+    await verifyPassword(input.password, DUMMY_HASH);
+    throw invalidCredentials();
+  }
+
+  // Reserve the attempt atomically before verifying so parallel bursts cannot exceed the limit.
+  const reservation = await reserveAttempt(d1, user.id, now);
+  if (!reservation) throw AppError.accountLocked();
+
+  const verdict = await verifyPassword(input.password, user.password_hash);
+  if (!verdict.ok) {
+    await d1.batch(
+      failureAuditStatements(d1, user.id, reservation, { username: input.username.slice(0, 32) }),
+    );
     throw invalidCredentials();
   }
 
@@ -101,57 +111,4 @@ export async function login(
       must_change_password: user.must_change_password === 1,
     },
   };
-}
-
-async function recordFailure(
-  d1: D1Database,
-  user: LoginUserRow | null,
-  username: string,
-  now: Date,
-): Promise<void> {
-  const statements: D1PreparedStatement[] = [];
-  const locksNow = user !== null && user.failed_login_count + 1 >= MAX_FAILED_LOGINS;
-  if (user) {
-    // SET expressions all read the pre-update row, so the CASEs see the old counter.
-    statements.push(
-      d1
-        .prepare(
-          `UPDATE users SET
-             locked_until = CASE WHEN failed_login_count + 1 >= ? THEN ? ELSE locked_until END,
-             failed_login_count = CASE WHEN failed_login_count + 1 >= ? THEN 0
-                                       ELSE failed_login_count + 1 END
-           WHERE id = ?`,
-        )
-        .bind(
-          MAX_FAILED_LOGINS,
-          sqlTimestamp(addSeconds(now, LOCK_SECONDS)),
-          MAX_FAILED_LOGINS,
-          user.id,
-        ),
-    );
-  }
-  statements.push(
-    auditStatement(d1, {
-      userId: user?.id ?? null,
-      action: AUDIT_ACTION.LOGIN_FAILED,
-      entity: "user",
-      entityId: user?.id ?? null,
-      detail: { username: username.slice(0, 32) },
-    }),
-  );
-  if (locksNow && user) {
-    statements.push(
-      auditStatement(d1, {
-        userId: user.id,
-        action: AUDIT_ACTION.LOCK,
-        entity: "user",
-        entityId: user.id,
-        detail: {
-          reason: "failed_logins",
-          locked_until: sqlTimestamp(addSeconds(now, LOCK_SECONDS)),
-        },
-      }),
-    );
-  }
-  await d1.batch(statements);
 }

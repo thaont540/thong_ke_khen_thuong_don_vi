@@ -38,13 +38,28 @@ function cellText(XLSX: Xlsx, cell: import("xlsx").CellObject | undefined): stri
   return text.slice(0, IMPORT_CELL_MAX);
 }
 
+/** Header + max data rows + 1 extra row, so an oversized file is detected without parsing it all. */
+const SHEET_ROWS_CAP = IMPORT_MAX_ROWS + 2;
+/** Columns beyond this are never part of the template; bounds work on sheets with a huge range. */
+const MAX_COLUMNS = 30;
+
+/** Rows declared by the sheet before `sheetRows` truncation (`!fullref`), minus the header. */
+function declaredDataRows(XLSX: Xlsx, ws: import("xlsx").WorkSheet): number | null {
+  const full = ws["!fullref"];
+  if (!full) return null;
+  const range = XLSX.utils.decode_range(full);
+  return range.e.r - range.s.r;
+}
+
 function sheetRows(XLSX: Xlsx, ws: import("xlsx").WorkSheet): string[][] {
   if (!ws["!ref"]) return [];
   const range = XLSX.utils.decode_range(ws["!ref"]);
+  const lastRow = Math.min(range.e.r, range.s.r + SHEET_ROWS_CAP - 1);
+  const lastCol = Math.min(range.e.c, range.s.c + MAX_COLUMNS - 1);
   const rows: string[][] = [];
-  for (let r = range.s.r; r <= range.e.r; r++) {
+  for (let r = range.s.r; r <= lastRow; r++) {
     const cells: string[] = [];
-    for (let c = range.s.c; c <= range.e.c; c++) {
+    for (let c = range.s.c; c <= lastCol; c++) {
       cells.push(cellText(XLSX, ws[XLSX.utils.encode_cell({ r, c })]));
     }
     rows.push(cells);
@@ -62,8 +77,8 @@ export async function parseImportContent(
   try {
     const wb =
       content.kind === "csv"
-        ? XLSX.read(content.text, { type: "string", raw: true })
-        : XLSX.read(content.buffer, { type: "array", cellNF: true });
+        ? XLSX.read(content.text, { type: "string", raw: true, sheetRows: SHEET_ROWS_CAP })
+        : XLSX.read(content.buffer, { type: "array", cellNF: true, sheetRows: SHEET_ROWS_CAP });
     ws = wb.Sheets[wb.SheetNames[0] ?? ""];
   } catch {
     throw new ImportFileError(
@@ -87,9 +102,8 @@ export async function parseImportContent(
     throw new ImportFileError(`File "${fileName}" không có dòng dữ liệu nào ở sheet đầu tiên.`);
   }
   if (rows.length > IMPORT_MAX_ROWS) {
-    throw new ImportFileError(
-      `File có ${rows.length} dòng, vượt giới hạn ${IMPORT_MAX_ROWS.toLocaleString("vi-VN")} dòng. Hãy chia nhỏ file.`,
-    );
+    const count = Math.max(rows.length, ws ? (declaredDataRows(XLSX, ws) ?? 0) : 0);
+    throw new ImportFileError(`File có ${count} dòng, tối đa ${IMPORT_MAX_ROWS} dòng mỗi lần nhập`);
   }
   return { rows, warnings: [] };
 }
@@ -100,7 +114,7 @@ export async function readImportFile(file: File): Promise<ParsedImportFile> {
     throw new ImportFileError("Chỉ hỗ trợ file .xlsx, .xls hoặc .csv.");
   }
   if (file.size > IMPORT_MAX_BYTES) {
-    throw new ImportFileError("File vượt quá 5 MB. Hãy chia nhỏ file.");
+    throw new ImportFileError("File vượt quá 5 MB");
   }
   if (/\.csv$/i.test(file.name)) {
     const text = await file.text();

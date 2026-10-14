@@ -80,15 +80,13 @@ export async function updateUser(d1: D1Database, actorId: number, id: number, pa
   const losesAdmin =
     before.role === ROLE.ADMIN && before.is_active === 1 && (role !== ROLE.ADMIN || !active);
 
-  const reactivating = before.is_active !== 1 && active;
+  const nowTs = sqlTimestamp();
+  // "Mở khóa" (is_active: true) also clears a temporary failed-login lock.
+  const tempLocked = before.locked_until !== null && before.locked_until > nowTs;
+  const unlocking = (before.is_active !== 1 && active) || (patch.is_active === true && tempLocked);
   const sets = ["full_name = ?", "role = ?", "is_active = ?", "updated_at = ?"];
-  const binds: (string | number)[] = [
-    patch.full_name ?? before.full_name,
-    role,
-    active ? 1 : 0,
-    sqlTimestamp(),
-  ];
-  if (reactivating) sets.push("failed_login_count = 0", "locked_until = NULL");
+  const binds: (string | number)[] = [patch.full_name ?? before.full_name, role, +active, nowTs];
+  if (unlocking) sets.push("failed_login_count = 0", "locked_until = NULL");
   let where = "id = ?";
   binds.push(id);
   if (losesAdmin) {
@@ -116,7 +114,7 @@ export async function updateUser(d1: D1Database, actorId: number, id: number, pa
       onlyIfPreviousChanged: true,
     }),
   ];
-  if ((before.is_active === 1) !== active) {
+  if ((before.is_active === 1) !== active || unlocking) {
     statements.push(
       auditStatement(d1, {
         userId: actorId,

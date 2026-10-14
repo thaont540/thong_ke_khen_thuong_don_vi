@@ -51,6 +51,13 @@ export function useImportWorkflow(lookups: ImportLookups | null) {
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [partial, setPartial] = useState<ImportPartial | null>(null);
+  /** Row numbers of lots the server already answered: a retry never resends them (no duplicates). */
+  const [doneRows, setDoneRows] = useState<ReadonlySet<number>>(new Set());
+  /** Batch id and saved count carried across retries of the same file. */
+  const progressRef = useRef<{ batchId: number | undefined; saved: number }>({
+    batchId: undefined,
+    saved: 0,
+  });
   /** Bumped on reset so answers of an abandoned run are dropped. */
   const run = useRef(0);
 
@@ -63,6 +70,8 @@ export function useImportWorkflow(lookups: ImportLookups | null) {
     setError(null);
     setWarnings([]);
     setPartial(null);
+    setDoneRows(new Set());
+    progressRef.current = { batchId: undefined, saved: 0 };
   }, []);
 
   const selectFile = useCallback(
@@ -105,12 +114,16 @@ export function useImportWorkflow(lookups: ImportLookups | null) {
     [lookups, reset],
   );
 
+  const pendingRows = selectRowsToImport(rows, includeDuplicates).filter(
+    (r) => !doneRows.has(r.raw.row_number),
+  );
+
   const commit = useCallback(async () => {
     const mine = run.current;
-    const lots = chunk(selectRowsToImport(rows, includeDuplicates), IMPORT_LOT_SIZE);
+    const lots = chunk(pendingRows, IMPORT_LOT_SIZE);
     const errorRows = countPreview(rows).error;
-    let batchId: number | undefined;
-    let saved = 0;
+    let { batchId, saved } = progressRef.current;
+    const done = new Set(doneRows);
     setError(null);
     setPartial(null);
     setProgress({ done: 0, total: lots.length });
@@ -127,11 +140,14 @@ export function useImportWorkflow(lookups: ImportLookups | null) {
         });
         batchId = res.batch_id ?? batchId;
         saved += res.imported_count;
+        for (const r of lot) done.add(r.raw.row_number);
+        progressRef.current = { batchId, saved };
         if (run.current === mine) setProgress({ done: n + 1, total: lots.length });
       }
     } catch (e) {
       await queryClient.invalidateQueries({ queryKey: AWARDS_KEY });
       if (run.current !== mine) return;
+      setDoneRows(done);
       setPartial({ savedCount: saved, batchId: batchId ?? null });
       setError(errorMessage(e));
       setPhase("ready");
@@ -143,7 +159,7 @@ export function useImportWorkflow(lookups: ImportLookups | null) {
     ]);
     toast(`Đã nhập ${saved} khen thưởng`);
     navigate("/");
-  }, [rows, includeDuplicates, fileName, queryClient, toast, navigate]);
+  }, [rows, pendingRows, doneRows, includeDuplicates, fileName, queryClient, toast, navigate]);
 
   return {
     phase,
@@ -152,7 +168,7 @@ export function useImportWorkflow(lookups: ImportLookups | null) {
     counts: countPreview(rows),
     includeDuplicates,
     setIncludeDuplicates,
-    toImportCount: selectRowsToImport(rows, includeDuplicates).length,
+    toImportCount: pendingRows.length,
     progress,
     error,
     warnings,

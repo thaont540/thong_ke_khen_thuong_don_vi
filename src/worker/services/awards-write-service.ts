@@ -29,10 +29,11 @@ interface AwardRow {
   authority_id: number;
   achievement: string;
   note: string | null;
+  updated_at: string;
 }
 
 const ROW_COLUMNS = `id, subject, officer_id, unit_id, team_id, award_type_id, award_variant_id,
-  year, decision_number, decision_date, authority_id, achievement, note`;
+  year, decision_number, decision_date, authority_id, achievement, note, updated_at`;
 
 async function findActiveAward(d1: D1Database, id: number): Promise<AwardRow> {
   const row = await d1
@@ -64,6 +65,8 @@ const officerNotFound = () =>
     officer_id: "Cán bộ không tồn tại hoặc đã bị xóa",
   });
 
+const staleRecord = () => AppError.conflict("Bản ghi đã được người khác sửa, vui lòng tải lại");
+
 export async function createAward(
   d1: D1Database,
   master: MasterDataDto,
@@ -89,6 +92,7 @@ export async function updateAward(
 ): Promise<{ id: number }> {
   assertValidAward(master, input);
   const before = await findActiveAward(d1, id);
+  if (input.updated_at !== undefined && input.updated_at !== before.updated_at) throw staleRecord();
   await guardDuplicates(d1, input, id);
 
   // BR-02: same officer keeps the stored unit/team; another officer takes their current unit/team.
@@ -119,22 +123,48 @@ export async function updateAward(
         `UPDATE awards SET subject = ?, officer_id = ?, unit_id = ?, team_id = ?,
            award_type_id = ?, award_variant_id = ?, year = ?, decision_number = ?,
            decision_number_search = ?, decision_date = ?, authority_id = ?, achievement = ?,
-           note = ?, updated_at = datetime('now')
-         WHERE id = ? AND deleted_at IS NULL`,
+           note = ?, updated_at = strftime('%Y-%m-%d %H:%M:%f', 'now')
+         WHERE id = ? AND deleted_at IS NULL AND updated_at = ?
+           AND (? IS NULL OR EXISTS (SELECT 1 FROM officers WHERE id = ? AND deleted_at IS NULL))`,
       )
-      .bind(input.subject, after.officer_id, unitId, teamId, ...commonBinds(input), id),
+      .bind(
+        input.subject,
+        after.officer_id,
+        unitId,
+        teamId,
+        ...commonBinds(input),
+        id,
+        before.updated_at,
+        after.officer_id,
+        after.officer_id,
+      ),
     auditStatement(d1, {
       userId,
       action: AUDIT_ACTION.UPDATE,
       entity: "award",
       entityId: id,
-      detail: { before, after },
+      detail: { before: auditBefore(before), after },
       onlyIfPreviousChanged: true,
     }),
   ]);
-  if (!update || update.meta.changes === 0)
-    throw AppError.notFound("Không tìm thấy bản ghi khen thưởng");
+  if (!update || update.meta.changes === 0) {
+    // Lost the race: deleted, officer deleted, or edited by someone else since the read above.
+    await findActiveAward(d1, id); // 404 when it was deleted meanwhile
+    if (after.officer_id !== null) {
+      const officer = await d1
+        .prepare("SELECT 1 AS ok FROM officers WHERE id = ? AND deleted_at IS NULL")
+        .bind(after.officer_id)
+        .first();
+      if (!officer) throw officerNotFound();
+    }
+    throw staleRecord();
+  }
   return { id };
+}
+
+/** Audit `before` is the stored row without the concurrency token. */
+function auditBefore({ updated_at: _token, ...row }: AwardRow) {
+  return row;
 }
 
 export async function deleteAward(d1: D1Database, userId: number, id: number): Promise<void> {
@@ -148,7 +178,7 @@ export async function deleteAward(d1: D1Database, userId: number, id: number): P
       action: AUDIT_ACTION.DELETE,
       entity: "award",
       entityId: id,
-      detail: { before },
+      detail: { before: auditBefore(before) },
       onlyIfPreviousChanged: true,
     }),
   ]);

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { idSchema } from "./api-common-schemas";
 
 export const IMPORT_LOT_SIZE = 30;
-export const IMPORT_MAX_ROWS = 1000;
+export const IMPORT_MAX_ROWS = 100;
 
 /** Longest cell text accepted on the wire; real field limits are enforced by the row validator. */
 export const IMPORT_CELL_MAX = 5000;

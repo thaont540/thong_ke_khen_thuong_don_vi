@@ -119,6 +119,7 @@ export const award = (over: Partial<AwardRecord> = {}): AwardRecord => ({
   authority_name: "Thủ trưởng đơn vị",
   achievement: "Hoàn thành xuất sắc",
   note: null,
+  updated_at: "2026-09-15 08:00:00.000",
   ...over,
 });
 

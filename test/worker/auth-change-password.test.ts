@@ -45,6 +45,36 @@ describe("POST /api/auth/change-password", () => {
     expect((await userRow(env.DB, 1))?.must_change_password).toBe(1);
   });
 
+  it("5 wrong current passwords lock the account, drop its sessions and answer 423", async () => {
+    const token = await createSession(env.DB, 1);
+    await createSession(env.DB, 1);
+    const wrong = body({ current_password: "not-my-password" });
+    for (let i = 0; i < 4; i++) {
+      expect((await api("/api/auth/change-password", { token, body: wrong })).status).toBe(400);
+    }
+    expect((await userRow(env.DB, 1))?.failed_login_count).toBe(4);
+    const res = await api("/api/auth/change-password", { token, body: wrong });
+    expect(res.status).toBe(423);
+    expect((await errorOf(res)).code).toBe("ACCOUNT_LOCKED");
+    expect(await sessionCount(env.DB, 1)).toBe(0);
+    expect((await userRow(env.DB, 1))?.locked_until).not.toBeNull();
+    const locks = await env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM audit_logs WHERE action = 'LOCK'",
+    ).first<{ n: number }>();
+    expect(locks?.n).toBe(1);
+  });
+
+  it("a correct change resets the failure counter", async () => {
+    const token = await createSession(env.DB, 1);
+    await api("/api/auth/change-password", {
+      token,
+      body: body({ current_password: "nope-nope" }),
+    });
+    expect((await userRow(env.DB, 1))?.failed_login_count).toBe(1);
+    expect((await api("/api/auth/change-password", { token, body: body() })).status).toBe(200);
+    expect((await userRow(env.DB, 1))?.failed_login_count).toBe(0);
+  });
+
   it("works under the gate; clears must_change; kills other sessions, keeps current; audited", async () => {
     const current = await createSession(env.DB, 1);
     await createSession(env.DB, 1);
