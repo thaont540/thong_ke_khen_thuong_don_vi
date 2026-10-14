@@ -6,7 +6,7 @@
 - Reuses from 06: `award-duplicate-check-service.ts`, audit statement builder
 
 ## Overview
-- Priority: P2. Status: pending. Effort 10h. Depends: 06. Parallel with late 05.
+- Priority: P2. Status: done (staging 1000-row run pending). Effort 10h. Depends: 06. Parallel with late 05.
 - Browser parses file (SheetJS, lazy-loaded), validates with shared validator, previews (incl. DB duplicate dry-run), commits in batches of 30; server revalidates everything.
 
 ## Key Insights
@@ -66,12 +66,12 @@ Create/modify (owned by 07):
 | batch_id of another user -> 403 | security |
 
 ## Todo List
-- [ ] shared column defs, lookup maps, validator
-- [ ] import service + route
-- [ ] SheetJS reader + template builder
-- [ ] preview/commit UI
-- [ ] fixtures + tests
-- [ ] staging 1000-row run
+- [x] shared column defs, lookup maps, validator
+- [x] import service + route
+- [x] SheetJS reader + template builder
+- [x] preview/commit UI
+- [x] fixtures + tests
+- [ ] staging 1000-row run (needs deploy; local 1000-row/34-lot test passes)
 
 ## Success Criteria
 - Matrix green; 1000-row import completes on staging without CPU/query-limit errors; each commit request <= 20 D1 queries.

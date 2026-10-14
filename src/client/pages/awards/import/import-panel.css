@@ -1,0 +1,98 @@
+.steps {
+  margin: 0 0 18px;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+}
+.steps li {
+  padding-left: 4px;
+}
+.steps .btn {
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.dropzone {
+  display: block;
+  border: 2px dashed var(--line);
+  border-radius: 8px;
+  padding: 36px 16px;
+  text-align: center;
+  background: var(--surface-2);
+  cursor: pointer;
+}
+.dropzone:hover,
+.dropzone.drag {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+.dropzone strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.import-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 20px 0 12px;
+}
+.import-head p {
+  margin: 0;
+}
+.import-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.import-notice {
+  margin-top: 16px;
+}
+.import-progress {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.count-ok {
+  color: var(--primary);
+  font-weight: 600;
+}
+.count-warn {
+  color: var(--gold);
+  font-weight: 600;
+}
+.count-err {
+  color: var(--red);
+  font-weight: 600;
+}
+.err-list,
+.warn-list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 13px;
+}
+.err-list {
+  color: var(--red);
+}
+.warn-list {
+  color: var(--gold);
+}
+tr.row-err td {
+  background: color-mix(in srgb, var(--red-soft) 45%, transparent);
+}
+tr.row-warn td {
+  background: color-mix(in srgb, var(--gold-soft) 55%, transparent);
+}
+.pill-warn {
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+.check-inline {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+}

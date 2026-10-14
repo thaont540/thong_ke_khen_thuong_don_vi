@@ -4,21 +4,25 @@ import { idSchema } from "./api-common-schemas";
 export const IMPORT_LOT_SIZE = 30;
 export const IMPORT_MAX_ROWS = 1000;
 
+/** Longest cell text accepted on the wire; real field limits are enforced by the row validator. */
+export const IMPORT_CELL_MAX = 5000;
+const cell = z.string().max(IMPORT_CELL_MAX);
+
 /** Raw cell text as read in the browser; the server re-validates everything (spec §5). */
 export const importRowSchema = z.object({
   row_number: z.number().int().positive(),
-  subject: z.string().max(100),
-  officer_code: z.string().max(50).optional().default(""),
-  unit: z.string().max(200),
-  team: z.string().max(300).optional().default(""),
-  form: z.string().max(100),
-  award_name: z.string().max(300),
-  year: z.union([z.string().max(20), z.number()]),
-  decision_number: z.string().max(200),
-  decision_date: z.string().max(50),
-  authority: z.string().max(200).optional().default(""),
-  achievement: z.string().max(5000),
-  note: z.string().max(1000).optional().default(""),
+  subject: cell,
+  officer_code: cell.optional().default(""),
+  unit: cell,
+  team: cell.optional().default(""),
+  form: cell,
+  award_name: cell,
+  year: z.union([cell, z.number()]),
+  decision_number: cell,
+  decision_date: cell,
+  authority: cell.optional().default(""),
+  achievement: cell,
+  note: cell.optional().default(""),
 });
 
 /** POST /api/awards/import: one lot of <= 30 rows. */
@@ -29,6 +33,8 @@ export const importRequestSchema = z.object({
   batch_id: idSchema.optional(),
   dry_run: z.boolean().optional().default(false),
   include_duplicates: z.boolean().optional().default(false),
+  /** Rows the browser already rejected (informational; stored when the batch row is created). */
+  client_error_rows: z.number().int().min(0).max(IMPORT_MAX_ROWS).optional().default(0),
   rows: z.array(importRowSchema).min(1).max(IMPORT_LOT_SIZE),
 });
 
