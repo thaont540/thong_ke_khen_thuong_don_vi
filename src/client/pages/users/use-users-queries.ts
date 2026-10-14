@@ -1,5 +1,4 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
 import {
   resetPasswordResponseSchema,
   type UserCreate,
@@ -10,15 +9,13 @@ import {
 import { api } from "../../lib/api-client";
 import { QUERY_KEYS } from "../../query-client";
 
-// pageSchema() is typed loosely in shared; narrow the items here.
-const usersPageSchema = userListResponseSchema.extend({ items: z.array(userDtoSchema) });
-
 export type UsersQuery = { q: string; page: number; size: number };
 
 export function useUsersList(query: UsersQuery) {
   return useQuery({
     queryKey: [...QUERY_KEYS.users, query],
-    queryFn: ({ signal }) => api.get("/api/users", { query, schema: usersPageSchema, signal }),
+    queryFn: ({ signal }) =>
+      api.get("/api/users", { query, schema: userListResponseSchema, signal }),
     placeholderData: keepPreviousData,
   });
 }

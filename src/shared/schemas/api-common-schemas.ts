@@ -39,7 +39,7 @@ export const optionalTextParam = z.preprocess(
   z.string().trim().max(200).optional(),
 );
 
-export const pageSchema = (itemSchema: z.ZodType) =>
+export const pageSchema = <T extends z.ZodType>(itemSchema: T) =>
   z.object({
     items: z.array(itemSchema),
     total: z.number().int().nonnegative(),
