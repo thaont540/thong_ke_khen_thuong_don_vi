@@ -15,5 +15,5 @@
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true
   },
-  "include": ["src/worker", "src/shared", "test/worker", "worker-configuration.d.ts"]
+  "include": ["src/worker", "src/shared", "test/worker", "test/shared", "worker-configuration.d.ts"]
 }

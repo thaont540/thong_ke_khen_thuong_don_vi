@@ -1,12 +1,33 @@
 import { Hono } from "hono";
+import { ERROR_CODE } from "../shared/schemas/api-common-schemas";
+import { handleError } from "./lib/error-handler";
+import { authRoutes, meRoutes } from "./routes/auth-routes";
+import { awardsImportRoutes } from "./routes/awards-import-routes";
+import { awardsRoutes } from "./routes/awards-routes";
+import { masterDataRoutes } from "./routes/master-data-routes";
+import { officerLookupRoutes } from "./routes/officer-lookup-routes";
+import { officersAdminRoutes } from "./routes/officers-admin-routes";
+import { unitsRoutes } from "./routes/units-routes";
+import { usersRoutes } from "./routes/users-routes";
+import type { AppEnv } from "./types/hono-env";
 
-export const app = new Hono<{ Bindings: Env }>();
+export const app = new Hono<AppEnv>();
 
 app.get("/api/health", (c) => c.json({ ok: true }));
 
-app.all("/api/*", (c) => c.json({ error: { code: "NOT_FOUND", message: "Not found" } }, 404));
+// Mount table is fixed (phase 02); later phases only fill the router files.
+app.route("/api/auth", authRoutes); // login, logout, change-password (03)
+app.route("/api/me", meRoutes); // GET / -> current user (03)
+app.route("/api/master", masterDataRoutes);
+app.route("/api/users", usersRoutes);
+app.route("/api/units", unitsRoutes);
+app.route("/api/officers", officerLookupRoutes); // /options, GET /:id (06) FIRST
+app.route("/api/officers", officersAdminRoutes); // list/create/update/delete (05)
+app.route("/api/awards/import", awardsImportRoutes); // before /api/awards (07)
+app.route("/api/awards", awardsRoutes);
 
-app.onError((err, c) => {
-  console.error(err);
-  return c.json({ error: { code: "INTERNAL", message: "Internal error" } }, 500);
-});
+app.all("/api/*", (c) =>
+  c.json({ error: { code: ERROR_CODE.NOT_FOUND, message: "Not found" } }, 404),
+);
+
+app.onError(handleError);

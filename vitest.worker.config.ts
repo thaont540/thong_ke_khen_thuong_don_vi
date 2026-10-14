@@ -13,7 +13,7 @@ export default defineConfig({
     }),
   ],
   test: {
-    include: ["test/worker/**/*.test.ts"],
+    include: ["test/worker/**/*.test.ts", "test/shared/**/*.test.ts"],
     setupFiles: ["./test/worker/apply-migrations-setup.ts"],
   },
 });

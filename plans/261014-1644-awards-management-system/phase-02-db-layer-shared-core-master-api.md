@@ -5,7 +5,7 @@
 - Spike results from phase 01 (`plans/reports/spike-261014-results.md`)
 
 ## Overview
-- Priority: P1. Status: pending. Effort 6h. Depends: 01. Blocks: 03, 04.
+- Priority: P1. Status: done. Effort 6h. Depends: 01. Blocks: 03, 04.
 - Migrations, Drizzle type mirror, shared zod contracts for ALL endpoints, normalize util, award-matrix rules, Hono app skeleton with every router mounted (stubs), error mapper, `GET /api/master`.
 
 ## Key Insights
@@ -64,11 +64,11 @@ Create:
 | Drizzle drift test | schema sync |
 
 ## Todo List
-- [ ] 0001 + 0002 migrations
-- [ ] Drizzle schema + drift test
-- [ ] shared utils + all zod schemas
-- [ ] app skeleton, error mapper, stub routers
-- [ ] master API + tests
+- [x] 0001 + 0002 migrations
+- [x] Drizzle schema + drift test
+- [x] shared utils + all zod schemas
+- [x] app skeleton, error mapper, stub routers
+- [x] master API + tests
 
 ## Success Criteria
 - `wrangler d1 migrations apply --local` + staging succeed; `npm run test:worker` green incl. all trigger tests.
