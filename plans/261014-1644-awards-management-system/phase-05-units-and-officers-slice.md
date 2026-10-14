@@ -5,7 +5,7 @@
 - Contracts: `src/shared/schemas/unit-schemas.ts`, `officer-schemas.ts` (now owned by 05)
 
 ## Overview
-- Priority: P1. Status: pending. Effort 8h. Depends: 03, 04. Parallel with 06 and 07.
+- Priority: P1. Status: done. Effort 8h. Depends: 03, 04. Parallel with 06 and 07.
 - ADMIN-only management of units (+inline teams) and officers, with soft delete cascade.
 
 ## Key Insights
@@ -67,12 +67,12 @@ Create/modify (owned by 05):
 | UI: BR-03 lock; ?edit opens modal; delete dialog shows award count | F05 UI |
 
 ## Todo List
-- [ ] units API + team diff
-- [ ] officers API + code gen + soft delete cascade
-- [ ] audit rows
-- [ ] F06 UI
-- [ ] F05 UI (+ ?edit, ?officer integration)
-- [ ] tests
+- [x] units API + team diff
+- [x] officers API + code gen + soft delete cascade
+- [x] audit rows
+- [x] F06 UI
+- [x] F05 UI (+ ?edit, ?officer integration)
+- [x] tests
 
 ## Success Criteria
 - All matrix tests green; every write produces exactly 1 audit row (per operation).

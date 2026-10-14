@@ -5,9 +5,18 @@ export class ApiRequestError extends Error {
   readonly status: number;
   readonly code: string;
   readonly fields: Record<string, string> | undefined;
+  /** Extra members of the server's `error` object (e.g. `duplicates` on 409 DUPLICATE). */
+  readonly extra: Record<string, unknown>;
 
-  constructor(status: number, code: string, message: string, fields?: Record<string, string>) {
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    fields?: Record<string, string>,
+    extra: Record<string, unknown> = {},
+  ) {
     super(message);
+    this.extra = extra;
     this.name = "ApiRequestError";
     this.status = status;
     this.code = code;

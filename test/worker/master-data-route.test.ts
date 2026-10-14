@@ -58,7 +58,7 @@ describe("GET /api/master", () => {
   });
 
   it("unknown route stays JSON 404", async () => {
-    const res = await api("/api/officers/options", { token });
+    const res = await api("/api/does-not-exist", { token });
     expect(res.status).toBe(404);
   });
 });

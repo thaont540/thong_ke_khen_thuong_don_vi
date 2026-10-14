@@ -5,7 +5,7 @@
 - Contracts: `src/shared/schemas/award-schemas.ts`, `list-query-schemas.ts` (owned by 06), `src/shared/award-type-rules.ts`
 
 ## Overview
-- Priority: P1. Status: pending. Effort 14h. Depends: 03, 04. Parallel with 05. Blocks 07.
+- Priority: P1. Status: done. Effort 14h. Depends: 03, 04. Parallel with 05. Blocks 07.
 - Award list with filters/search/stats, officer detail modal, add/edit form with duplicate warning, soft delete, audit. Owns officer lookup endpoints.
 
 ## Key Insights
@@ -69,12 +69,12 @@ Create/modify (owned by 06):
 | UI: dependent selects keep/clear; medal field toggle; authority default; Lưu và thêm tiếp keeps fields; dup dialog flows; edit banner + hidden buttons; F02 role buttons + highlight | F02/F03/F09 |
 
 ## Todo List
-- [ ] validation + duplicate services
-- [ ] write service + audit
-- [ ] list/search/stats service
-- [ ] officer lookup routes
-- [ ] F01 UI, F02 modal, F03/F09 form, dialogs
-- [ ] tests
+- [x] validation + duplicate services
+- [x] write service + audit
+- [x] list/search/stats service
+- [x] officer lookup routes
+- [x] F01 UI, F02 modal, F03/F09 form, dialogs
+- [x] tests
 
 ## Success Criteria
 - Matrix green. F01 page request <= 4 D1 queries; unfiltered list reads <= ~(offset+10) index rows + stats scan.

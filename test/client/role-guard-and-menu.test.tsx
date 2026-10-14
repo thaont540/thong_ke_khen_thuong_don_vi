@@ -52,9 +52,7 @@ describe("route guards", () => {
     first.unmount();
 
     renderApp("/awards/new");
-    expect(
-      await screen.findByRole("heading", { name: /Thêm \/ sửa khen thưởng/ }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Thêm khen thưởng" })).toBeInTheDocument();
   });
 
   it("ADMIN can open /units", async () => {

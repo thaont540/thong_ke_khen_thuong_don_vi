@@ -47,7 +47,13 @@ async function toApiError(res: Response): Promise<ApiRequestError> {
   const parsed = apiErrorSchema.safeParse(payload);
   if (!parsed.success) return new ApiRequestError(res.status, "INTERNAL", GENERIC_ERROR_MESSAGE);
   const { code, message, fields } = parsed.data.error;
-  return new ApiRequestError(res.status, code, message, fields);
+  const {
+    code: _c,
+    message: _m,
+    fields: _f,
+    ...extra
+  } = (payload as { error: object }).error as Record<string, unknown>;
+  return new ApiRequestError(res.status, code, message, fields, extra);
 }
 
 export async function apiRequest<T = void>(

@@ -80,14 +80,21 @@ export const awardListResponseSchema = z.object({
   stats: awardStatsSchema,
 });
 
+/** One existing record that may duplicate the one being saved (BR-08). */
+export const awardDuplicateSchema = z.object({
+  id: idSchema,
+  decision_number: z.string(),
+  year: z.number().int(),
+  /** Variant name for medals (e.g. "Huân chương Chiến công hạng Nhất"), else the type name. */
+  type_name: z.string(),
+});
+
 /** 409 body for BR-08 duplicates on POST/PUT /api/awards. */
 export const awardDuplicateErrorSchema = z.object({
   error: z.object({
     code: z.literal("DUPLICATE"),
     message: z.string(),
-    duplicates: z.array(
-      z.object({ id: idSchema, decision_number: z.string(), year: z.number().int() }),
-    ),
+    duplicates: z.array(awardDuplicateSchema),
   }),
 });
 
@@ -96,4 +103,5 @@ export const awardMutationResponseSchema = z.object({ id: idSchema });
 export type AwardInput = z.infer<typeof awardInputSchema>;
 export type AwardRecord = z.infer<typeof awardRecordSchema>;
 export type AwardStats = z.infer<typeof awardStatsSchema>;
+export type AwardDuplicate = z.infer<typeof awardDuplicateSchema>;
 export type AwardDuplicateError = z.infer<typeof awardDuplicateErrorSchema>;
