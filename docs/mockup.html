@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quản lý thi đua, khen thưởng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Thư viện đọc/ghi Excel (dùng cho import) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #EEF1EE;
+    --surface: #FFFFFF;
+    --surface-2: #F5F7F5;
+    --ink: #1B2A24;
+    --muted: #5E6E66;
+    --line: #D6DDD8;
+    --primary: #24503F;
+    --primary-ink: #FFFFFF;
+    --primary-soft: #E1EBE5;
+    --gold: #8A6418;
+    --gold-soft: #F6ECD4;
+    --red: #9C2F2A;
+    --red-soft: #F7E3E1;
+    --focus: #C9962E;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #121815;
+      --surface: #1A221E;
+      --surface-2: #212B26;
+      --ink: #E4EBE7;
+      --muted: #9AAAA2;
+      --line: #2F3B35;
+      --primary: #6FAE91;
+      --primary-ink: #0F1713;
+      --primary-soft: #23382E;
+      --gold: #E3BE6C;
+      --gold-soft: #3A3020;
+      --red: #F0948D;
+      --red-soft: #3E2523;
+      --focus: #E3BE6C;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    background: var(--bg);
+    color: var(--ink);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100%; }
+
+  /* Sidebar */
+  .side {
+    background: var(--primary); color: var(--primary-ink);
+    padding: 24px 16px; display: flex; flex-direction: column; gap: 24px;
+  }
+  @media (prefers-color-scheme: dark) { .side { background: #18271F; color: var(--ink); } }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; line-height: 1.25; }
+  .brand-mark { width: 36px; height: 36px; border-radius: 50%; background: #C9962E; display: grid; place-items: center; flex: none; }
+  .brand-mark svg { width: 20px; height: 20px; }
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav-group { font-size: 12px; opacity: .6; padding: 14px 12px 4px; }
+  .nav a { color: inherit; text-decoration: none; padding: 9px 12px; border-radius: 6px; opacity: .78; font-size: 14px; white-space: nowrap; }
+  .nav a:hover { opacity: 1; background: rgba(255,255,255,.08); }
+  .nav a[aria-current="page"] { opacity: 1; background: rgba(255,255,255,.14); font-weight: 600; }
+
+  /* Main */
+  main { padding: 28px 32px 40px; min-width: 0; }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  h1 { font-size: 24px; line-height: 1.25; margin: 0 0 4px; font-weight: 700; }
+  .sub { margin: 0; color: var(--muted); font-size: 14px; }
+  .muted { color: var(--muted); }
+
+  .btn {
+    font: inherit; font-size: 14px; font-weight: 600; border-radius: 6px; padding: 9px 16px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink); white-space: nowrap;
+  }
+  .btn:hover { filter: brightness(.96); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+  .btn-danger { color: var(--red); }
+  .btn-danger-solid { background: var(--red); color: var(--surface); border-color: var(--red); }
+  .btn-sm { padding: 5px 10px; font-size: 13px; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 20px; }
+
+  /* Fields */
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .field > label, .flabel { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .req { color: var(--red); }
+  select, input[type="search"], input[type="text"], input[type="number"], input[type="date"], textarea {
+    font: inherit; font-size: 14px; color: var(--ink);
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%;
+  }
+  textarea { resize: vertical; min-height: 84px; line-height: 1.55; }
+  select:disabled, input:disabled { opacity: .55; cursor: not-allowed; }
+  .hint { font-size: 12px; color: var(--muted); }
+  .err { font-size: 12px; color: var(--red); }
+  .err:empty { display: none; }
+  .field.invalid select, .field.invalid input, .field.invalid textarea { border-color: var(--red); }
+
+  /* Segmented radio */
+  .seg { display: inline-flex; align-self: flex-start; gap: 3px; padding: 3px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); }
+  .seg label { position: relative; cursor: pointer; }
+  .seg input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .seg span { display: block; padding: 6px 14px; border-radius: 4px; font-size: 14px; font-weight: 500; color: var(--muted); }
+  .seg input:checked + span { background: var(--surface); color: var(--primary); font-weight: 600; box-shadow: 0 0 0 1px var(--line); }
+  .seg input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+  /* Filter bar */
+  .filters {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.3fr) auto; gap: 12px 14px; align-items: end;
+  }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: end; margin-bottom: 14px; }
+  .toolbar .field { flex: 1 1 200px; }
+  .toolbar .field-wide { flex: 2 1 260px; }
+
+  /* Summary */
+  .summary { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; margin: 18px 2px 10px; font-size: 14px; color: var(--muted); }
+  .summary strong { color: var(--ink); font-size: 18px; font-weight: 700; margin-right: 4px; }
+  .summary .total strong { font-size: 22px; }
+
+  /* Table */
+  .table-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  .data { min-width: 960px; }
+  .data-sm { min-width: 760px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 13px; font-weight: 600; color: var(--muted); background: var(--surface-2); white-space: nowrap; }
+  tbody tr:hover { background: var(--surface-2); }
+  td.num { color: var(--muted); width: 48px; font-variant-numeric: tabular-nums; }
+  td.tnum, .tnum { font-variant-numeric: tabular-nums; }
+  .who { font-weight: 600; }
+  .where { font-size: 13px; color: var(--muted); }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill-dh { background: var(--gold-soft); color: var(--gold); }
+  .pill-kt { background: var(--red-soft); color: var(--red); }
+  .pill-tt, .pill-ok { background: var(--primary-soft); color: var(--primary); }
+  .pill-cn { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+  .pill-err { background: var(--red-soft); color: var(--red); }
+  .award { font-weight: 500; }
+  .decision { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+  /* Cột thao tác luôn dính bên phải, kể cả khi bảng phải cuộn ngang */
+  .col-actions { position: sticky; right: 0; background: var(--surface); box-shadow: inset 1px 0 0 var(--line); white-space: nowrap; }
+  th.col-actions { background: var(--surface-2); text-align: right; }
+  tbody tr:hover td.col-actions { background: var(--surface-2); }
+  .award-actions { display: flex; gap: 8px; margin-top: 14px; }
+  .empty { padding: 48px 16px; text-align: center; color: var(--muted); }
+  .empty p { margin: 0 0 12px; }
+
+  .link {
+    font: inherit; font-weight: 600; color: var(--primary); background: none; border: 0; padding: 0; cursor: pointer; text-align: left;
+    text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px;
+  }
+  .link:hover { text-decoration-color: currentColor; }
+
+  .pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; font-size: 13px; color: var(--muted); }
+  .pager:empty { display: none; }
+  .pages { display: flex; gap: 4px; flex-wrap: wrap; }
+  .pages button { font: inherit; font-size: 13px; min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer; }
+  .pages button[aria-current="page"] { background: var(--primary); color: var(--primary-ink); border-color: var(--primary); }
+  .pages button:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+  .tab { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 14px; border: 0; background: none; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+  .tab[aria-selected="true"] { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* Forms */
+  .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 18px; }
+  .form-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .form-grid .full { grid-column: 1 / -1; }
+  .form-grid .span-2 { grid-column: span 2; }
+  .group-title { grid-column: 1 / -1; font-size: 15px; font-weight: 700; margin: 6px 0 -6px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .group-title:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+  .form-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .form-actions .spacer { flex: 1; }
+  .person-card { font-size: 13px; color: var(--muted); padding: 8px 10px; border-radius: 6px; background: var(--primary-soft); }
+  .person-card strong { color: var(--ink); }
+  .team-row { display: flex; gap: 8px; margin-bottom: 8px; }
+
+  /* Import */
+  .steps { margin: 0 0 18px; padding-left: 20px; display: grid; gap: 8px; }
+  .steps li { padding-left: 4px; }
+  .steps .btn { margin-left: 8px; vertical-align: middle; }
+  .dropzone {
+    display: block; border: 2px dashed var(--line); border-radius: 8px; padding: 36px 16px; text-align: center;
+    background: var(--surface-2); cursor: pointer;
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--primary); background: var(--primary-soft); }
+  .dropzone strong { display: block; font-size: 15px; margin-bottom: 4px; }
+  .import-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 20px 0 12px; }
+  .import-head p { margin: 0; }
+  .alert { margin-top: 16px; padding: 12px 14px; border-radius: 6px; background: var(--red-soft); color: var(--red); font-size: 14px; }
+  .err-list { margin: 0; padding-left: 16px; color: var(--red); font-size: 13px; }
+  tr.row-err td { background: color-mix(in srgb, var(--red-soft) 45%, transparent); }
+  tr.row-warn td { background: color-mix(in srgb, var(--gold-soft) 55%, transparent); }
+  .pill-warn { background: var(--gold-soft); color: var(--gold); }
+  .warn-list { margin: 0; padding-left: 16px; color: var(--gold); font-size: 13px; }
+  .check-inline { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; cursor: pointer; }
+  .edit-banner { margin: 0 0 16px; padding: 10px 14px; border-radius: 6px; background: var(--gold-soft); color: var(--ink); font-size: 14px; }
+
+  /* Dialog */
+  dialog {
+    width: min(760px, calc(100% - 32px)); max-height: calc(100% - 48px);
+    padding: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink);
+    box-shadow: 0 24px 60px rgba(10, 25, 18, .28);
+  }
+  dialog.narrow { width: min(480px, calc(100% - 32px)); }
+  dialog::backdrop { background: rgba(14, 26, 20, .5); }
+  dialog[open] { animation: pop .16s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { dialog[open] { animation: none; } }
+  .m-head { display: flex; gap: 14px; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface); z-index: 1; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; flex: none; display: grid; place-items: center; font-weight: 700; font-size: 17px; background: var(--primary-soft); color: var(--primary); }
+  .m-head h2 { margin: 0; font-size: 19px; line-height: 1.3; }
+  .m-head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .m-close { margin-left: auto; align-self: flex-start; width: 34px; height: 34px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; flex: none; }
+  .m-body { padding: 18px 22px 22px; }
+  .m-section + .m-section { margin-top: 18px; }
+  .m-section h3 { font-size: 14px; font-weight: 700; margin: 0 0 10px; }
+  .info { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 18px; margin: 0; padding: 14px 16px; border-radius: 8px; background: var(--surface-2); }
+  .info div { min-width: 0; }
+  .info dt { font-size: 12px; color: var(--muted); margin: 0 0 2px; }
+  .info dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+  .info .wide { grid-column: span 2; }
+  .info .full { grid-column: 1 / -1; }
+  .info .full dd { font-weight: 400; line-height: 1.6; }
+  .award-card { border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 8px; padding: 14px 16px; }
+  .award-card.kt { border-left-color: var(--red); }
+  .award-card .info { background: none; padding: 0; }
+  .history { font-size: 14px; }
+  .history th, .history td { padding: 8px 10px; }
+  .history tr.current td { background: var(--gold-soft); }
+  .m-foot { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; padding: 14px 22px; border-top: 1px solid var(--line); }
+  .confirm-text { margin: 0; line-height: 1.6; }
+
+  /* Toast */
+  .toast {
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+    background: var(--ink); color: var(--surface); padding: 10px 16px; border-radius: 6px; font-size: 14px; font-weight: 500;
+    opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 10; max-width: calc(100% - 32px);
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 1100px) {
+    .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .filters .field-search { grid-column: 1 / -1; }
+    .filters .actions { grid-column: 1 / -1; justify-self: start; }
+    .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 760px) {
+    .app { grid-template-columns: 1fr; }
+    .side { padding: 12px 16px; gap: 10px; }
+    .nav { flex-direction: row; overflow-x: auto; }
+    .nav-group { display: none; }
+    main { padding: 20px 16px 32px; }
+    .filters, .form-grid, .form-grid.cols-2 { grid-template-columns: 1fr; }
+    .form-grid .span-2 { grid-column: auto; }
+    .info { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .info .wide { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="#24503F"><path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z"/></svg>
+      </span>
+      Thi đua, khen thưởng
+    </div>
+    <nav class="nav" aria-label="Điều hướng chính">
+      <div class="nav-group">Khen thưởng</div>
+      <a href="#" data-view="list">Danh hiệu, khen thưởng</a>
+      <a href="#" data-view="add">Thêm khen thưởng</a>
+      <div class="nav-group">Danh mục</div>
+      <a href="#" data-view="people">Quản lý cán bộ</a>
+      <a href="#" data-view="units">Quản lý đơn vị</a>
+    </nav>
+  </aside>
+
+  <main>
+    <!-- ============ DANH SÁCH KHEN THƯỞNG ============ -->
+    <section class="view" id="v-list">
+      <div class="head">
+        <div>
+          <h1>Danh hiệu, khen thưởng</h1>
+          <p class="sub">Danh sách danh hiệu thi đua và hình thức khen thưởng của tập thể, cá nhân trong đơn vị</p>
+        </div>
+        <button class="btn btn-primary" type="button" data-go="add">Thêm khen thưởng</button>
+      </div>
+
+      <section class="filters" aria-label="Bộ lọc">
+        <div class="field"><label for="f-unit">Đơn vị</label><select id="f-unit"></select></div>
+        <div class="field"><label for="f-team">Đội</label><select id="f-team"></select></div>
+        <div class="field">
+          <label for="f-subject">Đối tượng</label>
+          <select id="f-subject"><option value="">Tất cả</option><option value="TT">Tập thể</option><option value="CN">Cá nhân</option></select>
+        </div>
+        <div class="field">
+          <label for="f-type">Hình thức</label>
+          <select id="f-type"><option value="">Tất cả</option><option value="DH">Danh hiệu</option><option value="KT">Khen thưởng</option></select>
+        </div>
+        <div class="field field-search"><label for="f-q">Tìm kiếm</label><input id="f-q" type="search" placeholder="Tên tập thể, cá nhân hoặc số quyết định"></div>
+        <div class="actions"><button class="btn" type="button" id="f-reset">Xóa bộ lọc</button></div>
+      </section>
+
+      <div class="summary" aria-live="polite" id="l-summary"></div>
+
+      <section class="table-card">
+        <div class="table-wrap">
+          <table class="data" id="l-table">
+            <thead><tr><th>STT</th><th>Năm</th><th>Tập thể / cá nhân</th><th>Đối tượng</th><th>Hình thức</th><th>Danh hiệu / khen thưởng</th><th>Quyết định</th><th class="col-actions">Thao tác</th></tr></thead>
+            <tbody id="l-rows"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="l-empty" hidden>
+          <p>Không có bản ghi nào khớp với bộ lọc hiện tại.</p>
+          <button class="btn" type="button" id="f-reset-2">Xóa bộ lọc</button>
+        </div>
+        <div class="pager" id="l-pager"></div>
+      </section>
+    </section>
+
+    <!-- ============ THÊM KHEN THƯỞNG ============ -->
+    <section class="view" id="v-add" hidden>
+      <div class="head">
+        <div>
+          <h1 id="add-title">Thêm khen thưởng</h1>
+          <p class="sub" id="add-sub">Nhập từng khen thưởng, hoặc import nhiều khen thưởng cùng lúc từ file Excel</p>
+        </div>
+      </div>
+
+      <p class="edit-banner" id="edit-banner" hidden></p>
+      <div class="tabs" role="tablist" id="add-tabs">
+        <button class="tab" type="button" role="tab" id="tab-manual" aria-controls="p-manual" aria-selected="true">Nhập thủ công</button>
+        <button class="tab" type="button" role="tab" id="tab-import" aria-controls="p-import" aria-selected="false">Import từ Excel</button>
+      </div>
+
+      <!-- Nhập thủ công -->
+      <div class="card" id="p-manual" role="tabpanel" aria-labelledby="tab-manual">
+        <div class="form-grid">
+          <div class="group-title">Đối tượng được khen</div>
+          <div class="field">
+            <span class="flabel">Đối tượng</span>
+            <div class="seg" role="radiogroup" aria-label="Đối tượng">
+              <label><input type="radio" name="a-subject" value="CN" checked><span>Cá nhân</span></label>
+              <label><input type="radio" name="a-subject" value="TT"><span>Tập thể</span></label>
+            </div>
+          </div>
+          <div class="field"><label for="a-unit">Đơn vị <span class="req">*</span></label><select id="a-unit"></select></div>
+          <div class="field"><label for="a-team">Đội</label><select id="a-team"></select></div>
+          <div class="field span-2" id="a-person-field">
+            <label for="a-person">Cán bộ <span class="req">*</span></label>
+            <select id="a-person"></select>
+          </div>
+          <div class="field" id="a-person-info-field"><span class="flabel">Thông tin cán bộ</span><div class="person-card" id="a-person-info">Chưa chọn cán bộ</div></div>
+
+          <div class="group-title">Danh hiệu, khen thưởng</div>
+          <div class="field">
+            <span class="flabel">Hình thức</span>
+            <div class="seg" role="radiogroup" aria-label="Hình thức">
+              <label><input type="radio" name="a-type" value="DH" checked><span>Danh hiệu</span></label>
+              <label><input type="radio" name="a-type" value="KT"><span>Khen thưởng</span></label>
+            </div>
+          </div>
+          <div class="field"><label for="a-award" id="a-award-label">Danh hiệu thi đua <span class="req">*</span></label><select id="a-award"></select></div>
+          <div class="field" id="a-medal-field" hidden><label for="a-medal">Loại huân chương <span class="req">*</span></label><select id="a-medal"></select></div>
+
+          <div class="group-title">Quyết định khen thưởng</div>
+          <div class="field"><label for="a-year">Năm khen thưởng <span class="req">*</span></label><input id="a-year" type="number" min="1990" max="2100"></div>
+          <div class="field"><label for="a-decision">Số quyết định <span class="req">*</span></label><input id="a-decision" type="text" placeholder="Ví dụ: 125/QĐ-BCA"></div>
+          <div class="field"><label for="a-date">Ngày quyết định <span class="req">*</span></label><input id="a-date" type="date"></div>
+          <div class="field">
+            <label for="a-authority">Cấp quyết định</label>
+            <input id="a-authority" type="text">
+            <span class="hint">Tự điền theo loại khen thưởng, có thể sửa</span>
+          </div>
+
+          <div class="group-title">Chi tiết giải thưởng</div>
+          <div class="field full">
+            <label for="a-details">Thành tích, nội dung khen thưởng <span class="req">*</span></label>
+            <textarea id="a-details" rows="4" placeholder="Ví dụ: Có thành tích xuất sắc trong đợt cao điểm bảo đảm trật tự an toàn giao thông dịp Tết Nguyên đán"></textarea>
+          </div>
+          <div class="field full"><label for="a-note">Ghi chú</label><input id="a-note" type="text"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn" type="button" id="a-clear">Xóa nội dung</button>
+          <button class="btn" type="button" id="a-cancel" hidden>Hủy</button>
+          <span class="spacer"></span>
+          <button class="btn" type="button" id="a-save-more">Lưu và thêm tiếp</button>
+          <button class="btn btn-primary" type="button" id="a-save">Lưu khen thưởng</button>
+        </div>
+      </div>
+
+      <!-- Import Excel -->
+      <div class="card" id="p-import" role="tabpanel" aria-labelledby="tab-import" hidden>
+        <ol class="steps">
+          <li>Tải file mẫu, trong đó có sẵn các cột và sheet danh mục giá trị hợp lệ. <button class="btn btn-sm" type="button" id="i-template">Tải file mẫu (.xlsx)</button></li>
+          <li>Điền mỗi dòng một khen thưởng. Với cá nhân, ghi mã cán bộ. Với tập thể, để trống cột mã cán bộ.</li>
+          <li>Tải file lên để kiểm tra dữ liệu, sau đó nhập các dòng hợp lệ.</li>
+        </ol>
+        <label class="dropzone" id="i-drop">
+          <input type="file" id="i-file" accept=".xlsx,.xls,.csv" hidden>
+          <strong>Kéo thả file vào đây, hoặc bấm để chọn file</strong>
+          <span class="hint">Hỗ trợ .xlsx, .xls, .csv</span>
+        </label>
+        <div id="i-result"></div>
+      </div>
+    </section>
+
+    <!-- ============ QUẢN LÝ CÁN BỘ ============ -->
+    <section class="view" id="v-people" hidden>
+      <div class="head">
+        <div>
+          <h1>Quản lý cán bộ</h1>
+          <p class="sub">Thông tin cán bộ dùng khi nhập khen thưởng cá nhân</p>
+        </div>
+        <button class="btn btn-primary" type="button" id="p-add">Thêm cán bộ</button>
+      </div>
+      <div class="card toolbar">
+        <div class="field"><label for="p-unit">Đơn vị</label><select id="p-unit"></select></div>
+        <div class="field"><label for="p-team">Đội</label><select id="p-team"></select></div>
+        <div class="field field-wide"><label for="p-q">Tìm kiếm</label><input id="p-q" type="search" placeholder="Họ tên, số hiệu hoặc mã cán bộ"></div>
+      </div>
+      <section class="table-card">
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Mã</th><th>Họ tên</th><th>Năm sinh</th><th>Số hiệu</th><th>Cấp bậc</th><th>Chức vụ</th><th>Đơn vị</th><th>Khen thưởng</th><th class="col-actions">Thao tác</th></tr></thead>
+            <tbody id="p-rows"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="p-empty" hidden><p>Không có cán bộ nào khớp với bộ lọc.</p></div>
+        <div class="pager" id="p-pager"></div>
+      </section>
+    </section>
+
+    <!-- ============ QUẢN LÝ ĐƠN VỊ ============ -->
+    <section class="view" id="v-units" hidden>
+      <div class="head">
+        <div>
+          <h1>Quản lý đơn vị</h1>
+          <p class="sub">Các phòng, thủy đoàn và đội trực thuộc</p>
+        </div>
+        <button class="btn btn-primary" type="button" id="u-add">Thêm đơn vị</button>
+      </div>
+      <div class="card toolbar">
+        <div class="field field-wide"><label for="u-q">Tìm kiếm</label><input id="u-q" type="search" placeholder="Tên hoặc mã đơn vị"></div>
+      </div>
+      <section class="table-card">
+        <div class="table-wrap">
+          <table class="data-sm">
+            <thead><tr><th>Mã</th><th>Tên đơn vị</th><th>Loại</th><th>Số đội</th><th>Cán bộ</th><th>Khen thưởng</th><th class="col-actions">Thao tác</th></tr></thead>
+            <tbody id="u-rows"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="u-empty" hidden><p>Không có đơn vị nào khớp với từ khóa.</p></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<!-- Modal chi tiết cán bộ -->
+<dialog id="person-modal" aria-labelledby="m-name">
+  <div class="m-head">
+    <div class="avatar" id="m-avatar" aria-hidden="true"></div>
+    <div><h2 id="m-name"></h2><p id="m-role"></p></div>
+    <button class="m-close" type="button" data-close aria-label="Đóng">×</button>
+  </div>
+  <div class="m-body">
+    <section class="m-section"><h3>Thông tin cán bộ</h3><dl class="info" id="m-info"></dl></section>
+    <section class="m-section" id="m-award-section"><h3>Khen thưởng đang xem</h3><div class="award-card" id="m-award"></div></section>
+    <section class="m-section"><h3>Quá trình thi đua, khen thưởng</h3><div class="table-wrap"><table class="history" id="m-history"></table></div></section>
+  </div>
+  <div class="m-foot">
+    <button class="btn" type="button" data-close>Đóng</button>
+    <button class="btn" type="button" id="m-add">Thêm khen thưởng</button>
+    <button class="btn btn-primary" type="button" id="m-edit">Sửa thông tin</button>
+  </div>
+</dialog>
+
+<!-- Modal dùng chung cho form / xác nhận -->
+<dialog id="form-modal" aria-labelledby="fm-title">
+  <div class="m-head">
+    <div><h2 id="fm-title"></h2></div>
+    <button class="m-close" type="button" data-close aria-label="Đóng">×</button>
+  </div>
+  <div class="m-body" id="fm-body"></div>
+  <div class="m-foot" id="fm-foot"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ================= TIỆN ÍCH =================
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pad = (n, l) => String(n).padStart(l, "0");
+const norm = s => String(s ?? "").normalize("NFC").trim().toLowerCase().replace(/\s+/g, " ");
+
+// ================= DANH MỤC CỐ ĐỊNH =================
+const TITLES = {
+  TT: ["Cờ Thi đua của Chính phủ", "Cờ thi đua của Bộ Công an", "Đơn vị quyết thắng", "Đơn vị tiên tiến"],
+  CN: ["Chiến sĩ thi đua toàn quốc", "Chiến sĩ thi đua toàn lực lượng", "Chiến sĩ thi đua cơ sở", "Chiến sĩ tiên tiến"]
+};
+const REWARDS = ["Huân chương", "Bằng khen Thủ tướng Chính phủ", "Bằng khen Bộ Công an", "Giấy khen"];
+const MEDALS = ["Huân chương Bảo vệ Tổ quốc hạng Ba", "Huân chương Bảo vệ Tổ quốc hạng Nhì", "Huân chương Chiến công hạng Ba", "Huân chương Chiến công hạng Nhì"];
+const AUTHORITY = {
+  "Cờ Thi đua của Chính phủ": "Thủ tướng Chính phủ",
+  "Bằng khen Thủ tướng Chính phủ": "Thủ tướng Chính phủ",
+  "Chiến sĩ thi đua toàn quốc": "Thủ tướng Chính phủ",
+  "Huân chương": "Chủ tịch nước",
+  "Cờ thi đua của Bộ Công an": "Bộ trưởng Bộ Công an",
+  "Bằng khen Bộ Công an": "Bộ trưởng Bộ Công an",
+  "Chiến sĩ thi đua toàn lực lượng": "Bộ trưởng Bộ Công an"
+};
+const RANKS = ["Thiếu úy", "Trung úy", "Thượng úy", "Đại úy", "Thiếu tá", "Trung tá", "Thượng tá", "Đại tá"];
+const ROLES = ["Trưởng phòng", "Phó Trưởng phòng", "Thủy đoàn trưởng", "Phó Thủy đoàn trưởng", "Đội trưởng", "Phó Đội trưởng", "Cán bộ"];
+const UNIT_KINDS = ["Phòng", "Thủy đoàn"];
+const DETAILS = [
+  "Có thành tích xuất sắc trong đợt cao điểm bảo đảm trật tự an toàn giao thông dịp Tết Nguyên đán",
+  "Hoàn thành xuất sắc nhiệm vụ công tác năm",
+  "Có thành tích xuất sắc trong phong trào Toàn dân bảo vệ an ninh Tổ quốc",
+  "Bảo đảm an toàn tuyệt đối công tác dẫn đoàn các sự kiện chính trị trọng đại",
+  "Phát hiện, xử lý nhiều trường hợp vi phạm nghiêm trọng trên tuyến đường bộ cao tốc",
+  "Có thành tích trong công tác tuần tra, kiểm soát trên tuyến đường thủy nội địa"
+];
+const authorityFor = c => AUTHORITY[c] || "Thủ trưởng đơn vị";
+const decisionCode = a => a === "Chủ tịch nước" ? "CTN" : a === "Thủ tướng Chính phủ" ? "TTg" : a === "Bộ trưởng Bộ Công an" ? "BCA" : "ĐV";
+const typeLabel = t => t === "DH" ? "Danh hiệu" : "Khen thưởng";
+const subjectLabel = s => s === "TT" ? "Tập thể" : "Cá nhân";
+const typePill = t => `<span class="pill ${t === "DH" ? "pill-dh" : "pill-kt"}">${typeLabel(t)}</span>`;
+const subjectPill = s => `<span class="pill ${s === "TT" ? "pill-tt" : "pill-cn"}">${subjectLabel(s)}</span>`;
+
+// ================= DỮ LIỆU (state trong bộ nhớ) =================
+const state = { units: [], people: [], records: [] };
+const counters = { unit: 0, team: 0, person: 0, record: 0 };
+const nextId = (k, prefix, len) => prefix + pad(++counters[k], len);
+
+function unitOf(id) { return state.units.find(u => u.id === id); }
+function teamOf(id) { if (!id) return null; for (const u of state.units) { const t = u.teams.find(t => t.id === id); if (t) return t; } return null; }
+function personOf(id) { return state.people.find(p => p.id === id); }
+function placeLabel(unitId, teamId) {
+  const u = unitOf(unitId), t = teamOf(teamId);
+  return [u ? u.name : "(đơn vị đã xóa)", t ? t.name : ""].filter(Boolean).join(" / ");
+}
+function recordName(r) {
+  if (r.personId) { const p = personOf(r.personId); return p ? p.name : "(cán bộ đã xóa)"; }
+  const t = teamOf(r.teamId); if (t) return t.name;
+  const u = unitOf(r.unitId); return u ? u.name : "(đơn vị đã xóa)";
+}
+const countPeople = (k, id) => state.people.filter(p => p[k] === id).length;
+const countRecords = (k, id) => state.records.filter(r => r[k] === id).length;
+
+// ---- Sinh dữ liệu mẫu cố định ----
+let seed = 20261014;
+const rnd = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+const pick = arr => arr[Math.floor(rnd() * arr.length)];
+const LAST = ["Nguyễn", "Trần", "Lê", "Phạm", "Hoàng", "Vũ", "Đỗ", "Bùi", "Đặng", "Ngô"];
+const MID = ["Văn", "Thị", "Đức", "Minh", "Quang", "Thu", "Hữu", "Ngọc"];
+const FIRST = ["An", "Bình", "Cường", "Dũng", "Hà", "Hùng", "Lan", "Long", "Nam", "Phong", "Quân", "Thảo", "Trung", "Tuấn", "Việt"];
+
+const highway = Array.from({ length: 7 }, (_, i) => `Đội CSGT đường bộ cao tốc số ${i + 1}`);
+const UNIT_SEED = [
+  ["P1", "Phòng 1", "Phòng", []], ["P2", "Phòng 2", "Phòng", []], ["P3", "Phòng 3", "Phòng", []],
+  ["P4", "Phòng 4", "Phòng", []], ["P5", "Phòng 5", "Phòng", []],
+  ["P6", "Phòng 6", "Phòng", [...highway, "Đội Tham mưu tổng hợp", "Đội Hướng dẫn kiểm tra hoạt động TTKS giao thông đường bộ, đường sắt", "Đội CSGT đường sắt số 1", "Đội CSGT đường sắt số 2"]],
+  ["P7", "Phòng 7", "Phòng", ["Đội Dẫn đoàn số 1", "Đội Dẫn đoàn số 2"]],
+  ["P8", "Phòng 8", "Phòng", []], ["TD1", "Thủy đoàn I", "Thủy đoàn", []], ["TD2", "Thủy đoàn II", "Thủy đoàn", []]
+];
+state.units = UNIT_SEED.map(([code, name, kind, teams]) => ({
+  id: nextId("unit", "DV", 3), code, name, kind, desc: "",
+  teams: teams.map(t => ({ id: nextId("team", "DOI", 3), name: t }))
+}));
+
+for (let i = 0; i < 26; i++) {
+  const unit = pick(state.units);
+  const team = unit.teams.length && rnd() < 0.8 ? pick(unit.teams) : null;
+  const td = unit.kind === "Thủy đoàn";
+  const role = team
+    ? pick(["Đội trưởng", "Phó Đội trưởng", "Cán bộ", "Cán bộ", "Cán bộ"])
+    : pick([td ? "Thủy đoàn trưởng" : "Trưởng phòng", td ? "Phó Thủy đoàn trưởng" : "Phó Trưởng phòng", "Cán bộ", "Cán bộ"]);
+  state.people.push({
+    id: nextId("person", "CB", 3), name: `${pick(LAST)} ${pick(MID)} ${pick(FIRST)}`,
+    birth: 1972 + Math.floor(rnd() * 28), badge: pad(Math.floor(rnd() * 1000000), 6),
+    rank: pick(RANKS.slice(1, 6)), role, unitId: unit.id, teamId: team ? team.id : ""
+  });
+}
+
+for (let i = 0; i < 86; i++) {
+  const subject = rnd() < 0.45 ? "TT" : "CN";
+  const person = subject === "CN" ? pick(state.people) : null;
+  const unit = person ? unitOf(person.unitId) : pick(state.units);
+  const teamId = person ? person.teamId : (unit.teams.length && rnd() < 0.75 ? pick(unit.teams).id : "");
+  const type = rnd() < 0.5 ? "DH" : "KT";
+  const category = type === "DH" ? pick(TITLES[subject]) : pick(REWARDS);
+  const authority = authorityFor(category);
+  const year = 2022 + Math.floor(rnd() * 4);
+  state.records.push({
+    id: nextId("record", "KT", 4), personId: person ? person.id : "", unitId: unit.id, teamId,
+    subject, type, category, award: category === "Huân chương" ? pick(MEDALS) : category, authority, year,
+    decision: `${100 + Math.floor(rnd() * 900)}/QĐ-${decisionCode(authority)}`,
+    date: `${pad(1 + Math.floor(rnd() * 28), 2)}/${pad(1 + Math.floor(rnd() * 12), 2)}/${year}`,
+    details: pick(DETAILS), note: ""
+  });
+}
+state.records.sort((a, b) => b.year - a.year);
+
+// ================= HELPER GIAO DIỆN =================
+function fillUnitSelect(sel, firstLabel) {
+  const v = sel.value;
+  sel.innerHTML = `<option value="">${firstLabel}</option>` + state.units.map(u => `<option value="${u.id}">${esc(u.name)}</option>`).join("");
+  sel.value = unitOf(v) ? v : "";
+}
+function fillTeamSelect(sel, unitId, firstLabel, allWhenEmpty = false) {
+  const unit = unitOf(unitId);
+  const teams = unit ? unit.teams : (allWhenEmpty ? state.units.flatMap(u => u.teams) : []);
+  const v = sel.value;
+  sel.innerHTML = `<option value="">${firstLabel}</option>` + teams.map(t => `<option value="${t.id}">${esc(t.name)}</option>`).join("");
+  sel.value = teams.some(t => t.id === v) ? v : "";
+  // Đơn vị không có đội: khóa ở giá trị mặc định
+  sel.disabled = unit ? unit.teams.length === 0 : !allWhenEmpty;
+  sel.title = unit && !unit.teams.length ? `${unit.name} không có đội trực thuộc` : "";
+}
+function pagerHTML(total, page, size) {
+  if (!total) return "";
+  const pages = Math.max(1, Math.ceil(total / size)), start = (page - 1) * size;
+  let b = `<button type="button" data-p="${page - 1}" ${page === 1 ? "disabled" : ""} aria-label="Trang trước">‹</button>`;
+  for (let p = 1; p <= pages; p++) b += `<button type="button" data-p="${p}" ${p === page ? 'aria-current="page"' : ""}>${p}</button>`;
+  b += `<button type="button" data-p="${page + 1}" ${page === pages ? "disabled" : ""} aria-label="Trang sau">›</button>`;
+  return `<span>Hiển thị ${start + 1}–${Math.min(start + size, total)} trong ${total}</span><div class="pages">${b}</div>`;
+}
+function onPager(el, cb) {
+  el.addEventListener("click", e => { const b = e.target.closest("button[data-p]"); if (b && !b.disabled) cb(+b.dataset.p); });
+}
+let toastTimer;
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
+}
+function setErr(id, msg) {
+  const f = $(id).closest(".field"); if (!f) return;
+  f.classList.toggle("invalid", !!msg);
+  let e = f.querySelector(".err");
+  if (!e) { e = document.createElement("div"); e.className = "err"; f.appendChild(e); }
+  e.textContent = msg || "";
+}
+function clearErrs(root) {
+  root.querySelectorAll(".field.invalid").forEach(f => f.classList.remove("invalid"));
+  root.querySelectorAll(".err").forEach(e => e.textContent = "");
+}
+function focusFirstErr(root) { const f = root.querySelector(".field.invalid select, .field.invalid input, .field.invalid textarea"); if (f) f.focus(); }
+const field = (label, html, cls = "") => `<div class="${cls}"><dt>${label}</dt><dd>${html === "" || html == null ? "—" : html}</dd></div>`;
+
+// ---- Modal dùng chung ----
+const fm = $("form-modal"), pm = $("person-modal");
+function openForm({ title, body, actions, narrow = false }) {
+  if (fm.open) fm.close();
+  fm.classList.toggle("narrow", narrow);
+  $("fm-title").textContent = title;
+  $("fm-body").innerHTML = body;
+  const foot = $("fm-foot"); foot.innerHTML = "";
+  actions.forEach(a => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "btn " + (a.cls || ""); b.textContent = a.label;
+    b.addEventListener("click", a.onClick || (() => fm.close()));
+    foot.appendChild(b);
+  });
+  fm.showModal();
+}
+function confirmBox({ title, message, okLabel, onOk, danger = true }) {
+  openForm({
+    title, narrow: true, body: `<p class="confirm-text">${message}</p>`,
+    actions: [{ label: "Hủy" }, { label: okLabel, cls: danger ? "btn-danger-solid" : "btn-primary", onClick: () => { fm.close(); onOk(); } }]
+  });
+}
+[fm, pm].forEach(d => d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-close]")) d.close(); }));
+
+// ================= ĐIỀU HƯỚNG =================
+const VIEWS = {
+  list: { title: "Danh hiệu, khen thưởng", render: () => renderList() },
+  add: { title: "Thêm khen thưởng", render: () => syncAddForm() },
+  people: { title: "Quản lý cán bộ", render: () => renderPeople() },
+  units: { title: "Quản lý đơn vị", render: () => renderUnits() }
+};
+let current = "list";
+function go(view) {
+  current = view;
+  Object.keys(VIEWS).forEach(v => $("v-" + v).hidden = v !== view);
+  document.querySelectorAll(".nav a").forEach(a => a.dataset.view === view ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  document.title = VIEWS[view].title + " | Thi đua, khen thưởng";
+  VIEWS[view].render();
+  window.scrollTo(0, 0);
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-view], [data-go]");
+  if (a) { e.preventDefault(); if (EDITING) { exitEdit(); resetAddForm(); } go(a.dataset.view || a.dataset.go); }
+});
+function refreshUnitSelects() {
+  fillUnitSelect($("f-unit"), "Tất cả"); fillTeamSelect($("f-team"), $("f-unit").value, "Tất cả", true);
+  fillUnitSelect($("p-unit"), "Tất cả đơn vị"); fillTeamSelect($("p-team"), $("p-unit").value, "Tất cả đội", true);
+  fillUnitSelect($("a-unit"), "Chọn đơn vị");
+}
+function rerender() { refreshUnitSelects(); VIEWS[current].render(); }
+
+// ================= MÀN DANH SÁCH KHEN THƯỞNG =================
+const L = { page: 1, size: 10 };
+function listFiltered() {
+  const u = $("f-unit").value, t = $("f-team").value, s = $("f-subject").value, ty = $("f-type").value, q = norm($("f-q").value);
+  return state.records.filter(r =>
+    (!u || r.unitId === u) && (!t || r.teamId === t) && (!s || r.subject === s) && (!ty || r.type === ty) &&
+    (!q || norm(recordName(r)).includes(q) || norm(r.decision).includes(q))
+  ).sort((a, b) => b.year - a.year);
+}
+function renderList() {
+  const list = listFiltered();
+  const pages = Math.max(1, Math.ceil(list.length / L.size));
+  L.page = Math.min(L.page, pages);
+  const start = (L.page - 1) * L.size;
+  const cnt = (k, v) => list.filter(r => r[k] === v).length;
+  $("l-summary").innerHTML = `
+    <span class="total"><strong>${list.length}</strong>bản ghi</span>
+    <span><strong>${cnt("type", "DH")}</strong>danh hiệu</span>
+    <span><strong>${cnt("type", "KT")}</strong>khen thưởng</span>
+    <span><strong>${cnt("subject", "TT")}</strong>tập thể</span>
+    <span><strong>${cnt("subject", "CN")}</strong>cá nhân</span>`;
+  $("l-rows").innerHTML = list.slice(start, start + L.size).map((r, i) => {
+    const p = r.personId ? personOf(r.personId) : null;
+    return `<tr>
+      <td class="num">${start + i + 1}</td>
+      <td class="tnum">${r.year}</td>
+      <td>
+        ${p ? `<button type="button" class="link" data-person="${p.id}" data-record="${r.id}">${esc(p.name)}</button>` : `<div class="who">${esc(recordName(r))}</div>`}
+        <div class="where">${p ? esc(`${p.rank}, ${placeLabel(r.unitId, r.teamId)}`) : r.teamId ? esc(placeLabel(r.unitId, r.teamId)) : "Cấp đơn vị"}</div>
+      </td>
+      <td>${subjectPill(r.subject)}</td>
+      <td>${typePill(r.type)}</td>
+      <td><div class="award">${esc(r.award)}</div><div class="where">${esc(r.authority)}</div></td>
+      <td class="decision">${esc(r.decision)}<br>${esc(r.date)}</td>
+      <td class="col-actions"><div class="row-actions">
+        <button class="btn btn-sm" type="button" data-act="edit" data-id="${r.id}">Sửa</button>
+        <button class="btn btn-sm btn-danger" type="button" data-act="del" data-id="${r.id}">Xóa</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+  $("l-empty").hidden = list.length > 0;
+  $("l-table").hidden = list.length === 0;
+  $("l-pager").innerHTML = pagerHTML(list.length, L.page, L.size);
+}
+$("f-unit").addEventListener("change", () => { fillTeamSelect($("f-team"), $("f-unit").value, "Tất cả", true); L.page = 1; renderList(); });
+["f-team", "f-subject", "f-type"].forEach(id => $(id).addEventListener("change", () => { L.page = 1; renderList(); }));
+$("f-q").addEventListener("input", () => { L.page = 1; renderList(); });
+function resetListFilters() {
+  $("f-unit").value = ""; fillTeamSelect($("f-team"), "", "Tất cả", true);
+  $("f-subject").value = ""; $("f-type").value = ""; $("f-q").value = ""; L.page = 1; renderList();
+}
+$("f-reset").addEventListener("click", resetListFilters);
+$("f-reset-2").addEventListener("click", resetListFilters);
+onPager($("l-pager"), p => { L.page = p; renderList(); });
+$("l-rows").addEventListener("click", e => {
+  const b = e.target.closest("[data-person]"); if (b) { openPersonDetail(b.dataset.person, b.dataset.record); return; }
+  const a = e.target.closest("[data-act]"); if (!a) return;
+  if (a.dataset.act === "edit") startEdit(a.dataset.id);
+  if (a.dataset.act === "del") deleteRecord(a.dataset.id);
+});
+
+function deleteRecord(id) {
+  const r = state.records.find(x => x.id === id); if (!r) return;
+  confirmBox({
+    title: "Xóa khen thưởng",
+    message: `Xóa <strong>${esc(r.award)}</strong> năm ${r.year} của <strong>${esc(recordName(r))}</strong> (quyết định ${esc(r.decision)})? Thao tác này không hoàn tác được.`,
+    okLabel: "Xóa khen thưởng",
+    onOk: () => { state.records = state.records.filter(x => x.id !== id); toast(`Đã xóa khen thưởng của ${recordName(r)}`); renderList(); }
+  });
+}
+
+// ================= MODAL CHI TIẾT CÁN BỘ =================
+function openPersonDetail(personId, recordId) {
+  const p = personOf(personId); if (!p) return;
+  const words = p.name.split(" ");
+  $("m-avatar").textContent = (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  $("m-name").textContent = p.name;
+  $("m-role").textContent = `${p.rank}, ${p.role}`;
+  $("m-info").innerHTML =
+    field("Họ tên", esc(p.name)) + field("Năm sinh", p.birth) + field("Số hiệu", p.badge) +
+    field("Cấp bậc", esc(p.rank)) + field("Chức vụ", esc(p.role)) + field("Mã cán bộ", p.id) +
+    field("Đơn vị", esc(placeLabel(p.unitId, p.teamId)), "full");
+
+  const rec = recordId ? state.records.find(r => r.id === recordId) : null;
+  $("m-award-section").hidden = !rec;
+  if (rec) {
+    const card = $("m-award");
+    card.className = "award-card" + (rec.type === "KT" ? " kt" : "");
+    card.innerHTML = `<dl class="info">
+      ${field("Hình thức", typePill(rec.type))}
+      ${field("Năm", rec.year)}
+      ${field("Cấp quyết định", esc(rec.authority))}
+      ${field("Danh hiệu thi đua", rec.type === "DH" ? esc(rec.award) : "", "wide")}
+      ${field("Số quyết định", esc(rec.decision))}
+      ${field("Hình thức khen thưởng", rec.type === "KT" ? esc(rec.award) : "", "wide")}
+      ${field("Ngày quyết định", esc(rec.date))}
+      ${field("Chi tiết giải thưởng", esc(rec.details), "full")}
+      ${rec.note ? field("Ghi chú", esc(rec.note), "full") : ""}
+    </dl>
+    <div class="award-actions">
+      <button class="btn btn-sm" type="button" data-award-act="edit" data-id="${rec.id}">Sửa khen thưởng này</button>
+      <button class="btn btn-sm btn-danger" type="button" data-award-act="del" data-id="${rec.id}">Xóa</button>
+    </div>`;
+  }
+  const history = state.records.filter(r => r.personId === p.id).sort((a, b) => b.year - a.year);
+  $("m-history").innerHTML = history.length ? `
+    <thead><tr><th>Năm</th><th>Hình thức</th><th>Danh hiệu / khen thưởng</th><th>Quyết định</th></tr></thead>
+    <tbody>${history.map(r => `
+      <tr class="${rec && r.id === rec.id ? "current" : ""}">
+        <td class="tnum">${r.year}</td><td>${typePill(r.type)}</td><td>${esc(r.award)}</td>
+        <td class="decision">${esc(r.decision)}, ${esc(r.date)}</td>
+      </tr>`).join("")}</tbody>`
+    : `<tbody><tr><td class="muted">Cán bộ này chưa có khen thưởng nào.</td></tr></tbody>`;
+  pm.dataset.person = p.id;
+  pm.showModal();
+}
+$("m-award").addEventListener("click", e => {
+  const b = e.target.closest("[data-award-act]"); if (!b) return;
+  pm.close();
+  if (b.dataset.awardAct === "edit") startEdit(b.dataset.id); else deleteRecord(b.dataset.id);
+});
+$("m-edit").addEventListener("click", () => { const id = pm.dataset.person; pm.close(); openPersonForm(id); });
+$("m-add").addEventListener("click", () => { const id = pm.dataset.person; pm.close(); addAwardFor(id); });
+
+// ================= MÀN THÊM KHEN THƯỞNG: NHẬP THỦ CÔNG =================
+const aSubject = () => document.querySelector('input[name="a-subject"]:checked').value;
+const aType = () => document.querySelector('input[name="a-type"]:checked').value;
+$("a-medal").innerHTML = `<option value="">Chọn loại huân chương</option>` + MEDALS.map(m => `<option>${esc(m)}</option>`).join("");
+
+function syncAddForm() {
+  const subject = aSubject(), type = aType(), unitId = $("a-unit").value;
+  fillUnitSelect($("a-unit"), "Chọn đơn vị");
+  fillTeamSelect($("a-team"), $("a-unit").value, subject === "TT" ? "Khen cho cả đơn vị" : "Tất cả đội");
+
+  // Cán bộ: chỉ hiện khi đối tượng là cá nhân, lọc theo đơn vị / đội đã chọn
+  $("a-person-field").hidden = $("a-person-info-field").hidden = subject !== "CN";
+  const teamId = $("a-team").value;
+  const ps = state.people.filter(p => p.unitId === unitId && (!teamId || p.teamId === teamId));
+  const pv = $("a-person").value;
+  $("a-person").innerHTML = `<option value="">${!unitId ? "Chọn đơn vị trước" : ps.length ? "Chọn cán bộ" : "Không có cán bộ phù hợp"}</option>` +
+    ps.map(p => `<option value="${p.id}">${esc(p.name)} (${esc(p.rank)}, số hiệu ${p.badge})</option>`).join("");
+  $("a-person").value = ps.some(p => p.id === pv) ? pv : "";
+  $("a-person").disabled = !unitId;
+  updatePersonInfo();
+
+  // Danh hiệu / khen thưởng theo đối tượng + hình thức
+  const list = type === "DH" ? TITLES[subject] : REWARDS, av = $("a-award").value;
+  $("a-award-label").innerHTML = `${type === "DH" ? "Danh hiệu thi đua" : "Hình thức khen thưởng"} <span class="req">*</span>`;
+  $("a-award").innerHTML = `<option value="">Chọn ${type === "DH" ? "danh hiệu" : "hình thức khen thưởng"}</option>` + list.map(x => `<option>${esc(x)}</option>`).join("");
+  $("a-award").value = list.includes(av) ? av : "";
+  $("a-medal-field").hidden = $("a-award").value !== "Huân chương";
+  if (!$("a-award").value) $("a-authority").value = "";
+}
+function updatePersonInfo() {
+  const p = personOf($("a-person").value);
+  $("a-person-info").innerHTML = p
+    ? `<strong>${esc(p.name)}</strong>, sinh năm ${p.birth}<br>${esc(p.rank)}, ${esc(p.role)}<br>${esc(placeLabel(p.unitId, p.teamId))}`
+    : "Chưa chọn cán bộ";
+}
+document.querySelectorAll('input[name="a-subject"], input[name="a-type"]').forEach(r => r.addEventListener("change", syncAddForm));
+["a-unit", "a-team"].forEach(id => $(id).addEventListener("change", syncAddForm));
+$("a-person").addEventListener("change", updatePersonInfo);
+$("a-award").addEventListener("change", () => { syncAddForm(); $("a-authority").value = $("a-award").value ? authorityFor($("a-award").value) : ""; });
+
+function resetAddForm() {
+  document.querySelector('input[name="a-subject"][value="CN"]').checked = true;
+  document.querySelector('input[name="a-type"][value="DH"]').checked = true;
+  ["a-unit", "a-team", "a-person", "a-award", "a-medal", "a-decision", "a-date", "a-authority", "a-details", "a-note"].forEach(id => $(id).value = "");
+  $("a-year").value = new Date().getFullYear();
+  clearErrs($("p-manual"));
+  syncAddForm();
+}
+function saveManual(keepGoing) {
+  const root = $("p-manual"); clearErrs(root);
+  const subject = aSubject(), type = aType();
+  const need = (id, msg) => { if (!$(id).value.trim()) { setErr(id, msg); return false; } return true; };
+  need("a-unit", "Chọn đơn vị");
+  if (subject === "CN") need("a-person", "Chọn cán bộ được khen");
+  need("a-award", type === "DH" ? "Chọn danh hiệu" : "Chọn hình thức khen thưởng");
+  if ($("a-award").value === "Huân chương") need("a-medal", "Chọn loại huân chương");
+  const y = +$("a-year").value;
+  if (!y || y < 1990 || y > 2100) setErr("a-year", "Năm từ 1990 đến 2100");
+  need("a-decision", "Nhập số quyết định");
+  need("a-date", "Chọn ngày quyết định");
+  need("a-details", "Nhập thành tích, nội dung khen thưởng");
+  if (root.querySelector(".field.invalid")) { focusFirstErr(root); return; }
+
+  const person = subject === "CN" ? personOf($("a-person").value) : null;
+  const category = $("a-award").value;
+  const [yy, mm, dd] = $("a-date").value.split("-");
+  // Khi sửa mà giữ nguyên cán bộ thì giữ đơn vị / đội tại thời điểm khen (BR-02)
+  const orig = EDITING ? state.records.find(r => r.id === EDITING) : null;
+  const keepPlace = orig && person && orig.personId === person.id;
+  const rec = {
+    personId: person ? person.id : "",
+    unitId: person ? (keepPlace ? orig.unitId : person.unitId) : $("a-unit").value,
+    teamId: person ? (keepPlace ? orig.teamId : person.teamId) : $("a-team").value,
+    subject, type, category, award: category === "Huân chương" ? $("a-medal").value : category,
+    authority: $("a-authority").value.trim() || authorityFor(category), year: y,
+    decision: $("a-decision").value.trim(), date: `${dd}/${mm}/${yy}`,
+    details: $("a-details").value.trim(), note: $("a-note").value.trim()
+  };
+  const dups = findDuplicates(rec, EDITING);
+  if (dups.length) {
+    confirmBox({
+      title: "Có thể bị trùng", danger: false, okLabel: "Vẫn lưu",
+      message: `<strong>${esc(recordName(rec))}</strong> đã có <strong>${esc(rec.award)}</strong> năm ${rec.year} (quyết định ${dups.map(d => esc(d.decision)).join(", ")}). Bạn vẫn muốn lưu?`,
+      onOk: () => commitManual(rec, keepGoing)
+    });
+    return;
+  }
+  commitManual(rec, keepGoing);
+}
+function commitManual(rec, keepGoing) {
+  if (EDITING) {
+    Object.assign(state.records.find(r => r.id === EDITING), rec);
+    toast(`Đã cập nhật khen thưởng của ${recordName(rec)}`);
+    exitEdit(); resetAddForm(); go("list");
+    return;
+  }
+  rec = { id: nextId("record", "KT", 4), ...rec };
+  state.records.unshift(rec);
+  toast(`Đã lưu khen thưởng cho ${recordName(rec)}`);
+  const subject = rec.subject;
+  if (keepGoing) {
+    // Giữ lại quyết định và loại khen thưởng, chỉ xóa người được khen để nhập người tiếp theo
+    $("a-person").value = ""; updatePersonInfo();
+    (subject === "CN" ? $("a-person") : $("a-team")).focus();
+  } else {
+    resetAddForm(); resetListFilters(); go("list");
+  }
+}
+$("a-save").addEventListener("click", () => saveManual(false));
+$("a-save-more").addEventListener("click", () => saveManual(true));
+$("a-clear").addEventListener("click", resetAddForm);
+$("a-cancel").addEventListener("click", () => { exitEdit(); resetAddForm(); go("list"); });
+
+// ---- Cảnh báo trùng: cùng đối tượng, cùng danh hiệu / khen thưởng, cùng năm (BR-08)
+function findDuplicates(rec, excludeId, pool = state.records) {
+  return pool.filter(r => r.id !== excludeId && r.subject === rec.subject && r.year === rec.year && r.award === rec.award &&
+    (rec.subject === "CN" ? r.personId === rec.personId : r.unitId === rec.unitId && (r.teamId || "") === (rec.teamId || "")));
+}
+
+// ---- Sửa khen thưởng: dùng lại form nhập thủ công
+let EDITING = null;
+function setEditUI(r) {
+  const on = !!r;
+  $("add-title").textContent = on ? "Sửa khen thưởng" : "Thêm khen thưởng";
+  $("add-sub").textContent = on ? "Sửa thông tin bản ghi rồi bấm Lưu thay đổi" : "Nhập từng khen thưởng, hoặc import nhiều khen thưởng cùng lúc từ file Excel";
+  $("edit-banner").hidden = !on;
+  if (on) $("edit-banner").innerHTML = `Đang sửa bản ghi <strong>${r.id}</strong>: ${esc(r.award)} năm ${r.year} của <strong>${esc(recordName(r))}</strong>`;
+  $("add-tabs").hidden = on;
+  $("a-save-more").hidden = on; $("a-clear").hidden = on; $("a-cancel").hidden = !on;
+  $("a-save").textContent = on ? "Lưu thay đổi" : "Lưu khen thưởng";
+}
+function exitEdit() { EDITING = null; setEditUI(null); }
+function startEdit(id) {
+  const r = state.records.find(x => x.id === id); if (!r) return;
+  go("add"); showTab("manual"); resetAddForm();
+  EDITING = id; setEditUI(r);
+  document.querySelector(`input[name="a-subject"][value="${r.subject}"]`).checked = true;
+  document.querySelector(`input[name="a-type"][value="${r.type}"]`).checked = true;
+  const p = r.personId ? personOf(r.personId) : null;
+  $("a-unit").value = p ? p.unitId : r.unitId; syncAddForm();
+  $("a-team").value = p ? p.teamId : r.teamId; syncAddForm();
+  if (p) { $("a-person").value = p.id; updatePersonInfo(); }
+  $("a-award").value = r.category; syncAddForm();
+  if (r.category === "Huân chương") $("a-medal").value = r.award;
+  const [d, m, y] = r.date.split("/");
+  $("a-year").value = r.year; $("a-decision").value = r.decision; $("a-date").value = `${y}-${m}-${d}`;
+  $("a-authority").value = r.authority; $("a-details").value = r.details; $("a-note").value = r.note || "";
+}
+
+function addAwardFor(personId) {
+  const p = personOf(personId); if (!p) return;
+  go("add"); showTab("manual"); resetAddForm();
+  $("a-unit").value = p.unitId; syncAddForm();
+  $("a-team").value = p.teamId; syncAddForm();
+  $("a-person").value = p.id; updatePersonInfo();
+  $("a-award").focus();
+}
+
+// Tabs
+function showTab(name) {
+  ["manual", "import"].forEach(t => {
+    $("tab-" + t).setAttribute("aria-selected", t === name);
+    $("p-" + t).hidden = t !== name;
+  });
+}
+$("tab-manual").addEventListener("click", () => showTab("manual"));
+$("tab-import").addEventListener("click", () => showTab("import"));
+
+// ================= MÀN THÊM KHEN THƯỞNG: IMPORT EXCEL =================
+const COLS = ["Đối tượng", "Mã cán bộ", "Đơn vị", "Đội", "Hình thức", "Danh hiệu / khen thưởng", "Năm", "Số quyết định", "Ngày quyết định", "Cấp quyết định", "Chi tiết giải thưởng", "Ghi chú"];
+const REQUIRED_COLS = ["Đối tượng", "Mã cán bộ", "Đơn vị", "Hình thức", "Danh hiệu / khen thưởng", "Năm", "Số quyết định", "Ngày quyết định", "Chi tiết giải thưởng"];
+let IMPORT = null;
+
+$("i-template").addEventListener("click", () => {
+  if (!window.XLSX) { toast("Không tải được thư viện Excel, kiểm tra kết nối mạng"); return; }
+  const p1 = state.people[0], p2 = state.people[1];
+  const uTeam = state.units.find(u => u.teams.length);
+  const rows = [
+    COLS,
+    ["Cá nhân", p1.id, unitOf(p1.unitId).name, teamOf(p1.teamId)?.name || "", "Danh hiệu", "Chiến sĩ thi đua cơ sở", 2026, "125/QĐ-ĐV", "15/09/2026", "", "Hoàn thành xuất sắc nhiệm vụ công tác năm 2026", ""],
+    ["Tập thể", "", uTeam.name, uTeam.teams[0].name, "Khen thưởng", "Bằng khen Bộ Công an", 2026, "4521/QĐ-BCA", "20/09/2026", "Bộ trưởng Bộ Công an", "Có thành tích xuất sắc trong đợt cao điểm bảo đảm trật tự an toàn giao thông", ""],
+    ["Cá nhân", p2.id, unitOf(p2.unitId).name, teamOf(p2.teamId)?.name || "", "Khen thưởng", MEDALS[2], 2026, "1580/QĐ-CTN", "02/09/2026", "", "Có thành tích đặc biệt xuất sắc trong công tác bảo đảm an ninh trật tự", ""]
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"] = COLS.map(c => ({ wch: c.length < 12 ? 14 : 28 }));
+
+  // Sheet danh mục giá trị hợp lệ
+  const catCols = [
+    ["Đối tượng", "Tập thể", "Cá nhân"],
+    ["Hình thức", "Danh hiệu", "Khen thưởng"],
+    ["Danh hiệu tập thể", ...TITLES.TT],
+    ["Danh hiệu cá nhân", ...TITLES.CN],
+    ["Hình thức khen thưởng", "Bằng khen Thủ tướng Chính phủ", "Bằng khen Bộ Công an", "Giấy khen", ...MEDALS],
+    ["Đơn vị", ...state.units.map(u => u.name)],
+    ["Đội (Đơn vị: Đội)", ...state.units.flatMap(u => u.teams.map(t => `${u.name}: ${t.name}`))],
+    ["Mã cán bộ", ...state.people.map(p => p.id)],
+    ["Họ tên", ...state.people.map(p => p.name)]
+  ];
+  const max = Math.max(...catCols.map(c => c.length));
+  const catRows = Array.from({ length: max }, (_, i) => catCols.map(c => c[i] ?? ""));
+  const ws2 = XLSX.utils.aoa_to_sheet(catRows);
+  ws2["!cols"] = catCols.map(() => ({ wch: 34 }));
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Khen thưởng");
+  XLSX.utils.book_append_sheet(wb, ws2, "Danh mục");
+  XLSX.writeFile(wb, "mau-import-khen-thuong.xlsx");
+});
+
+const drop = $("i-drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("drag"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("drag"); }));
+drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) handleImportFile(f); });
+$("i-file").addEventListener("change", e => { const f = e.target.files[0]; if (f) handleImportFile(f); e.target.value = ""; });
+
+function parseDate(v) {
+  if (typeof v === "number" && window.XLSX) {
+    const d = XLSX.SSF.parse_date_code(v); if (d) return `${pad(d.d, 2)}/${pad(d.m, 2)}/${d.y}`;
+  }
+  const s = String(v ?? "").trim();
+  let m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+  if (m && +m[1] >= 1 && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12) return `${pad(m[1], 2)}/${pad(m[2], 2)}/${m[3]}`;
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (m && +m[3] >= 1 && +m[3] <= 31 && +m[2] >= 1 && +m[2] <= 12) return `${pad(m[3], 2)}/${pad(m[2], 2)}/${m[1]}`;
+  return null;
+}
+
+function validateImportRow(get, rowNo) {
+  const errs = [];
+  const sRaw = norm(get("Đối tượng"));
+  const subject = sRaw === "tập thể" ? "TT" : sRaw === "cá nhân" ? "CN" : null;
+  if (!subject) errs.push("Đối tượng phải là Tập thể hoặc Cá nhân");
+
+  const uRaw = norm(get("Đơn vị"));
+  const unit = state.units.find(u => norm(u.name) === uRaw || norm(u.code) === uRaw);
+  if (!uRaw) errs.push("Thiếu đơn vị"); else if (!unit) errs.push(`Không tìm thấy đơn vị "${get("Đơn vị")}"`);
+
+  const tRaw = norm(get("Đội"));
+  let team = null;
+  if (tRaw && unit) { team = unit.teams.find(t => norm(t.name) === tRaw); if (!team) errs.push(`Đội "${get("Đội")}" không thuộc ${unit.name}`); }
+
+  let person = null;
+  const code = String(get("Mã cán bộ") ?? "").trim().toUpperCase();
+  if (subject === "CN") {
+    if (!code) errs.push("Cá nhân cần có mã cán bộ");
+    else {
+      person = personOf(code);
+      if (!person) errs.push(`Không tìm thấy cán bộ mã ${code}`);
+      else if (unit && person.unitId !== unit.id) errs.push(`Cán bộ ${person.name} không thuộc ${unit.name}`);
+      else if (team && person.teamId !== team.id) errs.push(`Cán bộ ${person.name} không thuộc ${team.name}`);
+    }
+  }
+
+  const tyRaw = norm(get("Hình thức"));
+  const type = tyRaw === "danh hiệu" ? "DH" : tyRaw === "khen thưởng" ? "KT" : null;
+  if (!type) errs.push("Hình thức phải là Danh hiệu hoặc Khen thưởng");
+
+  const aRawText = String(get("Danh hiệu / khen thưởng") ?? "").trim(), aRaw = norm(aRawText);
+  let category = null, award = null;
+  if (!aRaw) errs.push("Thiếu danh hiệu / khen thưởng");
+  else if (type && subject) {
+    if (aRaw.startsWith("huân chương")) {
+      if (type !== "KT") errs.push("Huân chương thuộc hình thức Khen thưởng");
+      else {
+        const m = MEDALS.find(x => norm(x) === aRaw);
+        if (!m) errs.push("Ghi rõ loại huân chương, ví dụ Huân chương Chiến công hạng Ba");
+        else { category = "Huân chương"; award = m; }
+      }
+    } else {
+      const list = type === "DH" ? TITLES[subject] : REWARDS.filter(x => x !== "Huân chương");
+      const found = list.find(x => norm(x) === aRaw);
+      if (!found) errs.push(`"${aRawText}" không phải ${type === "DH" ? `danh hiệu ${subject === "TT" ? "tập thể" : "cá nhân"}` : "hình thức khen thưởng"} hợp lệ`);
+      else { category = found; award = found; }
+    }
+  }
+
+  const year = parseInt(get("Năm"), 10);
+  if (!year || year < 1990 || year > 2100) errs.push("Năm không hợp lệ");
+  const decision = String(get("Số quyết định") ?? "").trim();
+  if (!decision) errs.push("Thiếu số quyết định");
+  const date = parseDate(get("Ngày quyết định"));
+  if (!date) errs.push("Ngày quyết định phải theo dạng dd/mm/yyyy");
+  const details = String(get("Chi tiết giải thưởng") ?? "").trim();
+  if (!details) errs.push("Thiếu chi tiết giải thưởng");
+
+  const name = person ? person.name : team ? team.name : unit ? unit.name : "—";
+  const rec = errs.length ? null : {
+    personId: person ? person.id : "", unitId: unit.id, teamId: person ? person.teamId : (team ? team.id : ""),
+    subject, type, category, award, authority: String(get("Cấp quyết định") ?? "").trim() || authorityFor(category),
+    year, decision, date, details, note: String(get("Ghi chú") ?? "").trim()
+  };
+  return { rowNo, errs, rec, name, subject, type, award: award || aRawText, year: get("Năm"), decision };
+}
+
+async function handleImportFile(file) {
+  const box = $("i-result");
+  if (!window.XLSX) { box.innerHTML = `<div class="alert">Không tải được thư viện đọc Excel. Kiểm tra kết nối mạng rồi mở lại trang.</div>`; return; }
+  try {
+    const wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(ws, { defval: "", raw: true });
+    const rows = raw.filter(r => Object.values(r).some(v => String(v).trim() !== ""));
+    if (!rows.length) { box.innerHTML = `<div class="alert">File "${esc(file.name)}" không có dòng dữ liệu nào ở sheet đầu tiên.</div>`; return; }
+    const keyMap = {}; Object.keys(raw[0] || rows[0]).forEach(k => keyMap[norm(k)] = k);
+    const missing = REQUIRED_COLS.filter(c => !(norm(c) in keyMap));
+    if (missing.length) { box.innerHTML = `<div class="alert">File thiếu cột: ${missing.map(esc).join(", ")}. Hãy dùng file mẫu để có đúng tên cột.</div>`; return; }
+    const results = rows.map((r, i) => validateImportRow(c => r[keyMap[norm(c)]], i + 2));
+    // Cảnh báo trùng với dữ liệu đã có và với các dòng phía trên trong cùng file
+    const seen = [];
+    results.forEach(r => {
+      r.warns = [];
+      if (!r.rec) return;
+      const inDb = findDuplicates(r.rec, null);
+      if (inDb.length) r.warns.push(`Trùng với bản ghi đã có (quyết định ${inDb.map(d => d.decision).join(", ")})`);
+      const inFile = findDuplicates(r.rec, null, seen);
+      if (inFile.length) r.warns.push(`Trùng với dòng ${inFile.map(d => d.rowNo).join(", ")} trong file`);
+      seen.push({ ...r.rec, rowNo: r.rowNo });
+    });
+    IMPORT = { file: file.name, results, includeDup: false };
+    renderImport();
+  } catch (err) {
+    box.innerHTML = `<div class="alert">Không đọc được file "${esc(file.name)}". Kiểm tra file có đúng định dạng Excel hoặc CSV.</div>`;
+  }
+}
+function renderImport() {
+  const { file, results } = IMPORT;
+  const ok = results.filter(r => !r.errs.length && !r.warns.length).length;
+  const warn = results.filter(r => !r.errs.length && r.warns.length).length;
+  const bad = results.length - ok - warn;
+  const toImport = ok + (IMPORT.includeDup ? warn : 0);
+  $("i-result").innerHTML = `
+    <div class="import-head">
+      <p><strong>${esc(file)}</strong>: ${results.length} dòng, <span style="color:var(--primary);font-weight:600">${ok} hợp lệ</span>${warn ? `, <span style="color:var(--gold);font-weight:600">${warn} có thể trùng</span>` : ""}${bad ? `, <span style="color:var(--red);font-weight:600">${bad} lỗi</span>. Dòng lỗi sẽ không được nhập, sửa trong file rồi tải lên lại.` : "."}</p>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        ${warn ? `<label class="check-inline"><input type="checkbox" id="i-incl-dup" ${IMPORT.includeDup ? "checked" : ""}> Nhập cả ${warn} dòng có thể trùng</label>` : ""}
+        <button class="btn" type="button" id="i-cancel">Chọn file khác</button>
+        <button class="btn btn-primary" type="button" id="i-commit" ${toImport ? "" : "disabled"}>Nhập ${toImport} dòng</button>
+      </div>
+    </div>
+    <div class="table-card"><div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Dòng</th><th>Trạng thái</th><th>Tập thể / cá nhân</th><th>Đối tượng</th><th>Danh hiệu / khen thưởng</th><th>Năm</th><th>Số quyết định</th><th>Lỗi / cảnh báo</th></tr></thead>
+        <tbody>${results.map(r => `
+          <tr class="${r.errs.length ? "row-err" : r.warns.length ? "row-warn" : ""}">
+            <td class="num">${r.rowNo}</td>
+            <td><span class="pill ${r.errs.length ? "pill-err" : r.warns.length ? "pill-warn" : "pill-ok"}">${r.errs.length ? "Lỗi" : r.warns.length ? "Có thể trùng" : "Hợp lệ"}</span></td>
+            <td class="who">${esc(r.name)}</td>
+            <td>${r.subject ? subjectPill(r.subject) : "—"}</td>
+            <td>${r.type ? typePill(r.type) + " " : ""}${esc(r.award) || "—"}</td>
+            <td class="tnum">${esc(r.year)}</td>
+            <td class="decision">${esc(r.decision) || "—"}</td>
+            <td>${r.errs.length ? `<ul class="err-list">${r.errs.map(e => `<li>${esc(e)}</li>`).join("")}</ul>` : r.warns.length ? `<ul class="warn-list">${r.warns.map(e => `<li>${esc(e)}</li>`).join("")}</ul>` : ""}</td>
+          </tr>`).join("")}</tbody>
+      </table>
+    </div></div>`;
+  if (warn) $("i-incl-dup").addEventListener("change", e => { IMPORT.includeDup = e.target.checked; renderImport(); });
+  $("i-cancel").addEventListener("click", () => { IMPORT = null; $("i-result").innerHTML = ""; $("i-file").click(); });
+  $("i-commit").addEventListener("click", () => {
+    const recs = IMPORT.results.filter(r => r.rec && (!r.warns.length || IMPORT.includeDup)).map(r => ({ id: nextId("record", "KT", 4), ...r.rec }));
+    state.records.unshift(...recs);
+    IMPORT = null; $("i-result").innerHTML = "";
+    toast(`Đã nhập ${recs.length} khen thưởng`);
+    resetListFilters(); go("list");
+  });
+}
+
+// ================= MÀN QUẢN LÝ CÁN BỘ =================
+const P = { page: 1, size: 10 };
+function renderPeople() {
+  const u = $("p-unit").value, t = $("p-team").value, q = norm($("p-q").value);
+  const list = state.people.filter(p => (!u || p.unitId === u) && (!t || p.teamId === t) &&
+    (!q || norm(p.name).includes(q) || p.badge.includes(q) || norm(p.id).includes(q)));
+  const pages = Math.max(1, Math.ceil(list.length / P.size));
+  P.page = Math.min(P.page, pages);
+  const start = (P.page - 1) * P.size;
+  $("p-rows").innerHTML = list.slice(start, start + P.size).map(p => `
+    <tr>
+      <td class="tnum muted">${p.id}</td>
+      <td><button type="button" class="link" data-act="view" data-id="${p.id}">${esc(p.name)}</button></td>
+      <td class="tnum">${p.birth}</td>
+      <td class="tnum">${p.badge}</td>
+      <td>${esc(p.rank)}</td>
+      <td>${esc(p.role)}</td>
+      <td class="where">${esc(placeLabel(p.unitId, p.teamId))}</td>
+      <td class="tnum">${countRecords("personId", p.id)}</td>
+      <td class="col-actions"><div class="row-actions">
+        <button class="btn btn-sm" type="button" data-act="edit" data-id="${p.id}">Sửa</button>
+        <button class="btn btn-sm btn-danger" type="button" data-act="del" data-id="${p.id}">Xóa</button>
+      </div></td>
+    </tr>`).join("");
+  $("p-empty").hidden = list.length > 0;
+  $("p-pager").innerHTML = pagerHTML(list.length, P.page, P.size);
+}
+$("p-unit").addEventListener("change", () => { fillTeamSelect($("p-team"), $("p-unit").value, "Tất cả đội", true); P.page = 1; renderPeople(); });
+$("p-team").addEventListener("change", () => { P.page = 1; renderPeople(); });
+$("p-q").addEventListener("input", () => { P.page = 1; renderPeople(); });
+onPager($("p-pager"), p => { P.page = p; renderPeople(); });
+$("p-add").addEventListener("click", () => openPersonForm(null));
+$("p-rows").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const id = b.dataset.id;
+  if (b.dataset.act === "view") openPersonDetail(id);
+  if (b.dataset.act === "edit") openPersonForm(id);
+  if (b.dataset.act === "del") deletePerson(id);
+});
+
+function openPersonForm(id) {
+  const p = id ? personOf(id) : null;
+  openForm({
+    title: p ? `Sửa thông tin cán bộ ${p.id}` : "Thêm cán bộ",
+    body: `<div class="form-grid cols-2">
+      <div class="field full"><label for="pf-name">Họ tên <span class="req">*</span></label><input id="pf-name" type="text"></div>
+      <div class="field"><label for="pf-birth">Năm sinh <span class="req">*</span></label><input id="pf-birth" type="number" min="1950" max="2010"></div>
+      <div class="field"><label for="pf-badge">Số hiệu <span class="req">*</span></label><input id="pf-badge" type="text" inputmode="numeric" maxlength="6" placeholder="6 chữ số"></div>
+      <div class="field"><label for="pf-rank">Cấp bậc <span class="req">*</span></label><select id="pf-rank"><option value="">Chọn cấp bậc</option>${RANKS.map(r => `<option>${r}</option>`).join("")}</select></div>
+      <div class="field"><label for="pf-role">Chức vụ <span class="req">*</span></label><input id="pf-role" type="text" list="pf-roles"><datalist id="pf-roles">${ROLES.map(r => `<option value="${r}">`).join("")}</datalist></div>
+      <div class="field"><label for="pf-unit">Đơn vị <span class="req">*</span></label><select id="pf-unit"></select></div>
+      <div class="field"><label for="pf-team">Đội</label><select id="pf-team"></select></div>
+    </div>`,
+    actions: [{ label: "Hủy" }, { label: p ? "Lưu thay đổi" : "Thêm cán bộ", cls: "btn-primary", onClick: () => savePerson(id) }]
+  });
+  fillUnitSelect($("pf-unit"), "Chọn đơn vị");
+  if (p) {
+    $("pf-name").value = p.name; $("pf-birth").value = p.birth; $("pf-badge").value = p.badge;
+    $("pf-rank").value = p.rank; $("pf-role").value = p.role; $("pf-unit").value = p.unitId;
+  }
+  fillTeamSelect($("pf-team"), $("pf-unit").value, "Không thuộc đội");
+  if (p) $("pf-team").value = p.teamId;
+  $("pf-unit").addEventListener("change", () => fillTeamSelect($("pf-team"), $("pf-unit").value, "Không thuộc đội"));
+  $("pf-name").focus();
+}
+function savePerson(id) {
+  const root = $("fm-body"); clearErrs(root);
+  const name = $("pf-name").value.trim().replace(/\s+/g, " "), birth = +$("pf-birth").value, badge = $("pf-badge").value.trim();
+  if (!name) setErr("pf-name", "Nhập họ tên");
+  if (!birth || birth < 1950 || birth > 2010) setErr("pf-birth", "Năm sinh từ 1950 đến 2010");
+  if (!/^\d{6}$/.test(badge)) setErr("pf-badge", "Số hiệu gồm 6 chữ số");
+  else if (state.people.some(p => p.badge === badge && p.id !== id)) setErr("pf-badge", "Số hiệu này đã có cán bộ khác dùng");
+  if (!$("pf-rank").value) setErr("pf-rank", "Chọn cấp bậc");
+  if (!$("pf-role").value.trim()) setErr("pf-role", "Nhập chức vụ");
+  if (!$("pf-unit").value) setErr("pf-unit", "Chọn đơn vị");
+  if (root.querySelector(".field.invalid")) { focusFirstErr(root); return; }
+
+  const data = { name, birth, badge, rank: $("pf-rank").value, role: $("pf-role").value.trim(), unitId: $("pf-unit").value, teamId: $("pf-team").value };
+  if (id) Object.assign(personOf(id), data);
+  else state.people.push({ id: nextId("person", "CB", 3), ...data });
+  fm.close();
+  toast(id ? `Đã lưu thông tin ${name}` : `Đã thêm cán bộ ${name}`);
+  rerender();
+}
+function deletePerson(id) {
+  const p = personOf(id), n = countRecords("personId", id);
+  confirmBox({
+    title: "Xóa cán bộ",
+    message: `Xóa cán bộ <strong>${esc(p.name)}</strong> (số hiệu ${p.badge})?${n ? ` ${n} khen thưởng của cán bộ này cũng sẽ bị xóa.` : ""} Thao tác này không hoàn tác được.`,
+    okLabel: "Xóa cán bộ",
+    onOk: () => {
+      state.people = state.people.filter(x => x.id !== id);
+      state.records = state.records.filter(r => r.personId !== id);
+      toast(`Đã xóa cán bộ ${p.name}`); rerender();
+    }
+  });
+}
+
+// ================= MÀN QUẢN LÝ ĐƠN VỊ =================
+function renderUnits() {
+  const q = norm($("u-q").value);
+  const list = state.units.filter(u => !q || norm(u.name).includes(q) || norm(u.code).includes(q));
+  $("u-rows").innerHTML = list.map(u => `
+    <tr>
+      <td class="muted">${esc(u.code)}</td>
+      <td><button type="button" class="link" data-act="view" data-id="${u.id}">${esc(u.name)}</button>${u.desc ? `<div class="where">${esc(u.desc)}</div>` : ""}</td>
+      <td>${esc(u.kind)}</td>
+      <td class="tnum">${u.teams.length || "—"}</td>
+      <td class="tnum">${countPeople("unitId", u.id)}</td>
+      <td class="tnum">${countRecords("unitId", u.id)}</td>
+      <td class="col-actions"><div class="row-actions">
+        <button class="btn btn-sm" type="button" data-act="edit" data-id="${u.id}">Sửa</button>
+        <button class="btn btn-sm btn-danger" type="button" data-act="del" data-id="${u.id}">Xóa</button>
+      </div></td>
+    </tr>`).join("");
+  $("u-empty").hidden = list.length > 0;
+}
+$("u-q").addEventListener("input", renderUnits);
+$("u-add").addEventListener("click", () => openUnitForm(null));
+$("u-rows").addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const id = b.dataset.id;
+  if (b.dataset.act === "view") openUnitDetail(id);
+  if (b.dataset.act === "edit") openUnitForm(id);
+  if (b.dataset.act === "del") deleteUnit(id);
+});
+
+function openUnitDetail(id) {
+  const u = unitOf(id);
+  openForm({
+    title: u.name,
+    body: `<section class="m-section"><dl class="info">
+        ${field("Mã đơn vị", esc(u.code))}${field("Loại", esc(u.kind))}${field("Số đội", u.teams.length)}
+        ${field("Cán bộ", countPeople("unitId", u.id))}${field("Khen thưởng", countRecords("unitId", u.id))}
+        ${field("Mô tả", esc(u.desc), "full")}
+      </dl></section>
+      <section class="m-section"><h3>Đội trực thuộc</h3>
+      ${u.teams.length ? `<div class="table-wrap"><table class="history">
+        <thead><tr><th>Tên đội</th><th>Cán bộ</th><th>Khen thưởng</th></tr></thead>
+        <tbody>${u.teams.map(t => `<tr><td>${esc(t.name)}</td><td class="tnum">${countPeople("teamId", t.id)}</td><td class="tnum">${countRecords("teamId", t.id)}</td></tr>`).join("")}</tbody>
+      </table></div>` : `<p class="muted" style="margin:0">Đơn vị không có đội trực thuộc.</p>`}</section>`,
+    actions: [{ label: "Đóng" }, { label: "Sửa đơn vị", cls: "btn-primary", onClick: () => openUnitForm(id) }]
+  });
+}
+
+function teamRowHTML(t) {
+  return `<div class="team-row" data-id="${t ? t.id : ""}">
+    <input type="text" value="${t ? esc(t.name) : ""}" aria-label="Tên đội" placeholder="Tên đội">
+    <button type="button" class="btn btn-sm btn-danger" data-remove>Xóa</button>
+  </div>`;
+}
+function openUnitForm(id) {
+  const u = id ? unitOf(id) : null;
+  openForm({
+    title: u ? `Sửa đơn vị ${u.name}` : "Thêm đơn vị",
+    body: `<div class="form-grid cols-2">
+      <div class="field"><label for="uf-code">Mã đơn vị <span class="req">*</span></label><input id="uf-code" type="text" placeholder="Ví dụ: P9"></div>
+      <div class="field"><label for="uf-kind">Loại đơn vị</label><select id="uf-kind">${UNIT_KINDS.map(k => `<option>${k}</option>`).join("")}</select></div>
+      <div class="field full"><label for="uf-name">Tên đơn vị <span class="req">*</span></label><input id="uf-name" type="text"></div>
+      <div class="field full"><label for="uf-desc">Mô tả</label><textarea id="uf-desc" rows="2"></textarea></div>
+      <div class="field full">
+        <span class="flabel">Đội trực thuộc</span>
+        <div id="uf-teams">${(u ? u.teams : []).map(teamRowHTML).join("")}</div>
+        <div><button type="button" class="btn btn-sm" id="uf-add-team">Thêm đội</button></div>
+        <div class="err" id="uf-teams-err"></div>
+      </div>
+    </div>`,
+    actions: [{ label: "Hủy" }, { label: u ? "Lưu thay đổi" : "Thêm đơn vị", cls: "btn-primary", onClick: () => saveUnit(id) }]
+  });
+  if (u) { $("uf-code").value = u.code; $("uf-kind").value = u.kind; $("uf-name").value = u.name; $("uf-desc").value = u.desc; }
+  $("uf-add-team").addEventListener("click", () => {
+    $("uf-teams").insertAdjacentHTML("beforeend", teamRowHTML(null));
+    $("uf-teams").lastElementChild.querySelector("input").focus();
+  });
+  $("uf-teams").addEventListener("click", e => {
+    const b = e.target.closest("[data-remove]"); if (!b) return;
+    const row = b.closest(".team-row"), tid = row.dataset.id;
+    const np = tid ? countPeople("teamId", tid) : 0, nr = tid ? countRecords("teamId", tid) : 0;
+    if (np || nr) {
+      $("uf-teams-err").textContent = `Không thể xóa ${teamOf(tid).name} vì còn ${np} cán bộ và ${nr} khen thưởng thuộc đội này.`;
+      return;
+    }
+    $("uf-teams-err").textContent = ""; row.remove();
+  });
+  $("uf-code").focus();
+}
+function saveUnit(id) {
+  const root = $("fm-body"); clearErrs(root);
+  const code = $("uf-code").value.trim(), name = $("uf-name").value.trim().replace(/\s+/g, " ");
+  if (!code) setErr("uf-code", "Nhập mã đơn vị");
+  else if (state.units.some(u => norm(u.code) === norm(code) && u.id !== id)) setErr("uf-code", "Mã đơn vị đã tồn tại");
+  if (!name) setErr("uf-name", "Nhập tên đơn vị");
+  else if (state.units.some(u => norm(u.name) === norm(name) && u.id !== id)) setErr("uf-name", "Tên đơn vị đã tồn tại");
+
+  const rows = [...$("uf-teams").querySelectorAll(".team-row")].map(r => ({ id: r.dataset.id, name: r.querySelector("input").value.trim().replace(/\s+/g, " ") }));
+  const names = rows.map(r => norm(r.name));
+  if (names.some(n => !n)) $("uf-teams-err").textContent = "Tên đội không được để trống, hoặc xóa dòng trống đi";
+  else if (new Set(names).size !== names.length) $("uf-teams-err").textContent = "Có tên đội bị trùng";
+  if (root.querySelector(".field.invalid") || $("uf-teams-err").textContent) { focusFirstErr(root); return; }
+
+  const data = {
+    code, name, kind: $("uf-kind").value, desc: $("uf-desc").value.trim(),
+    teams: rows.map(r => ({ id: r.id || nextId("team", "DOI", 3), name: r.name }))
+  };
+  if (id) Object.assign(unitOf(id), data);
+  else state.units.push({ id: nextId("unit", "DV", 3), ...data });
+  fm.close();
+  toast(id ? `Đã lưu đơn vị ${name}` : `Đã thêm đơn vị ${name}`);
+  rerender();
+}
+function deleteUnit(id) {
+  const u = unitOf(id), np = countPeople("unitId", id), nr = countRecords("unitId", id);
+  if (np || nr) {
+    openForm({
+      title: "Chưa thể xóa đơn vị", narrow: true,
+      body: `<p class="confirm-text"><strong>${esc(u.name)}</strong> đang có ${np} cán bộ và ${nr} khen thưởng. Chuyển cán bộ sang đơn vị khác và xử lý các khen thưởng liên quan trước khi xóa.</p>`,
+      actions: [{ label: "Đóng", cls: "btn-primary" }]
+    });
+    return;
+  }
+  confirmBox({
+    title: "Xóa đơn vị",
+    message: `Xóa <strong>${esc(u.name)}</strong>${u.teams.length ? ` cùng ${u.teams.length} đội trực thuộc` : ""}? Thao tác này không hoàn tác được.`,
+    okLabel: "Xóa đơn vị",
+    onOk: () => { state.units = state.units.filter(x => x.id !== id); toast(`Đã xóa ${u.name}`); rerender(); }
+  });
+}
+
+// ================= KHỞI ĐỘNG =================
+refreshUnitSelects();
+fillTeamSelect($("f-team"), "", "Tất cả", true);
+resetAddForm();
+go("list");
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+- [Awards system plan decisions](project-awards-system-plan-decisions.md) — plan dir, parallel-phase contracts, pending validation questions (2026-10-14)
