@@ -6,7 +6,7 @@
 - Spec §9 NFR "Giới hạn CPU"
 
 ## Overview
-- Priority: P1 (blocks everything). Status: pending. Effort 6h.
+- Priority: P1 (blocks everything). Status: done. Effort 6h.
 - Scaffold single-package repo, toolchain, test harness, staging deploy; run 4 go/no-go spikes before any feature code.
 
 ## Key Insights
@@ -49,17 +49,17 @@
 10. CI workflow green on first commit.
 
 ## Todo List
-- [ ] git init + .gitignore
-- [ ] deps pinned, lockfile committed
-- [ ] wrangler.jsonc (prod + staging), D1 dbs created
-- [ ] tsconfig split, biome, vite config
-- [ ] vitest worker + client configs, one sample test each
-- [ ] Spike A triggers (local/remote/vitest)
-- [ ] Spike B batch atomicity + last_insert_rowid + query cap
-- [ ] Spike C PBKDF2 CPU on deployed staging
-- [ ] Spike D cron trigger in vite dev
-- [ ] spike report + cleanup
-- [ ] CI workflow
+- [x] git init + .gitignore
+- [x] deps pinned, lockfile committed
+- [x] wrangler.jsonc (prod + staging), D1 dbs created
+- [x] tsconfig split, biome, vite config
+- [x] vitest worker + client configs, one sample test each
+- [x] Spike A triggers (local/remote/vitest)
+- [x] Spike B batch atomicity + last_insert_rowid + query cap
+- [x] Spike C PBKDF2 CPU on deployed staging
+- [x] Spike D cron trigger in vite dev
+- [x] spike report + cleanup
+- [x] CI workflow
 
 ## Success Criteria
 - `npm run dev` -> browser shows placeholder; `curl /api/health` -> `{"ok":true}`; unknown `/api/x` -> JSON 404.

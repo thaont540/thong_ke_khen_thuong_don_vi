@@ -16,7 +16,7 @@ Research: `plans/reports/researcher-261014-1644-cloudflare-worker-hono-d1-stack.
 
 | # | Phase | Effort | Depends on | Status |
 |---|-------|--------|-----------|--------|
-| 01 | [Project setup + spikes](phase-01-project-setup-and-spikes.md) | 6h | – | pending |
+| 01 | [Project setup + spikes](phase-01-project-setup-and-spikes.md) | 6h | – | done |
 | 02 | [DB layer + shared core + master API](phase-02-db-layer-shared-core-master-api.md) | 6h | 01 | pending |
 | 03 | [Auth & users API (F07, F08 backend)](phase-03-auth-and-users-api.md) | 8h | 02 | pending |
 | 04 | [Frontend shell, design system, auth/user screens](phase-04-frontend-shell-design-system.md) | 10h | 02 | pending |
@@ -46,7 +46,7 @@ Parallel: {03 ∥ 04}, {05 ∥ 06}. 05 ∥ 07 also OK (no shared files).
 - All multi-statement writes via `db.batch()` (atomic); invariants in SQL (triggers, conditional UPDATE + `meta.changes`).
 - Pins: TS 5.9.x (not 7), vitest 4.1.x, react-router 8.4 (fallback 7.x), vite 8 + plugin-react 6, hono 4.13, zod 4, drizzle-orm 0.45.4, SheetJS 0.20.3 tarball.
 - Dark mode follows OS (`prefers-color-scheme`) exactly like mockup; no toggle (YAGNI). Font self-hosted via @fontsource.
-- **Free plan only (user decision 2026-10-14):** PBKDF2 iterations = largest N whose p95 CPU fits 10ms on the costliest request (change-password = 2 derivations); N stored in hash string, rehash-on-login if N later raised. Compensated by 10-char min, lockout, WAF rule. Spec §7/§9 deviation.
+- **Free plan only (user decision 2026-10-14):** spike showed free plan accepts 100k PBKDF2 (p95 72ms CPU, 60/60 burst OK, no 1102) -> keep spec 100000 (= workerd cap). N stored in hash string so it can be lowered later if 1102 appears. See `plans/reports/spike-261014-results.md`.
 - Spec deviations (minor): `awards.decision_number_search` column; import endpoint adds `dry_run` + `batch_id` params.
 
 ## Validation questions (details + options: [validation-questions.md](validation-questions.md))

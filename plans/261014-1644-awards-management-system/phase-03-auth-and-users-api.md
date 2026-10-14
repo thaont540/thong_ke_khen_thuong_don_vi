@@ -9,7 +9,7 @@
 - Password hashing, sessions, global middleware chain, RBAC, lockout, must-change gate, users CRUD, audit helper, cron cleanup, create-admin script.
 
 ## Key Insights
-- Hash format `pbkdf2$sha256$<N>$<salt b64>$<hash b64>`, N = `PBKDF2_ITERATIONS` from phase-01 Spike C (free plan, < 100k). Verify reads N from string; on successful login, if stored N < current constant → rehash (lets N rise later without resets).
+- Hash format `pbkdf2$sha256$<N>$<salt b64>$<hash b64>`, N = `PBKDF2_ITERATIONS` = 100000 (phase-01 Spike C: free plan accepts it). Verify reads N from string; on successful login, if stored N < current constant → rehash (lets N rise later without resets).
 - CPU budget: change-password does 2 derivations (verify old + hash new); never do more than 2 per request. Compare with `crypto.subtle.timingSafeEqual`.
 - Unknown username still runs PBKDF2 against a dummy hash -> constant timing.
 - Last-admin invariant mostly implied by "no self demote/lock", still enforced in SQL (conditional UPDATE + `meta.changes`).

@@ -1,0 +1,39 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "app-nghia",
+  "compatibility_date": "2026-10-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./src/worker/index.ts",
+  "upload_source_maps": true,
+  "observability": { "enabled": true },
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "app-nghia",
+      "database_id": "6c30470a-011c-4130-bf04-cd53240f30ff",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // UTC: 17:00 = 00:00 Vietnam time
+  "triggers": { "crons": ["0 17 * * *"] },
+  "env": {
+    "staging": {
+      "name": "app-nghia-staging",
+      "workers_dev": true,
+      "observability": { "enabled": true },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "app-nghia-staging",
+          "database_id": "f9bcb8d3-e69e-421b-a96a-e7baa4971492",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "triggers": { "crons": ["0 17 * * *"] }
+    }
+  }
+}

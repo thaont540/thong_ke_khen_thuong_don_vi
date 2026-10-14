@@ -7,7 +7,8 @@ Grouped by priority. Each has options; [Recommended] marked.
 - Q4 → A: EDITOR edits/deletes all records (spec as-is).
 - Q5 → A: allow Cờ thi đua at team level (no block).
 - Q8 → A: block delete; message shows active counts + soft-deleted note.
-- Q2, Q3, Q6 still open (business/infra info; do not block dev, block go-live). Q7 → default A (keep .xls).
+- Q2 → allowed for now (demo data only); prod D1 created.
+- Q3, Q6 still open (business/infra info; do not block dev, block go-live). Q7 → default A (keep .xls).
 
 ## Blocking (before phase 09 go-live; Q1 before phase 03 finishes)
 
