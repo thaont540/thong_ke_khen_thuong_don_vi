@@ -6,3 +6,4 @@
 - Q: Cờ Thi đua CP / Cờ thi đua BCA allowed at team level? → A: Allow, no block.
 - Q: Delete unit/team referenced only by soft-deleted rows? → A: Block delete.
 - Q: Store officer data on Cloudflare D1 (data residency)? → A: Yes for now; current data is demo only. Prod D1 `app-nghia` created 2026-10-14.
+- Q: Excel import limits? → A: Max 5 MB and max 100 data rows per file (changed from 1000).

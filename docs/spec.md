@@ -216,7 +216,7 @@ Nhập nhiều bản ghi cùng lúc từ một file. Hệ thống kiểm tra t�
 
 1. Người dùng bấm **Tải file mẫu (.xlsx)**.
 2. Người dùng điền mỗi dòng một khen thưởng vào sheet đầu tiên.
-3. Người dùng kéo thả file vào vùng tải lên hoặc bấm để chọn file (.xlsx, .xls, .csv).
+3. Người dùng kéo thả file vào vùng tải lên hoặc bấm để chọn file (.xlsx, .xls, .csv; tối đa 5 MB, 100 dòng).
 4. Hệ thống đọc sheet đầu tiên, bỏ qua dòng trống, kiểm tra từng dòng và hiện bảng xem trước.
 5. Người dùng bấm **Nhập N dòng hợp lệ**, hoặc **Chọn file khác** để làm lại.
 6. Hệ thống lưu các dòng hợp lệ trong cùng một đợt import, hiện "Đã nhập N khen thưởng" và về F01.
@@ -261,9 +261,10 @@ Bảng xem trước gồm: số dòng trong file, trạng thái (Hợp lệ / L�
 
 **Cảnh báo trùng khi import:** dòng hợp lệ còn được kiểm tra trùng theo BR-08, với dữ liệu đã có ("Trùng với bản ghi đã có (quyết định …)") và với các dòng phía trên trong cùng file ("Trùng với dòng … trong file"). Dòng trùng có trạng thái "Có thể trùng", tô màu vàng, mặc định không được nhập. Người dùng tích ô **Nhập cả N dòng có thể trùng** thì các dòng này được nhập cùng; nút nhập hiện đúng số dòng sẽ nhập.
 
-### Giới hạn (đề xuất)
+### Giới hạn
 
-- Tối đa 1.000 dòng và 5 MB mỗi file.
+- Mỗi file tối đa **5 MB** và tối đa **100 dòng dữ liệu** (không tính dòng tiêu đề và dòng trống). Đã chốt ngày 14/10/2026.
+- Vượt giới hạn thì từ chối cả file, không hiện bảng xem trước: "File vượt quá 5 MB" hoặc "File có N dòng, tối đa 100 dòng mỗi lần nhập". Máy chủ cũng chặn đợt import vượt 100 dòng.
 - Trình duyệt đọc file; máy chủ kiểm tra lại từng dòng khi nhận, không tin hoàn toàn kết quả phía trình duyệt.
 - Gửi lên máy chủ theo lô 30 dòng mỗi request để nằm trong giới hạn truy vấn của Worker bản free.
 - Mỗi lần nhập tạo một bản ghi đợt import (tên file, số dòng, người nhập) để tra lại nguồn của bản ghi.

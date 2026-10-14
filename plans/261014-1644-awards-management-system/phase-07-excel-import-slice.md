@@ -6,7 +6,7 @@
 - Reuses from 06: `award-duplicate-check-service.ts`, audit statement builder
 
 ## Overview
-- Priority: P2. Status: done (staging 1000-row run pending). Effort 10h. Depends: 06. Parallel with late 05.
+- Priority: P2. Status: done (staging 100-row run pending). Effort 10h. Depends: 06. Parallel with late 05.
 - Browser parses file (SheetJS, lazy-loaded), validates with shared validator, previews (incl. DB duplicate dry-run), commits in batches of 30; server revalidates everything.
 
 ## Key Insights
@@ -18,7 +18,7 @@
 - Intra-file duplicates: client marks "Trùng với dòng … trong file" across whole file; server rechecks within its 30-row batch + against DB (earlier batches already inserted -> caught as DB dups).
 
 ## Requirements
-- File: .xlsx/.xls/.csv, <= 5 MB, <= 1000 non-empty data rows; first sheet only; missing required columns -> reject file listing missing column names.
+- File: .xlsx/.xls/.csv, <= 5 MB, <= 100 non-empty data rows (limit changed 1000 -> 100 on 2026-10-14); first sheet only; missing required columns -> reject file listing missing column names.
 - Row checks + exact messages from spec §5 table; Mã cán bộ kept as text; unit match by normalized name or code; team must belong to unit; officer must belong to unit/team given; Huân chương must be given as variant name; empty Cấp quyết định -> default authority.
 - Preview table: row number, status (Hợp lệ / Lỗi / Có thể trùng), subject name, subject, award, year, decision no, errors; error rows red, dup rows yellow; checkbox "Nhập cả N dòng có thể trùng"; button "Nhập N dòng hợp lệ" shows exact count; "Chọn file khác".
 - Commit: sequential batches of 30; progress indicator; on partial failure stop, show which rows saved (batch id) — re-upload is safe because saved rows now flag as duplicates.
@@ -49,7 +49,7 @@ Create/modify (owned by 07):
 2. Server service: revalidate rows, bulk dup query, chunked inserts, batch row create/update, audit; enforce <=30 rows, batch_id ownership (created_by = user, created < 2h).
 3. Route + RBAC.
 4. Client: reader (size/ext checks, lazy import), template builder (2 sheets, 3 example rows), workflow hook (preview via dry_run, commit loop), UI per spec.
-5. Fixtures + tests; manual test with 1000-row file on staging (measure CPU per request).
+5. Fixtures + tests; manual test with 100-row file on staging (measure CPU per request).
 
 ## Test matrix
 | Case | Covers |
@@ -61,7 +61,7 @@ Create/modify (owned by 07):
 | Excel date cell, dd/mm/yyyy, yyyy-mm-dd, invalid 31/02 | F04 |
 | intra-file dup + DB dup -> "Có thể trùng", excluded unless include_duplicates | BR-08 |
 | server ignores client status: tampered row (team of other unit) rejected | §5 server revalidation |
-| 31 rows -> 400; 1000-row file -> 34 commits, one import_batches row with correct totals | §5 limits |
+| 31 rows -> 400; 100-row file -> 4 commits; 101 rows -> file rejected, one import_batches row with correct totals | §5 limits |
 | VIEWER -> 403 | RBAC |
 | batch_id of another user -> 403 | security |
 
@@ -71,10 +71,10 @@ Create/modify (owned by 07):
 - [x] SheetJS reader + template builder
 - [x] preview/commit UI
 - [x] fixtures + tests
-- [ ] staging 1000-row run (needs deploy; local 1000-row/34-lot test passes)
+- [ ] staging 100-row run (needs deploy)
 
 ## Success Criteria
-- Matrix green; 1000-row import completes on staging without CPU/query-limit errors; each commit request <= 20 D1 queries.
+- Matrix green; 100-row import completes on staging without CPU/query-limit errors; each commit request <= 20 D1 queries.
 - Template download opens in Excel/LibreOffice with both sheets and current Danh mục.
 
 ## Risk Assessment
