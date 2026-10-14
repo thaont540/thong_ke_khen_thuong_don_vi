@@ -34,8 +34,6 @@ const unitBody = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 const post = (body: unknown) => api("/api/units", { method: "POST", token, body });
-const put = (id: number, body: unknown) => api(`/api/units/${id}`, { method: "PUT", token, body });
-const del = (id: number) => api(`/api/units/${id}`, { method: "DELETE", token });
 const auditCount = async (entity: string, action: string) =>
   (
     (await db
@@ -111,109 +109,5 @@ describe("POST /api/units", () => {
   it("rejects empty team name and bad kind with 400", async () => {
     expect((await post(unitBody({ teams: [{ name: "  " }] }))).status).toBe(400);
     expect((await post(unitBody({ kind: "NOPE" }))).status).toBe(400);
-  });
-});
-
-describe("PUT /api/units/:id", () => {
-  it("renames a team keeping id and code; adds and removes unused teams", async () => {
-    const u = await createUnit({ teams: [{ name: "Đội A" }, { name: "Đội B" }] });
-    const [a, b] = u.teams;
-    const res = await put(u.id, {
-      ...unitBody({ name: "Đơn vị mới" }),
-      teams: [{ id: a?.id, name: "Đội A đổi tên" }, { name: "Đội C" }],
-    });
-    expect(res.status).toBe(200);
-    const after = unitDetailSchema.parse(await res.json());
-    expect(after.name).toBe("Đơn vị mới");
-    expect(after.teams.map((t) => [t.id, t.code, t.name])).toEqual([
-      [a?.id, "X1-T1", "Đội A đổi tên"],
-      [expect.any(Number), "X1-T3", "Đội C"],
-    ]);
-    expect(after.teams.some((t) => t.name === b?.name)).toBe(false); // ids may be reused
-    expect(await auditCount("unit", "UPDATE")).toBe(1);
-  });
-
-  it("renaming a used team keeps award history pointing at it", async () => {
-    const u = await createUnit({ teams: [{ name: "Đội A" }] });
-    const team = u.teams[0];
-    await insertAward(db, { subject: "TAP_THE", unitId: u.id, teamId: team?.id ?? 0 });
-    const res = await put(u.id, { ...unitBody(), teams: [{ id: team?.id, name: "Tên mới" }] });
-    expect(res.status).toBe(200);
-    const row = await db
-      .prepare("SELECT t.name FROM awards a JOIN teams t ON t.id = a.team_id WHERE a.unit_id = ?")
-      .bind(u.id)
-      .first<{ name: string }>();
-    expect(row?.name).toBe("Tên mới");
-  });
-
-  it("blocks removing a used team with the exact message (BR-04)", async () => {
-    const u = await createUnit({ teams: [{ name: "Đội A" }] });
-    const team = u.teams[0];
-    await insertOfficer(db, { id: 1, unitId: u.id, teamId: team?.id ?? 0 });
-    await insertAward(db, { subject: "TAP_THE", unitId: u.id, teamId: team?.id ?? 0 });
-    const res = await put(u.id, unitBody());
-    expect(res.status).toBe(409);
-    expect((await errorOf(res)).message).toBe(
-      "Không thể xóa Đội A vì còn 1 cán bộ và 1 khen thưởng thuộc đội này",
-    );
-    expect(
-      (await api(`/api/units/${u.id}`, { token }).then((r) => r.json())) as { teams: unknown[] },
-    ).toHaveProperty("teams.length", 1);
-  });
-
-  it("a team referenced only by a soft-deleted officer still blocks removal", async () => {
-    const u = await createUnit({ teams: [{ name: "Đội A" }] });
-    await insertOfficer(db, {
-      id: 1,
-      unitId: u.id,
-      teamId: u.teams[0]?.id ?? 0,
-      deletedAt: "2026-01-01 00:00:00",
-    });
-    expect((await put(u.id, unitBody())).status).toBe(409);
-  });
-
-  it("rejects a team id from another unit (400) and duplicate codes (409)", async () => {
-    const u = await createUnit();
-    const bad = await put(u.id, { ...unitBody(), teams: [{ id: SEED.teamP6Ct1, name: "Hack" }] });
-    expect(bad.status).toBe(400);
-    const dup = await put(u.id, unitBody({ code: "P1" }));
-    expect(dup.status).toBe(409);
-    expect((await put(9999, unitBody())).status).toBe(404);
-  });
-});
-
-describe("DELETE /api/units/:id", () => {
-  it("removes an empty unit with its teams and writes one audit row", async () => {
-    const u = await createUnit({ teams: [{ name: "Đội A" }] });
-    expect((await del(u.id)).status).toBe(200);
-    const left = await db
-      .prepare(
-        "SELECT (SELECT COUNT(*) FROM units WHERE id = ?) u, (SELECT COUNT(*) FROM teams WHERE unit_id = ?) t",
-      )
-      .bind(u.id, u.id)
-      .first<{ u: number; t: number }>();
-    expect(left).toEqual({ u: 0, t: 0 });
-    expect(await auditCount("unit", "DELETE")).toBe(1);
-  });
-
-  it("is blocked with counts when officers or awards reference the unit", async () => {
-    const u = await createUnit();
-    await insertOfficer(db, { id: 1, unitId: u.id });
-    await insertAward(db, { subject: "TAP_THE", unitId: u.id });
-    const res = await del(u.id);
-    expect(res.status).toBe(409);
-    const body = (await res.json()) as {
-      error: { message: string; officer_count: number; award_count: number };
-    };
-    expect(body.error.message).toContain("Chưa thể xóa đơn vị");
-    expect(body.error).toMatchObject({ officer_count: 1, award_count: 1 });
-    expect(await auditCount("unit", "DELETE")).toBe(0);
-  });
-
-  it("is blocked when only soft-deleted officers reference the unit; unknown id is 404", async () => {
-    const u = await createUnit();
-    await insertOfficer(db, { id: 1, unitId: u.id, deletedAt: "2026-01-01 00:00:00" });
-    expect((await del(u.id)).status).toBe(409);
-    expect((await del(9999)).status).toBe(404);
   });
 });

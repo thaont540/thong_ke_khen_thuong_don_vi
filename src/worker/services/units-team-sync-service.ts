@@ -1,4 +1,5 @@
 import { AppError } from "../lib/app-error";
+import { type BlockingUsage, usageSql, usageText } from "../lib/blocking-usage-message";
 import { sqlTimestamp } from "../lib/sql-timestamp";
 
 export interface TeamInput {
@@ -31,15 +32,12 @@ const nextSuffix = (rows: readonly TeamRow[]): number =>
   }, 0) + 1;
 
 /** Rows referencing a team, soft-deleted ones included (FK + clarification: they block deletion). */
-async function teamUsage(d1: D1Database, teamId: number) {
+async function teamUsage(d1: D1Database, teamId: number): Promise<BlockingUsage> {
   const row = await d1
-    .prepare(
-      `SELECT (SELECT COUNT(*) FROM officers WHERE team_id = ?) AS officers,
-              (SELECT COUNT(*) FROM awards WHERE team_id = ?) AS awards`,
-    )
-    .bind(teamId, teamId)
-    .first<{ officers: number; awards: number }>();
-  return row ?? { officers: 0, awards: 0 };
+    .prepare(usageSql("team_id"))
+    .bind(teamId, teamId, teamId, teamId)
+    .first<BlockingUsage>();
+  return row ?? { officers: 0, awards: 0, deleted_officers: 0, deleted_awards: 0 };
 }
 
 /**
@@ -75,7 +73,7 @@ export async function planTeamSync(
     const used = await teamUsage(d1, old.id);
     if (used.officers + used.awards > 0) {
       throw AppError.conflict(
-        `Không thể xóa ${old.name} vì còn ${used.officers} cán bộ và ${used.awards} khen thưởng thuộc đội này`,
+        `Không thể xóa ${old.name} vì còn ${usageText(used, " thuộc đội này")}`,
       );
     }
     deletes.push(d1.prepare("DELETE FROM teams WHERE id = ?").bind(old.id));

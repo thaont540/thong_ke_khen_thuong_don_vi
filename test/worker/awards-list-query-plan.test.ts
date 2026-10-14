@@ -24,9 +24,15 @@ describe("F01 query plans (D1 read cost)", () => {
     expect(p).not.toContain("TEMP B-TREE");
   });
 
-  it("unit/team filter uses ix_awards_unit_team", async () => {
-    expect(await plan({ page: 1, size: 10, unit_id: 6, team_id: 1 })).toContain(
-      "ix_awards_unit_team",
-    );
+  it("unit/team filter uses ix_awards_unit_team without a sort step", async () => {
+    const p = await plan({ page: 1, size: 10, unit_id: 6, team_id: 1 });
+    expect(p).toContain("ix_awards_unit_team");
+    expect(p).not.toContain("TEMP B-TREE");
+  });
+
+  it("unit-only filter walks ix_awards_unit_list without a sort step", async () => {
+    const p = await plan({ page: 1, size: 10, unit_id: 6 });
+    expect(p).toContain("ix_awards_unit_list");
+    expect(p).not.toContain("TEMP B-TREE");
   });
 });

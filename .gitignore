@@ -5,3 +5,5 @@ dist
 *.sql.bak
 backups/
 *.log
+playwright-report/
+test-results/

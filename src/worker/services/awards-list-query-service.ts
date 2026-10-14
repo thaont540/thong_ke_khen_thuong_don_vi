@@ -27,6 +27,39 @@ async function loadCollectiveNames(d1: D1Database): Promise<CollectiveNames> {
   return { units: units?.results ?? [], teams: teams?.results ?? [] };
 }
 
+/** Same shape as the live stats query, read from award_counters (filters on its own columns). */
+function buildCounterStats(d1: D1Database, query: AwardListQuery): D1PreparedStatement {
+  const parts = ["1 = 1"];
+  const binds: (string | number)[] = [];
+  if (query.unit_id !== undefined) {
+    parts.push("c.unit_id = ?");
+    binds.push(query.unit_id);
+  }
+  if (query.team_id !== undefined) {
+    parts.push("c.team_id = ?");
+    binds.push(query.team_id);
+  }
+  if (query.subject) {
+    parts.push("c.subject = ?");
+    binds.push(query.subject);
+  }
+  if (query.form) {
+    parts.push("t.form = ?");
+    binds.push(query.form);
+  }
+  return d1
+    .prepare(
+      `SELECT COALESCE(SUM(c.n), 0) AS total,
+              SUM(CASE WHEN t.form = 'DANH_HIEU' THEN c.n END) AS danh_hieu,
+              SUM(CASE WHEN t.form = 'KHEN_THUONG' THEN c.n END) AS khen_thuong,
+              SUM(CASE WHEN c.subject = 'TAP_THE' THEN c.n END) AS tap_the,
+              SUM(CASE WHEN c.subject = 'CA_NHAN' THEN c.n END) AS ca_nhan
+       FROM award_counters c JOIN award_types t ON t.id = c.award_type_id
+       WHERE ${parts.join(" AND ")}`,
+    )
+    .bind(...binds);
+}
+
 /**
  * F01: filtered page + stats of the same filtered set in ONE D1 round trip (2 statements, plus one
  * ~23-row name lookup only while searching). Unfiltered list walks ix_awards_list.
@@ -36,22 +69,26 @@ export async function listAwards(d1: D1Database, query: AwardListQuery) {
   const names = normalizeText(query.q ?? "") ? await loadCollectiveNames(d1) : undefined;
   const { where, binds } = buildAwardFilter(query, names);
 
-  const [items, stats] = await d1.batch([
-    d1
-      .prepare(
-        `SELECT ${AWARD_RECORD_COLUMNS} ${AWARD_RECORD_JOINS}
-         WHERE ${where} ${AWARD_ORDER} LIMIT ? OFFSET ?`,
-      )
-      .bind(...binds, limit, offset),
-    d1
-      .prepare(
-        `SELECT COUNT(*) AS total,
-                SUM(t.form = 'DANH_HIEU') AS danh_hieu, SUM(t.form = 'KHEN_THUONG') AS khen_thuong,
-                SUM(a.subject = 'TAP_THE') AS tap_the, SUM(a.subject = 'CA_NHAN') AS ca_nhan
-         FROM awards a JOIN award_types t ON t.id = a.award_type_id WHERE ${where}`,
-      )
-      .bind(...binds),
-  ]);
+  const pageStatement = d1
+    .prepare(
+      `SELECT ${AWARD_RECORD_COLUMNS} ${AWARD_RECORD_JOINS}
+       WHERE ${where} ${AWARD_ORDER} LIMIT ? OFFSET ?`,
+    )
+    .bind(...binds, limit, offset);
+  // Without a text search the stats come from the maintained award_counters (a few dozen rows)
+  // instead of scanning every matching award (migration 0003).
+  const counters = names === undefined;
+  const statsStatement = counters
+    ? buildCounterStats(d1, query)
+    : d1
+        .prepare(
+          `SELECT COUNT(*) AS total,
+                  SUM(t.form = 'DANH_HIEU') AS danh_hieu, SUM(t.form = 'KHEN_THUONG') AS khen_thuong,
+                  SUM(a.subject = 'TAP_THE') AS tap_the, SUM(a.subject = 'CA_NHAN') AS ca_nhan
+           FROM awards a JOIN award_types t ON t.id = a.award_type_id WHERE ${where}`,
+        )
+        .bind(...binds);
+  const [items, stats] = await d1.batch([pageStatement, statsStatement]);
   const s = (stats?.results[0] ?? { total: 0 }) as StatsRow;
   const summary: AwardStats = {
     total: s.total,

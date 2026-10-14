@@ -17,6 +17,8 @@
     "vite.config.ts",
     "vitest.worker.config.ts",
     "vitest.client.config.ts",
+    "playwright.config.ts",
+    "e2e",
     "scripts",
     "src/shared",
     "src/worker/lib/password-hash.ts",

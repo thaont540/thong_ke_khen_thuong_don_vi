@@ -7,7 +7,6 @@ import {
   insertUnit,
   insertUser,
   resetTestData,
-  SEED,
 } from "./helpers/test-fixtures";
 
 const db = env.DB;

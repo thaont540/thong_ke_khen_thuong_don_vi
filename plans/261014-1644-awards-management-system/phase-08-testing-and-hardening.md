@@ -4,7 +4,7 @@
 - Test matrices in phases 02–07; spec §9 NFRs (security, D1 limits, mobile, dark mode)
 
 ## Overview
-- Priority: P1. Status: pending. Effort 8h. Depends: 05, 06, 07. Blocks 09.
+- Priority: P1. Status: implemented (manual staging checklist + coverage measurement pending). Effort 8h. Depends: 05, 06, 07. Blocks 09.
 - Close coverage gaps, cross-feature flows, E2E smoke, security review, D1 cost/perf checks, a11y/responsive pass.
 
 ## Key Insights
@@ -54,12 +54,12 @@ Modify: `.github/workflows/ci.yml` (add coverage + line check + e2e job)
 6. Manual staging checklist (mobile, dark, real Excel, CPU per route via Workers Logs).
 
 ## Todo List
-- [ ] gap tests
-- [ ] RBAC completeness
-- [ ] read-cost tests + tuning
-- [ ] Playwright 6 flows + CI
-- [ ] security checklist
-- [ ] line-count CI check
+- [x] gap tests (security/limits, counters consistency, 50k read-cost)
+- [x] RBAC completeness
+- [x] read-cost tests + tuning (migration 0003: award_counters, ix_awards_unit_list, ix_awards_unit_team incl. id)
+- [x] Playwright 6 flows + CI (e2e job non-blocking)
+- [x] security checklist
+- [x] line-count CI check (`npm run check:file-lines`)
 - [ ] manual staging checklist signed off
 
 ## Success Criteria

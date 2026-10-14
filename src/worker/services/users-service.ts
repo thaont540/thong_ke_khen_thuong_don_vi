@@ -1,53 +1,15 @@
-import { AUDIT_ACTION, ROLE, type Role } from "../../shared/domain-enums";
+import { AUDIT_ACTION, ROLE } from "../../shared/domain-enums";
 import { normalizeText } from "../../shared/normalize-text";
-import type { UserCreate, UserDto, UserUpdate } from "../../shared/schemas/user-schemas";
+import type { UserCreate, UserUpdate } from "../../shared/schemas/user-schemas";
 import { AppError } from "../lib/app-error";
 import { auditStatement } from "../lib/audit-log-statement";
 import { hashPassword } from "../lib/password-hash";
 import { sqlTimestamp } from "../lib/sql-timestamp";
 import { generateTempPassword } from "../lib/temp-password";
 import { deleteUserSessionsStatement } from "./session-service";
+import { findUser, OTHER_ACTIVE_ADMIN, toDto, USER_COLUMNS, type UserRow } from "./user-record";
 
-const LIST_CAP = 500; // users are a handful of rows; search/paging runs in JS (diacritic-insensitive)
-
-interface UserRow {
-  id: number;
-  username: string;
-  full_name: string;
-  role: Role;
-  is_active: number;
-  must_change_password: number;
-  locked_until: string | null;
-  last_login_at: string | null;
-}
-
-const USER_COLUMNS =
-  "id, username, full_name, role, is_active, must_change_password, locked_until, last_login_at";
-
-const toDto = (r: UserRow, nowTs: string): UserDto => ({
-  id: r.id,
-  username: r.username,
-  full_name: r.full_name,
-  role: r.role,
-  is_active: r.is_active === 1,
-  is_locked: r.locked_until !== null && r.locked_until > nowTs,
-  must_change_password: r.must_change_password === 1,
-  last_login_at: r.last_login_at,
-});
-
-async function findUser(d1: D1Database, id: number): Promise<UserRow> {
-  const row = await d1
-    .prepare(`SELECT ${USER_COLUMNS} FROM users WHERE id = ?`)
-    .bind(id)
-    .first<UserRow>();
-  if (!row) throw AppError.notFound("Không tìm thấy người dùng");
-  return row;
-}
-
-/** SQL guard: another active ADMIN (not `?`) must remain after the change. */
-const OTHER_ACTIVE_ADMIN =
-  "(SELECT COUNT(*) FROM users WHERE role = 'ADMIN' AND is_active = 1 AND id <> ?) >= 1";
-
+const LIST_CAP = 500; // few users: search/paging runs in JS (diacritic-insensitive)
 export async function listUsers(
   d1: D1Database,
   q: { q?: string | undefined; page: number; size: number },

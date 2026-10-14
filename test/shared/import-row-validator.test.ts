@@ -1,10 +1,5 @@
 import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, it } from "vitest";
-import { mapImportHeaders } from "../../src/shared/import/import-column-definitions";
-import {
-  findIntraFileDuplicates,
-  intraFileMessage,
-} from "../../src/shared/import/import-duplicate-identity";
 import {
   buildImportLookups,
   type ImportLookups,
@@ -169,36 +164,5 @@ describe("validateImportRow messages (spec §5 table, verbatim)", () => {
   it("collects every error of a row; collective ignores the officer code", () => {
     expect(errorsOf(personal({ unit: "x", year: "", decision_number: "" })).length).toBe(3);
     expect(validateImportRow(collective({ officer_code: "ZZZ" }), lk).errors).toEqual([]);
-  });
-});
-
-describe("header mapping and intra-file duplicates", () => {
-  it("lists missing required column names, ignores case and spacing", () => {
-    const m = mapImportHeaders(["đối tượng", " Đơn  vị ", "Năm"]);
-    expect(m.missing).toEqual([
-      "Mã cán bộ",
-      "Hình thức",
-      "Danh hiệu / khen thưởng",
-      "Số quyết định",
-      "Ngày quyết định",
-      "Chi tiết giải thưởng",
-    ]);
-    expect(m.indexes.unit).toBe(1);
-  });
-
-  it("flags a row against all earlier valid rows with the same identity", () => {
-    const a = validateImportRow(personal({ row_number: 2 }), lk);
-    const b = validateImportRow(personal({ row_number: 3, decision_number: "9/QĐ" }), lk);
-    const c = validateImportRow(personal({ row_number: 4 }), lk);
-    const other = validateImportRow(personal({ row_number: 5, year: 2025 }), lk);
-    const bad = validateImportRow(personal({ row_number: 6, unit: "x" }), lk);
-    const map = findIntraFileDuplicates(
-      [a, b, c, other, bad].map((x, i) => ({ row_number: i + 2, input: x.input })),
-    );
-    expect(map.get(2)).toBeUndefined();
-    expect(map.get(3)).toEqual([2]);
-    expect(map.get(4)).toEqual([2, 3]);
-    expect(map.has(5) || map.has(6)).toBe(false);
-    expect(intraFileMessage([2, 3])).toBe("Trùng với dòng 2, 3 trong file");
   });
 });

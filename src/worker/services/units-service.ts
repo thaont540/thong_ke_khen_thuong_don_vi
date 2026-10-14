@@ -3,6 +3,7 @@ import { ERROR_CODE } from "../../shared/schemas/api-common-schemas";
 import type { UnitDetail, UnitUpsert } from "../../shared/schemas/unit-schemas";
 import { AppError } from "../lib/app-error";
 import { auditStatement } from "../lib/audit-log-statement";
+import { type BlockingUsage, usageSql, usageText } from "../lib/blocking-usage-message";
 import { sqlTimestamp } from "../lib/sql-timestamp";
 import { getUnitDetail } from "./units-query-service";
 import { MAX_BATCH_STATEMENTS, planTeamSync } from "./units-team-sync-service";
@@ -106,18 +107,12 @@ export async function updateUnit(
 export async function deleteUnit(d1: D1Database, actorId: number, id: number): Promise<void> {
   const before = await getUnitDetail(d1, id);
   // Soft-deleted rows still reference the unit (FK), so they block too (clarification Q8).
-  const used = await d1
-    .prepare(
-      `SELECT (SELECT COUNT(*) FROM officers WHERE unit_id = ?) AS officers,
-              (SELECT COUNT(*) FROM awards WHERE unit_id = ?) AS awards`,
-    )
-    .bind(id, id)
-    .first<{ officers: number; awards: number }>();
+  const used = await d1.prepare(usageSql("unit_id")).bind(id, id, id, id).first<BlockingUsage>();
   if (used && used.officers + used.awards > 0) {
     throw new AppError(
       409,
       ERROR_CODE.CONFLICT,
-      `Chưa thể xóa đơn vị: còn ${used.officers} cán bộ và ${used.awards} khen thưởng`,
+      `Chưa thể xóa đơn vị: còn ${usageText(used)}`,
       undefined,
       { officer_count: used.officers, award_count: used.awards },
     );

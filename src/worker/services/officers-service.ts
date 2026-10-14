@@ -1,22 +1,15 @@
 import { AUDIT_ACTION } from "../../shared/domain-enums";
 import { normalizeText } from "../../shared/normalize-text";
-import type { OfficerInput, OfficerListItem } from "../../shared/schemas/officer-schemas";
-import { AppError } from "../lib/app-error";
+import type { OfficerInput } from "../../shared/schemas/officer-schemas";
 import { auditStatement } from "../lib/audit-log-statement";
-import { toPageParams } from "../lib/pagination";
-import { LIKE_ESCAPE, toLikePattern } from "../lib/sql-like-pattern";
 import { sqlTimestamp } from "../lib/sql-timestamp";
 import {
   INSERT_OFFICER_WITH_NEXT_CODE,
   isBadgeConflict,
   isCodeConflict,
 } from "./officer-code-generator";
+import { findActiveOfficer } from "./officer-record";
 import { assertBadgeFree, assertOfficerRefs, badgeTakenError } from "./officers-validation";
-
-const COLUMNS =
-  "o.id, o.code, o.full_name, o.birth_year, o.badge_number, o.rank_id, o.position_id, o.unit_id, o.team_id";
-const AWARD_COUNT =
-  "(SELECT COUNT(*) FROM awards a WHERE a.officer_id = o.id AND a.deleted_at IS NULL)";
 
 interface OfficerRow {
   id: number;
@@ -28,68 +21,6 @@ interface OfficerRow {
   position_id: number;
   unit_id: number;
   team_id: number | null;
-}
-
-export interface OfficerListQuery {
-  unit_id?: number | undefined;
-  team_id?: number | undefined;
-  q?: string | undefined;
-  page: number;
-  size: number;
-}
-
-export async function listOfficers(d1: D1Database, q: OfficerListQuery) {
-  const where = ["o.deleted_at IS NULL"];
-  const binds: (string | number)[] = [];
-  if (q.unit_id !== undefined) {
-    where.push("o.unit_id = ?");
-    binds.push(q.unit_id);
-  }
-  if (q.team_id !== undefined) {
-    where.push("o.team_id = ?");
-    binds.push(q.team_id);
-  }
-  const pattern = toLikePattern(q.q);
-  if (pattern) {
-    // Name: contains. Badge and code: prefix (BR-07 normalised, wildcards escaped).
-    const prefix = pattern.slice(1);
-    where.push(
-      `(o.full_name_search LIKE ? ESCAPE '${LIKE_ESCAPE}'
-        OR o.badge_number LIKE ? ESCAPE '${LIKE_ESCAPE}'
-        OR o.code LIKE ? ESCAPE '${LIKE_ESCAPE}')`,
-    );
-    binds.push(pattern, prefix, prefix);
-  }
-  const { page, size, limit, offset } = toPageParams(q.page, q.size);
-  const clause = where.join(" AND ");
-  const [rows, total] = await Promise.all([
-    d1
-      .prepare(
-        `SELECT ${COLUMNS}, ${AWARD_COUNT} AS award_count
-         FROM officers o JOIN units u ON u.id = o.unit_id
-         WHERE ${clause}
-         ORDER BY u.sort_order, o.full_name_search, o.id LIMIT ? OFFSET ?`,
-      )
-      .bind(...binds, limit, offset)
-      .all<OfficerListItem>(),
-    d1
-      .prepare(`SELECT COUNT(*) AS n FROM officers o WHERE ${clause}`)
-      .bind(...binds)
-      .first<{ n: number }>(),
-  ]);
-  return { items: rows.results, total: total?.n ?? 0, page, size };
-}
-
-async function findActive(d1: D1Database, id: number): Promise<OfficerListItem> {
-  const row = await d1
-    .prepare(
-      `SELECT ${COLUMNS}, ${AWARD_COUNT} AS award_count FROM officers o
-       WHERE o.id = ? AND o.deleted_at IS NULL`,
-    )
-    .bind(id)
-    .first<OfficerListItem>();
-  if (!row) throw AppError.notFound("Không tìm thấy cán bộ");
-  return row;
 }
 
 const auditView = (o: OfficerInput | OfficerRow) => ({
@@ -141,7 +72,7 @@ export async function createOfficer(d1: D1Database, actorId: number, input: Offi
     if (!isCodeConflict(err)) throw err;
     id = await insertOfficer(d1, actorId, input); // lost the code race once: retry
   }
-  return findActive(d1, id);
+  return findActiveOfficer(d1, id);
 }
 
 export async function updateOfficer(
@@ -150,7 +81,7 @@ export async function updateOfficer(
   id: number,
   input: OfficerInput,
 ) {
-  const before = await findActive(d1, id);
+  const before = await findActiveOfficer(d1, id);
   await assertOfficerRefs(d1, input);
   await assertBadgeFree(d1, input.badge_number, id);
   const b = auditView(before);
@@ -192,7 +123,7 @@ export async function updateOfficer(
   } catch (err) {
     throw isBadgeConflict(err) ? badgeTakenError() : err;
   }
-  return findActive(d1, id);
+  return findActiveOfficer(d1, id);
 }
 
 /** BR-05: soft-deletes the officer and, in the same batch, every active award of the officer. */
@@ -201,9 +132,13 @@ export async function deleteOfficer(
   actorId: number,
   id: number,
 ): Promise<{ deleted_awards: number }> {
-  const before = await findActive(d1, id);
+  const before = await findActiveOfficer(d1, id);
   const now = sqlTimestamp();
+  // meta.changes also counts the award_counters trigger writes, so the count is read in-batch.
   const results = await d1.batch([
+    d1
+      .prepare("SELECT COUNT(*) AS n FROM awards WHERE officer_id = ? AND deleted_at IS NULL")
+      .bind(id),
     d1
       .prepare(
         `UPDATE awards SET deleted_at = ?, updated_at = ? WHERE officer_id = ? AND deleted_at IS NULL`,
@@ -223,5 +158,7 @@ export async function deleteOfficer(
       onlyIfPreviousChanged: true,
     }),
   ]);
-  return { deleted_awards: results[0]?.meta.changes ?? 0 };
+  return { deleted_awards: (results[0]?.results[0] as { n: number } | undefined)?.n ?? 0 };
 }
+
+export { listOfficers, type OfficerListQuery } from "./officers-list-service";

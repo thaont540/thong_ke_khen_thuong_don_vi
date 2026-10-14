@@ -1,11 +1,10 @@
 import { AUDIT_ACTION } from "../../shared/domain-enums";
-import { normalizeText } from "../../shared/normalize-text";
 import { ERROR_CODE } from "../../shared/schemas/api-common-schemas";
 import type { AwardInput } from "../../shared/schemas/award-schemas";
 import type { MasterDataDto } from "../../shared/schemas/master-data-dto";
 import { AppError } from "../lib/app-error";
 import { auditStatement } from "../lib/audit-log-statement";
-import { type DuplicateKey, duplicateStatement } from "./award-duplicate-check-service";
+import { duplicateStatement } from "./award-duplicate-check-service";
 import { assertValidAward } from "./award-validation-service";
 import {
   auditDetail,
@@ -14,8 +13,6 @@ import {
   duplicateKeyOf,
   insertAwardStatement,
 } from "./award-write-statements";
-
-type Bind = string | number | null;
 
 /** Editable columns of an award as stored (audit before/after + BR-02 comparison). */
 interface AwardRow {

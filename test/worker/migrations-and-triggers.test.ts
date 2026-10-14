@@ -1,14 +1,6 @@
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  insertAward,
-  insertOfficer,
-  insertTeam,
-  insertUnit,
-  insertUser,
-  resetTestData,
-  SEED,
-} from "./helpers/test-fixtures";
+import { insertAward, insertOfficer, resetTestData, SEED } from "./helpers/test-fixtures";
 
 const db = env.DB;
 const count = async (table: string) =>
