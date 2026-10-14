@@ -16,6 +16,10 @@ export const ERROR_CODE = {
   VALIDATION: "VALIDATION",
   UNAUTHORIZED: "UNAUTHORIZED",
   FORBIDDEN: "FORBIDDEN",
+  /** 403: session is valid but must_change_password=1 (only /api/me, change-password, logout allowed). */
+  PASSWORD_CHANGE_REQUIRED: "PASSWORD_CHANGE_REQUIRED",
+  /** 423: account deactivated or temporarily locked after failed logins. */
+  ACCOUNT_LOCKED: "ACCOUNT_LOCKED",
   NOT_FOUND: "NOT_FOUND",
   CONFLICT: "CONFLICT",
   DUPLICATE: "DUPLICATE",

@@ -6,7 +6,7 @@
 - Contracts: `src/shared/schemas/*`, `src/shared/role-permissions.ts` (phase 02)
 
 ## Overview
-- Priority: P1. Status: pending. Effort 10h. Depends: 02. Parallel with 03 (codes against zod contracts; final integration check needs 03).
+- Priority: P1. Status: done. Effort 10h. Depends: 02. Parallel with 03 (codes against zod contracts; final integration check needs 03).
 - SPA bootstrap, ported design tokens (light/dark via `prefers-color-scheme`), layout + role menu, router + guards, API client, reusable UI primitives, login, change-password, F08 users screen. Creates stub pages for 05/06/07.
 
 ## Key Insights
@@ -75,13 +75,13 @@ Create (owned by 04):
 | modal closes on Esc/backdrop/×/Đóng | F02 behaviour reused |
 
 ## Todo List
-- [ ] tokens/styles ported
-- [ ] providers, api client, hooks
-- [ ] router + guards + layout/menu + stubs
-- [ ] UI primitives + unit-team-select
-- [ ] login, change-password
-- [ ] users page (F08)
-- [ ] tests + _headers
+- [x] tokens/styles ported
+- [x] providers, api client, hooks
+- [x] router + guards + layout/menu + stubs
+- [x] UI primitives + unit-team-select
+- [x] login, change-password
+- [x] users page (F08)
+- [x] tests + _headers
 
 ## Success Criteria
 - Visual parity with mockup shell in light and dark (side-by-side screenshot check).

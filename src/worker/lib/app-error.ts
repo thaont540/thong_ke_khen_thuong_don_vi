@@ -1,6 +1,6 @@
 import { ERROR_CODE, type ErrorCode } from "../../shared/schemas/api-common-schemas";
 
-export type AppErrorStatus = 400 | 401 | 403 | 404 | 409 | 422 | 429 | 500;
+export type AppErrorStatus = 400 | 401 | 403 | 404 | 409 | 422 | 423 | 429 | 500;
 
 /** Thrown by routes/services; `error-handler` turns it into the JSON envelope. */
 export class AppError extends Error {
@@ -24,6 +24,16 @@ export class AppError extends Error {
   }
   static forbidden(message = "Bạn không có quyền thực hiện thao tác này") {
     return new AppError(403, ERROR_CODE.FORBIDDEN, message);
+  }
+  static passwordChangeRequired() {
+    return new AppError(
+      403,
+      ERROR_CODE.PASSWORD_CHANGE_REQUIRED,
+      "Bạn cần đổi mật khẩu trước khi tiếp tục",
+    );
+  }
+  static accountLocked() {
+    return new AppError(423, ERROR_CODE.ACCOUNT_LOCKED, "Tài khoản đang bị khóa");
   }
   static notFound(message = "Không tìm thấy") {
     return new AppError(404, ERROR_CODE.NOT_FOUND, message);

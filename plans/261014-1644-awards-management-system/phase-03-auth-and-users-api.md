@@ -5,7 +5,7 @@
 - Phase 02 contracts: `src/shared/schemas/auth-schemas.ts`, `user-schemas.ts`
 
 ## Overview
-- Priority: P1. Status: pending. Effort 8h. Depends: 02. Parallel with 04. Blocks 05, 06.
+- Priority: P1. Status: done (2026-10-14). Effort 8h. Depends: 02. Parallel with 04. Blocks 05, 06.
 - Password hashing, sessions, global middleware chain, RBAC, lockout, must-change gate, users CRUD, audit helper, cron cleanup, create-admin script.
 
 ## Key Insights
@@ -80,14 +80,14 @@ Modify: `src/worker/app.ts` (middleware chain), `src/worker/index.ts` (scheduled
 | cron | expired sessions removed, active kept |
 
 ## Todo List
-- [ ] password hash lib + tests
-- [ ] session token/cookie/service
-- [ ] 4 middlewares wired
-- [ ] auth routes + audit
-- [ ] users routes + guards
-- [ ] cron cleanup
-- [ ] create-admin script
-- [ ] tests incl. RBAC matrix
+- [x] password hash lib + tests
+- [x] session token/cookie/service
+- [x] 4 middlewares wired
+- [x] auth routes + audit
+- [x] users routes + guards
+- [x] cron cleanup
+- [x] create-admin script
+- [x] tests incl. RBAC matrix
 
 ## Success Criteria
 - All tests above green; `npm run create-admin -- --env local` creates admin able to log in and forced to change pw.

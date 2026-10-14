@@ -1,6 +1,9 @@
 import { Hono } from "hono";
 import { ERROR_CODE } from "../shared/schemas/api-common-schemas";
 import { handleError } from "./lib/error-handler";
+import { mustChangePasswordGate } from "./middleware/must-change-password-gate";
+import { originCheck } from "./middleware/origin-check-middleware";
+import { sessionAuth } from "./middleware/session-auth-middleware";
 import { authRoutes, meRoutes } from "./routes/auth-routes";
 import { awardsImportRoutes } from "./routes/awards-import-routes";
 import { awardsRoutes } from "./routes/awards-routes";
@@ -12,6 +15,11 @@ import { usersRoutes } from "./routes/users-routes";
 import type { AppEnv } from "./types/hono-env";
 
 export const app = new Hono<AppEnv>();
+
+// Order matters: origin check -> session -> must-change gate -> per-router requireRole.
+app.use("/api/*", originCheck);
+app.use("/api/*", sessionAuth);
+app.use("/api/*", mustChangePasswordGate);
 
 app.get("/api/health", (c) => c.json({ ok: true }));
 

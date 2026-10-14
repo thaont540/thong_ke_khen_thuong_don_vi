@@ -1,11 +1,21 @@
 import { env } from "cloudflare:workers";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { masterDataDtoSchema } from "../../src/shared/schemas/master-data-dto";
-import { app } from "../../src/worker/app";
+import { api, createSession } from "./helpers/auth-helpers";
+import { insertUser, resetTestData } from "./helpers/test-fixtures";
+
+let token: string;
+
+beforeEach(async () => {
+  await resetTestData(env.DB);
+  await insertUser(env.DB, { id: 1, username: "viewer1", role: "VIEWER" });
+  await env.DB.prepare("UPDATE users SET must_change_password = 0").run();
+  token = await createSession(env.DB, 1);
+});
 
 describe("GET /api/master", () => {
   it("returns seeded catalog matching the shared DTO schema, no-store", async () => {
-    const res = await app.request("/api/master", {}, env);
+    const res = await api("/api/master", { token });
     expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("no-store");
     const data = masterDataDtoSchema.parse(await res.json());
@@ -19,9 +29,7 @@ describe("GET /api/master", () => {
   });
 
   it("is sorted by sort_order and nests teams under their unit", async () => {
-    const data = masterDataDtoSchema.parse(
-      await (await app.request("/api/master", {}, env)).json(),
-    );
+    const data = masterDataDtoSchema.parse(await (await api("/api/master", { token })).json());
     for (const list of [
       data.units,
       data.ranks,
@@ -41,9 +49,7 @@ describe("GET /api/master", () => {
   it("only active types/variants and boolean requires_variant", async () => {
     await env.DB.prepare("UPDATE award_types SET is_active = 0 WHERE code = 'GIAY_KHEN'").run();
     try {
-      const data = masterDataDtoSchema.parse(
-        await (await app.request("/api/master", {}, env)).json(),
-      );
+      const data = masterDataDtoSchema.parse(await (await api("/api/master", { token })).json());
       expect(data.award_types.map((t) => t.code)).not.toContain("GIAY_KHEN");
       expect(data.award_types.find((t) => t.code === "HUAN_CHUONG")?.requires_variant).toBe(true);
     } finally {
@@ -52,7 +58,7 @@ describe("GET /api/master", () => {
   });
 
   it("unknown route stays JSON 404", async () => {
-    const res = await app.request("/api/officers/options", {}, env);
+    const res = await api("/api/officers/options", { token });
     expect(res.status).toBe(404);
   });
 });

@@ -1,0 +1,122 @@
+/* Fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.field > label,
+.flabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.req {
+  color: var(--red);
+}
+select,
+input[type="search"],
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea {
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 100%;
+}
+textarea {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.55;
+}
+select:disabled,
+input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+.err {
+  font-size: 12px;
+  color: var(--red);
+}
+.err:empty {
+  display: none;
+}
+.field.invalid select,
+.field.invalid input,
+.field.invalid textarea {
+  border-color: var(--red);
+}
+
+/* Segmented radio */
+.seg {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+.seg label {
+  position: relative;
+  cursor: pointer;
+}
+.seg input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.seg span {
+  display: block;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.seg input:checked + span {
+  background: var(--surface);
+  color: var(--primary);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.seg input:focus-visible + span {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+/* Filter bar */
+.filters {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 1.3fr) auto;
+  gap: 12px 14px;
+  align-items: end;
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 14px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+.toolbar .field {
+  flex: 1 1 200px;
+}
+.toolbar .field-wide {
+  flex: 2 1 260px;
+}

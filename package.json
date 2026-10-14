@@ -44,6 +44,7 @@
     "typecheck": "tsc -b",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "create-admin": "tsx scripts/create-admin.ts",
     "cf-typegen": "wrangler types",
     "test:worker": "vitest run -c vitest.worker.config.ts",
     "test:client": "vitest run -c vitest.client.config.ts",

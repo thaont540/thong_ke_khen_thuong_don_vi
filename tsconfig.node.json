@@ -13,5 +13,13 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["vite.config.ts", "vitest.worker.config.ts", "vitest.client.config.ts", "scripts"]
+  "include": [
+    "vite.config.ts",
+    "vitest.worker.config.ts",
+    "vitest.client.config.ts",
+    "scripts",
+    "src/shared",
+    "src/worker/lib/password-hash.ts",
+    "src/worker/lib/temp-password.ts"
+  ]
 }

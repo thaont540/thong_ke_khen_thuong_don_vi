@@ -1,0 +1,121 @@
+/* Toast */
+.toast-stack {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 30;
+  display: grid;
+  gap: 8px;
+  max-width: calc(100% - 32px);
+}
+.toast {
+  background: var(--ink);
+  color: var(--surface);
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.toast.error {
+  background: var(--red);
+  color: var(--surface);
+}
+
+/* User menu (sidebar footer) */
+.side-user {
+  margin-top: auto;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 13px;
+  display: grid;
+  gap: 8px;
+}
+.side-user .who {
+  font-size: 14px;
+}
+.side-user .role {
+  opacity: 0.7;
+}
+.side-user-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.side-user .btn {
+  background: transparent;
+  color: inherit;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Auth screens */
+.auth-wrap {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+.auth-card {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 16px;
+}
+.auth-card h1 {
+  margin: 0;
+}
+.auth-card .brand {
+  color: var(--primary);
+}
+.auth-card form {
+  display: grid;
+  gap: 14px;
+}
+.alert-inline {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 14px;
+}
+.pw-result {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.pw-result code {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.pw-row {
+  display: flex;
+  gap: 8px;
+}
+.pw-row input {
+  flex: 1;
+}
+.skip-link {
+  position: absolute;
+  left: -999px;
+}
+.skip-link:focus {
+  left: 8px;
+  top: 8px;
+  z-index: 40;
+  background: var(--surface);
+  padding: 6px 10px;
+}
+
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--muted);
+}
+.empty p {
+  margin: 0 0 12px;
+}

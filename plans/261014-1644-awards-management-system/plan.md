@@ -18,7 +18,7 @@ Research: `plans/reports/researcher-261014-1644-cloudflare-worker-hono-d1-stack.
 |---|-------|--------|-----------|--------|
 | 01 | [Project setup + spikes](phase-01-project-setup-and-spikes.md) | 6h | – | done |
 | 02 | [DB layer + shared core + master API](phase-02-db-layer-shared-core-master-api.md) | 6h | 01 | done |
-| 03 | [Auth & users API (F07, F08 backend)](phase-03-auth-and-users-api.md) | 8h | 02 | pending |
+| 03 | [Auth & users API (F07, F08 backend)](phase-03-auth-and-users-api.md) | 8h | 02 | done |
 | 04 | [Frontend shell, design system, auth/user screens](phase-04-frontend-shell-design-system.md) | 10h | 02 | pending |
 | 05 | [Units & officers slice (F05, F06)](phase-05-units-and-officers-slice.md) | 8h | 03, 04 | pending |
 | 06 | [Awards slice (F01, F02, F03, F09)](phase-06-awards-slice.md) | 14h | 03, 04 | pending |

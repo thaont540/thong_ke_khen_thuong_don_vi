@@ -1,9 +1,17 @@
 import { app } from "./app";
+import { cleanupExpiredSessions } from "./cron/cleanup-expired-sessions";
 
 export default {
   fetch: app.fetch,
-  // Phase 03+ wires the real nightly job; stub keeps the cron trigger valid.
-  async scheduled(controller, _env, _ctx) {
-    console.log(`scheduled run: cron=${controller.cron}`);
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(
+      cleanupExpiredSessions(env.DB).then(
+        (deleted) => console.log(`cron=${controller.cron}: removed ${deleted} expired sessions`),
+        (err) => {
+          console.error("cron cleanup failed", err);
+          throw err;
+        },
+      ),
+    );
   },
 } satisfies ExportedHandler<Env>;

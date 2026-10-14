@@ -1,0 +1,37 @@
+/* Design tokens ported from docs/mockup.html. Dark mode follows the OS. */
+:root {
+  color-scheme: light;
+  --bg: #eef1ee;
+  --surface: #ffffff;
+  --surface-2: #f5f7f5;
+  --ink: #1b2a24;
+  --muted: #5e6e66;
+  --line: #d6ddd8;
+  --primary: #24503f;
+  --primary-ink: #ffffff;
+  --primary-soft: #e1ebe5;
+  --gold: #8a6418;
+  --gold-soft: #f6ecd4;
+  --red: #9c2f2a;
+  --red-soft: #f7e3e1;
+  --focus: #c9962e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #121815;
+    --surface: #1a221e;
+    --surface-2: #212b26;
+    --ink: #e4ebe7;
+    --muted: #9aaaa2;
+    --line: #2f3b35;
+    --primary: #6fae91;
+    --primary-ink: #0f1713;
+    --primary-soft: #23382e;
+    --gold: #e3be6c;
+    --gold-soft: #3a3020;
+    --red: #f0948d;
+    --red-soft: #3e2523;
+    --focus: #e3be6c;
+  }
+}
