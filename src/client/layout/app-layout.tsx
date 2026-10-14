@@ -4,7 +4,9 @@ import { OfficerDetailModalHost } from "../officer-detail/officer-detail-modal-h
 import { SidebarNav } from "./sidebar-nav";
 import { UserMenu } from "./user-menu";
 
-const STAR = "M12 2l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17l-6.1 3.4 1.5-6.8L2.2 9l6.9-.7z";
+// Quốc kỳ Việt Nam, tỉ lệ 3:2: nền đỏ, sao vàng năm cánh ở giữa (bán kính = 1/5 chiều dài).
+const FLAG_STAR =
+  "15,4 16.35,8.15 20.71,8.15 17.18,10.71 18.53,14.85 15,12.29 11.47,14.85 12.82,10.71 9.29,8.15 13.65,8.15";
 
 export function AppLayout() {
   const { data: me } = useCurrentUser();
@@ -17,8 +19,9 @@ export function AppLayout() {
       <aside className="side">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="#24503F">
-              <path d={STAR} />
+            <svg viewBox="0 0 30 20">
+              <rect width="30" height="20" fill="#DA251D" />
+              <polygon points={FLAG_STAR} fill="#FFFF00" />
             </svg>
           </span>
           Thi đua, khen thưởng
