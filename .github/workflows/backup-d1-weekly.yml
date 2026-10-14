@@ -1,0 +1,45 @@
+name: backup-d1-weekly
+# Export D1 production hằng tuần, mã hóa bằng age (khóa công khai) rồi mới upload artifact.
+# File plaintext chỉ tồn tại trong runner, không bao giờ được upload.
+on:
+  schedule:
+    - cron: "0 18 * * 0" # Chủ nhật 18:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      BACKUP_AGE_RECIPIENT: ${{ secrets.BACKUP_AGE_RECIPIENT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install age
+        run: sudo apt-get update && sudo apt-get install -y age
+      - name: Export, compress, encrypt
+        run: |
+          set -euo pipefail
+          test -n "$BACKUP_AGE_RECIPIENT" || { echo "Thiếu secret BACKUP_AGE_RECIPIENT"; exit 1; }
+          stamp="$(date -u +%Y%m%d-%H%M)"
+          npx wrangler d1 export app-nghia --remote --output=backup.sql
+          test -s backup.sql
+          gzip -9 backup.sql
+          age -r "$BACKUP_AGE_RECIPIENT" -o "app-nghia-${stamp}.sql.gz.age" backup.sql.gz
+          shred -u backup.sql.gz || rm -f backup.sql.gz
+          ls -l ./*.age
+          echo "BACKUP_FILE=app-nghia-${stamp}.sql.gz.age" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: d1-backup-${{ github.run_id }}
+          path: "*.sql.gz.age"
+          if-no-files-found: error
+          retention-days: 90

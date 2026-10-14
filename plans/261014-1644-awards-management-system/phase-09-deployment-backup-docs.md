@@ -5,7 +5,7 @@
 - Research auth §1 (WAF needs custom proxied domain); validation Q1–Q3
 
 ## Overview
-- Priority: P1. Status: pending. Effort 5h. Depends: 08 + answers to Q1, Q2, Q3.
+- Priority: P1. Status: in progress. Effort 5h. Depends: 08 + answers to Q1, Q2, Q3.
 - Production deploy pipeline, first admin, WAF rule, encrypted weekly D1 export, runbooks, project docs.
 
 ## Key Insights
@@ -39,12 +39,14 @@ Modify: `wrangler.jsonc` (routes/custom domain, observability), `package.json` s
 6. Write docs; update roadmap/changelog.
 
 ## Todo List
-- [ ] Q1–Q3 resolved
-- [ ] deploy workflow + environments
-- [ ] backup workflow + restore drill
-- [ ] prod D1 + migrations + first admin
+- [ ] Q1–Q3 resolved (Q1, Q2 done; Q3 domain open)
+- [x] deploy workflow written (master -> prod, develop -> staging)
+- [ ] GitHub secrets + environments (user)
+- [x] backup workflow written
+- [ ] first backup run + restore drill (needs secrets)
+- [x] prod D1 + migrations 0001-0004 + first admin (2026-10-14); staging role smoke test OK
 - [ ] custom domain + WAF
-- [ ] docs + runbooks
+- [x] docs + runbooks + README
 
 ## Success Criteria
 - Prod URL serves app over HTTPS only; first admin logged in and changed password.

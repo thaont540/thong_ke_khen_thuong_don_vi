@@ -1,10 +1,10 @@
 ---
 title: "Hệ thống quản lý thi đua, khen thưởng (F01–F09)"
 description: "Single Cloudflare Worker (Hono API + React SPA + D1) for award records, officers, units, users, Excel import."
-status: pending
+status: in-progress
 priority: P1
 effort: 75h
-branch: main (repo not initialised yet; created in phase 01)
+branch: develop
 tags: [cloudflare-workers, hono, d1, react, drizzle, zod, auth, excel-import]
 created: 2026-10-14
 ---
@@ -19,12 +19,12 @@ Research: `plans/reports/researcher-261014-1644-cloudflare-worker-hono-d1-stack.
 | 01 | [Project setup + spikes](phase-01-project-setup-and-spikes.md) | 6h | – | done |
 | 02 | [DB layer + shared core + master API](phase-02-db-layer-shared-core-master-api.md) | 6h | 01 | done |
 | 03 | [Auth & users API (F07, F08 backend)](phase-03-auth-and-users-api.md) | 8h | 02 | done |
-| 04 | [Frontend shell, design system, auth/user screens](phase-04-frontend-shell-design-system.md) | 10h | 02 | pending |
-| 05 | [Units & officers slice (F05, F06)](phase-05-units-and-officers-slice.md) | 8h | 03, 04 | pending |
+| 04 | [Frontend shell, design system, auth/user screens](phase-04-frontend-shell-design-system.md) | 10h | 02 | done |
+| 05 | [Units & officers slice (F05, F06)](phase-05-units-and-officers-slice.md) | 8h | 03, 04 | done |
 | 06 | [Awards slice (F01, F02, F03, F09)](phase-06-awards-slice.md) | 14h | 03, 04 | done |
-| 07 | [Excel import slice (F04)](phase-07-excel-import-slice.md) | 10h | 06 | pending |
-| 08 | [Testing & hardening](phase-08-testing-and-hardening.md) | 8h | 05, 06, 07 | pending |
-| 09 | [Deployment, backup, docs](phase-09-deployment-backup-docs.md) | 5h | 08 | pending |
+| 07 | [Excel import slice (F04)](phase-07-excel-import-slice.md) | 10h | 06 | done |
+| 08 | [Testing & hardening](phase-08-testing-and-hardening.md) | 8h | 05, 06, 07 | done |
+| 09 | [Deployment, backup, docs](phase-09-deployment-backup-docs.md) | 5h | 08 | in progress (needs GitHub secrets, backup drill, domain) |
 
 ## Dependency graph
 
