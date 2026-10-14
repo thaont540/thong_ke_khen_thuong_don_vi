@@ -81,7 +81,7 @@ describe("F01 awards list", () => {
     expect(router.state.location.search).toBe("");
     await user.type(screen.getByLabelText("Tìm kiếm"), "bc");
     await waitFor(() => expect(router.state.location.search).toBe("?q=abc"), { timeout: 2000 });
-    expect(api.calls.some((c) => c.query.get("q") === "abc")).toBe(true);
+    await waitFor(() => expect(api.calls.some((c) => c.query.get("q") === "abc")).toBe(true));
   });
 
   it("shows an empty state with a reset button", async () => {
