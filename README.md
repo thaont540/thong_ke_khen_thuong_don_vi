@@ -32,6 +32,9 @@ npm run test:e2e
 
 ## Tài liệu
 
+Hướng dẫn sử dụng cho người dùng cuối (tiếng Việt, ảnh chụp có đánh số): mở `docs/user-guide/index.html` bằng trình duyệt. Tạo lại ảnh bằng `npm run docs:user-guide` (dùng dữ liệu giả, DB và cổng 5181 riêng, không đụng dev server).
+
+
 | File | Nội dung |
 |---|---|
 | `docs/spec.md` | Đặc tả nghiệp vụ (nguồn chính) |

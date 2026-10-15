@@ -4,7 +4,10 @@
 
 ## 2026-10-15
 
+- Sửa lỗi giao diện điện thoại: ở màn hình hẹp (≤ 760px) thanh menu ngang làm trang rộng hơn màn hình; cột lưới dùng `minmax(0, 1fr)`, menu cuộn trong dải riêng.
+
 ### Added
+- Hướng dẫn sử dụng tiếng Việt cho người dùng cuối: `docs/user-guide/index.html` (vai trò và quyền, F01-F09, import Excel, FAQ) kèm 39 ảnh chụp có vòng số đánh dấu trong `docs/user-guide/images/`. Ảnh sinh tự động bằng `npm run docs:user-guide` (`scripts/user-guide/`): build + `vite preview` cổng 5181, D1 riêng `.wrangler/user-guide-state`, dữ liệu minh họa giả, Playwright.
 - Cán bộ: tháng năm vào ngành (`officers.joined_month`), xếp loại (`officers.rating_id`, danh mục `officer_ratings` 4 mức) và thâm niên tính khi hiển thị (năm hiện tại giờ VN trừ năm vào ngành). Migration 0006; `GET /api/master` thêm `officer_ratings`; DTO cán bộ thêm `joined_month`, `rating_id`, `rating_name`. F05 có thêm 2 ô nhập và 3 cột, F02 thêm 3 dòng thông tin, F03 hiện thâm niên. Validation: không ở tương lai, năm vào ngành >= năm sinh + 16, xếp loại phải tồn tại và đang hoạt động.
 
 ## 2026-10-14
