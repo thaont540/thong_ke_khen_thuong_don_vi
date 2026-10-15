@@ -14,8 +14,13 @@
   }
 }
 @media (max-width: 760px) {
+  /* minmax(0, 1fr): without it the horizontal nav strip's min-content width stretches the page. */
   .app {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .side,
+  main {
+    min-width: 0;
   }
   .side {
     padding: 12px 16px;
