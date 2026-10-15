@@ -4,6 +4,7 @@ import {
   authorities,
   awardTypes,
   awardVariants,
+  officerRatings,
   positions,
   ranks,
   teams,
@@ -28,6 +29,8 @@ export const officers = sqliteTable("officers", {
     .notNull()
     .references(() => units.id),
   teamId: integer("team_id").references(() => teams.id),
+  joinedMonth: text("joined_month"),
+  ratingId: integer("rating_id").references(() => officerRatings.id),
   createdBy: integer("created_by").references(() => users.id),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),

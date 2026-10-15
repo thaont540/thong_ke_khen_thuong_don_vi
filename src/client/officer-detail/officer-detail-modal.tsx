@@ -1,4 +1,9 @@
 import { useNavigate } from "react-router";
+import {
+  formatJoinedMonth,
+  formatSeniority,
+  officerSeniorityYears,
+} from "../../shared/officer-seniority";
 import { can } from "../../shared/role-permissions";
 import { ModalDialog } from "../components/ui/modal-dialog";
 import { useCurrentUser } from "../hooks/use-current-user";
@@ -108,6 +113,18 @@ export function OfficerDetailModal({ officerId, awardId, onClose }: Props) {
               <div>
                 <dt>Mã cán bộ</dt>
                 <dd>{o.code}</dd>
+              </div>
+              <div>
+                <dt>Tháng năm vào ngành</dt>
+                <dd>{formatJoinedMonth(o.joined_month)}</dd>
+              </div>
+              <div>
+                <dt>Thâm niên</dt>
+                <dd>{formatSeniority(officerSeniorityYears(o.joined_month))}</dd>
+              </div>
+              <div>
+                <dt>Xếp loại</dt>
+                <dd>{o.rating_name ?? "—"}</dd>
               </div>
               <div className="full">
                 <dt>Đơn vị</dt>

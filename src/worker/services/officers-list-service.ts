@@ -1,7 +1,11 @@
 import type { OfficerListItem } from "../../shared/schemas/officer-schemas";
 import { toPageParams } from "../lib/pagination";
 import { LIKE_ESCAPE, toLikePattern } from "../lib/sql-like-pattern";
-import { OFFICER_AWARD_COUNT as AWARD_COUNT, OFFICER_COLUMNS as COLUMNS } from "./officer-record";
+import {
+  OFFICER_AWARD_COUNT as AWARD_COUNT,
+  OFFICER_COLUMNS as COLUMNS,
+  OFFICER_RATING_JOIN as RATING_JOIN,
+} from "./officer-record";
 
 export interface OfficerListQuery {
   unit_id?: number | undefined;
@@ -39,7 +43,7 @@ export async function listOfficers(d1: D1Database, q: OfficerListQuery) {
     d1
       .prepare(
         `SELECT ${COLUMNS}, ${AWARD_COUNT} AS award_count
-         FROM officers o JOIN units u ON u.id = o.unit_id
+         FROM officers o JOIN units u ON u.id = o.unit_id ${RATING_JOIN}
          WHERE ${clause}
          ORDER BY u.sort_order, o.full_name_search, o.id LIMIT ? OFFSET ?`,
       )

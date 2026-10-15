@@ -131,7 +131,7 @@ Mở từ F01 (bấm tên cán bộ) hoặc từ F05 (bấm tên hoặc nút Xem
 
 | Phần | Nội dung |
 | --- | --- |
-| Thông tin cán bộ | Họ tên, năm sinh, số hiệu, cấp bậc, chức vụ, mã cán bộ, đơn vị / đội |
+| Thông tin cán bộ | Họ tên, năm sinh, số hiệu, cấp bậc, chức vụ, mã cán bộ, tháng năm vào ngành (mm/yyyy), thâm niên ("N năm"), xếp loại, đơn vị / đội. Chưa có dữ liệu hiện "—" |
 | Khen thưởng đang xem | Chỉ hiện khi mở từ F01: hình thức, năm, cấp quyết định, danh hiệu thi đua, hình thức khen thưởng, số và ngày quyết định, chi tiết giải thưởng, ghi chú. Trường không áp dụng hiện "—" |
 | Quá trình thi đua, khen thưởng | Mọi bản ghi của cán bộ, năm giảm dần; dòng đang xem được tô nổi bật. Không có bản ghi thì hiện "Cán bộ này chưa có khen thưởng nào" |
 
@@ -153,7 +153,7 @@ Nhập từng bản ghi khen thưởng qua một form chia 4 nhóm. Danh sách l
 |  | Đơn vị | Danh sách | Có | Danh sách đơn vị |
 |  | Đội | Danh sách | Không | Tập thể: mục đầu là "Khen cho cả đơn vị" (không chọn đội). Cá nhân: mục đầu là "Tất cả đội", chỉ dùng để lọc cán bộ. Khóa khi đơn vị không có đội |
 |  | Cán bộ | Danh sách | Có, khi Cá nhân | Chỉ hiện khi Cá nhân. Gồm cán bộ thuộc đơn vị và đội đang chọn, dạng "Họ tên (cấp bậc, số hiệu)". Khóa khi chưa chọn đơn vị |
-|  | Thông tin cán bộ | Chỉ đọc |  | Họ tên, năm sinh, cấp bậc, chức vụ, đơn vị / đội của cán bộ đã chọn |
+|  | Thông tin cán bộ | Chỉ đọc |  | Họ tên, năm sinh, cấp bậc, chức vụ, đơn vị / đội và thâm niên của cán bộ đã chọn |
 | Danh hiệu, khen thưởng | Hình thức | Chọn 1: Danh hiệu, Khen thưởng | Có | Mặc định Danh hiệu |
 |  | Danh hiệu thi đua / Hình thức khen thưởng | Danh sách | Có | Tên nhãn và giá trị đổi theo ma trận ở mục 2 |
 |  | Loại huân chương | Danh sách | Có, khi chọn Huân chương | Chỉ hiện khi chọn Huân chương |
@@ -277,7 +277,7 @@ F05, F06 và F08 chỉ dành cho Quản trị. F07 dành cho mọi người dùn
 
 Danh sách cán bộ dùng khi nhập khen thưởng cá nhân. Lọc theo Đơn vị và Đội (quy tắc giống F01) và ô tìm kiếm theo họ tên, số hiệu hoặc mã cán bộ. Phân trang 10 dòng.
 
-Cột bảng: Mã, Họ tên (liên kết mở F02), Năm sinh, Số hiệu, Cấp bậc, Chức vụ, Đơn vị / đội, Số khen thưởng, nút Sửa và Xóa.
+Cột bảng: Mã, Họ tên (liên kết mở F02), Năm sinh, Số hiệu, Cấp bậc, Chức vụ, Đơn vị / đội, Vào ngành (mm/yyyy), Thâm niên ("N năm"), Xếp loại, Số khen thưởng, nút Sửa và Xóa. Ô chưa có dữ liệu hiện "—"; bảng cuộn ngang trên màn hình hẹp.
 
 **Form thêm / sửa** (modal)
 
@@ -291,6 +291,10 @@ Cột bảng: Mã, Họ tên (liên kết mở F02), Năm sinh, Số hiệu, C�
 | Chức vụ | Có | Chọn từ danh mục chức vụ. Mockup cho nhập tự do có gợi ý; bản thật dùng danh mục |
 | Đơn vị | Có |  |
 | Đội | Không | Mục đầu "Không thuộc đội"; khóa khi đơn vị không có đội |
+| Tháng năm vào ngành | Không | Ô chọn tháng (`YYYY-MM`). Không ở tương lai (theo tháng hiện tại giờ Việt Nam) và năm vào ngành ≥ năm sinh + 16. Lỗi: "Tháng năm vào ngành không được ở tương lai", "Tháng năm vào ngành phải sau năm sinh ít nhất 16 năm" |
+| Xếp loại | Không | Chọn một mức từ danh mục xếp loại, mục đầu "Chưa xếp loại". Mỗi cán bộ chỉ có một giá trị hiện tại. Lỗi: "Xếp loại không hợp lệ" |
+
+Thâm niên không lưu trong cơ sở dữ liệu: bằng năm hiện tại (giờ Việt Nam) trừ năm vào ngành, không xét tháng; để trống khi chưa có tháng năm vào ngành. Hàm dùng chung `src/shared/officer-seniority.ts`.
 
 - Lưu thành công: đóng modal, hiện thông báo, làm mới mọi danh sách và bộ lọc có hiển thị cán bộ.
 - **Xóa**: hiện hộp xác nhận ghi rõ họ tên, số hiệu và số khen thưởng sẽ bị xóa theo (BR-05). Thao tác không hoàn tác trên giao diện.
@@ -354,7 +358,7 @@ Danh sách tài khoản, tìm theo tên đăng nhập hoặc họ tên. Cột b�
 
 ## 7. Thiết kế cơ sở dữ liệu
 
-Cơ sở dữ liệu SQLite (Cloudflare D1) gồm 13 bảng: 7 bảng danh mục, 4 bảng nghiệp vụ, bảng người dùng và bảng phiên đăng nhập. Bảng awards là trung tâm. Câu lệnh tạo bảng, index, trigger và dữ liệu danh mục nằm trong file khen-thuong-schema-seed.sql (phiên bản 2).
+Cơ sở dữ liệu SQLite (Cloudflare D1) gồm 15 bảng: 8 bảng danh mục (thêm officer_ratings), 4 bảng nghiệp vụ, bảng người dùng, bảng phiên đăng nhập và bảng đếm award_counters (do trigger cập nhật, phục vụ thống kê). Bảng awards là trung tâm. Câu lệnh tạo bảng, index, trigger và dữ liệu danh mục nằm trong thư mục `migrations/` (0001 schema gốc từ khen-thuong-schema-seed.sql phiên bản 2, các migration sau bổ sung).
 
 &#91;embedded content: sơ đồ quan hệ · 13 bảng\]
 
@@ -396,6 +400,8 @@ Mũi tên chỉ từ cột khóa ngoại tới bảng được tham chiếu. C�
 | position\_id | INTEGER | FK positions, bắt buộc | Chức vụ |
 | unit\_id | INTEGER | FK units, bắt buộc | Đơn vị hiện tại |
 | team\_id | INTEGER | FK teams; phải thuộc unit\_id | Đội hiện tại, NULL là không thuộc đội |
+| joined\_month | TEXT | NULL; dạng `YYYY-MM`, tháng 01–12 (CHECK) | Tháng năm vào ngành; thâm niên tính từ cột này, không lưu |
+| rating\_id | INTEGER | FK officer\_ratings; NULL là chưa xếp loại | Xếp loại hiện tại |
 | created\_by, created\_at, updated\_at, deleted\_at |  |  | Như bảng awards |
 
 ### Các bảng còn lại
@@ -409,6 +415,7 @@ Mũi tên chỉ từ cột khóa ngoại tới bảng được tham chiếu. C�
 | authorities | Danh mục | code, name | Cấp quyết định |
 | award\_types | Danh mục | code, name, form (DANH\_HIEU, KHEN\_THUONG), subject\_scope (TAP\_THE, CA\_NHAN, CA\_HAI), default\_authority\_id, requires\_variant, is\_active | Lưu ma trận ở mục 2 |
 | award\_variants | Danh mục | award\_type\_id, code, name, is\_active | Loại huân chương |
+| officer\_ratings | Danh mục | code, name, sort\_order, is\_active | Xếp loại cán bộ (4 mức chuẩn); chỉ mức đang hoạt động được chọn |
 | users | Hệ thống | username (3–32 ký tự, duy nhất), full\_name, role (ADMIN, EDITOR, VIEWER), password\_hash (PBKDF2), must\_change\_password, failed\_login\_count, locked\_until, last\_login\_at, is\_active | Tài khoản đăng nhập (F07, F08) |
 | sessions | Hệ thống | token\_hash (khóa chính, SHA-256 của token trong cookie), user\_id, expires\_at, last\_seen\_at, user\_agent | Xóa người dùng thì xóa phiên theo; Cron Trigger dọn phiên hết hạn mỗi ngày |
 | import\_batches | Nghiệp vụ | file\_name, total\_rows, imported\_rows, error\_rows, created\_by | Một dòng cho mỗi lần import |
@@ -441,7 +448,7 @@ Tìm kiếm theo tên dùng LIKE trên cột đã chuẩn hóa, nên phải qué
 
 ## 8. Dữ liệu danh mục (master data)
 
-Dữ liệu khởi tạo gồm 10 đơn vị, 13 đội, 12 danh hiệu và hình thức khen thưởng, 6 loại huân chương, 4 cấp quyết định, 15 cấp bậc và 7 chức vụ. Toàn bộ nằm trong file khen-thuong-schema-seed.sql, đã chạy thử trên SQLite.
+Dữ liệu khởi tạo gồm 10 đơn vị, 13 đội, 12 danh hiệu và hình thức khen thưởng, 6 loại huân chương, 4 cấp quyết định, 15 cấp bậc, 7 chức vụ và 4 mức xếp loại cán bộ. Toàn bộ nằm trong file khen-thuong-schema-seed.sql, đã chạy thử trên SQLite.
 
 ### Đơn vị và đội
 
@@ -479,6 +486,7 @@ Dữ liệu khởi tạo gồm 10 đơn vị, 13 đội, 12 danh hiệu và hìn
 | Cấp quyết định (authorities) | Chủ tịch nước (CTN); Thủ tướng Chính phủ (TTG); Bộ trưởng Bộ Công an (BCA); Thủ trưởng đơn vị (DV) |
 | Cấp bậc (ranks) | Hạ sĩ quan: Hạ sĩ, Trung sĩ, Thượng sĩ. Cấp úy: Thiếu úy, Trung úy, Thượng úy, Đại úy. Cấp tá: Thiếu tá, Trung tá, Thượng tá, Đại tá. Cấp tướng: Thiếu tướng, Trung tướng, Thượng tướng, Đại tướng |
 | Chức vụ (positions) | Cấp đơn vị: Trưởng phòng, Phó Trưởng phòng, Thủy đoàn trưởng, Phó Thủy đoàn trưởng. Cấp đội: Đội trưởng, Phó Đội trưởng. Cán bộ |
+| Xếp loại cán bộ (officer\_ratings) | Hoàn thành xuất sắc nhiệm vụ (HTXSNV); Hoàn thành tốt nhiệm vụ (HTTNV); Hoàn thành nhiệm vụ (HTNV); Không hoàn thành nhiệm vụ (KHTNV) |
 | Người dùng (users) | Không có dữ liệu mẫu; tài khoản Quản trị đầu tiên tạo bằng script khi cài đặt (F07) |
 
 Danh sách loại huân chương và chức vụ là bản khởi đầu, nghiệp vụ cần rà soát và bổ sung. Danh mục là bảng dữ liệu, nên thêm giá trị mới không cần sửa code.
@@ -495,7 +503,7 @@ API dạng REST, trả JSON, chạy bằng Hono trong cùng một Cloudflare Wor
 | POST | /api/auth/logout | Xóa phiên hiện tại | Tất cả |
 | POST | /api/auth/change-password | Đổi mật khẩu, hủy các phiên khác | Tất cả |
 | GET | /api/me | Người đang đăng nhập: họ tên, vai trò, cờ bắt đổi mật khẩu | Tất cả |
-| GET | /api/master | Toàn bộ danh mục: đơn vị, đội, danh hiệu, loại huân chương, cấp quyết định, cấp bậc, chức vụ. Trình duyệt lưu cache | Tất cả |
+| GET | /api/master | Toàn bộ danh mục: đơn vị, đội, danh hiệu, loại huân chương, cấp quyết định, cấp bậc, chức vụ, xếp loại cán bộ. Trình duyệt lưu cache | Tất cả |
 | GET | /api/awards | Danh sách F01. Lọc: `unit_id`, `team_id`, `subject`, `form`, `q`. Trả `items`, `total`, `stats` | Tất cả |
 | GET | /api/officers/:id | Chi tiết cán bộ kèm quá trình khen thưởng (F02) | Tất cả |
 | POST | /api/awards | Thêm một bản ghi (F03). Có trùng theo BR-08 thì trả 409 kèm danh sách bản ghi trùng; gửi lại với `confirm_duplicate: true` để vẫn lưu | ADMIN, EDITOR |

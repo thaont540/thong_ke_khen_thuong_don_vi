@@ -22,9 +22,10 @@ describe("seed counts (§8)", () => {
           "authorities",
           "award_types",
           "award_variants",
+          "officer_ratings",
         ].map(count),
       ),
-    ).toEqual([10, 13, 15, 7, 4, 12, 6]);
+    ).toEqual([10, 13, 15, 7, 4, 12, 6, 4]);
   });
 
   it("all triggers and partial indexes exist", async () => {

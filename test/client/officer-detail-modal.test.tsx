@@ -29,6 +29,15 @@ describe("F02 officer detail modal", () => {
     expect(await within(dialog).findByText("Đại úy, Cán bộ")).toBeInTheDocument();
     expect(within(dialog).getByText("CB005")).toBeInTheDocument();
     expect(within(dialog).getByText("Phòng 6 / Đội cao tốc 1")).toBeInTheDocument();
+    expect(within(dialog).getByText("Tháng năm vào ngành").nextSibling).toHaveTextContent(
+      "06/2015",
+    );
+    expect(within(dialog).getByText("Thâm niên").nextSibling).toHaveTextContent(
+      `${new Date().getFullYear() - 2015} năm`,
+    );
+    expect(within(dialog).getByText("Xếp loại").nextSibling).toHaveTextContent(
+      "Hoàn thành tốt nhiệm vụ",
+    );
     // current award is a danh hieu: "Hình thức khen thưởng" is N/A
     expect(within(dialog).getByText("Hình thức khen thưởng").nextSibling).toHaveTextContent("—");
     const rows = within(dialog).getAllByRole("row");

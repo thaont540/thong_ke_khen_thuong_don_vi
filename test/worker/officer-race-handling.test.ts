@@ -37,6 +37,8 @@ const input = {
   position_id: SEED.positionCanBo,
   unit_id: SEED.unitP6,
   team_id: SEED.teamP6Ct1,
+  joined_month: null,
+  rating_id: null,
 };
 
 beforeEach(async () => {

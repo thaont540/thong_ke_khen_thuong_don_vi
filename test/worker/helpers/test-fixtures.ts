@@ -143,5 +143,6 @@ export async function resetTestData(db: D1Database) {
     db.prepare("DELETE FROM users"),
     db.prepare("DELETE FROM teams WHERE id >= 900"),
     db.prepare("DELETE FROM units WHERE id >= 900"),
+    db.prepare("UPDATE officer_ratings SET is_active = 1"),
   ]);
 }

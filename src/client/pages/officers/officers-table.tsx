@@ -1,3 +1,8 @@
+import {
+  formatJoinedMonth,
+  formatSeniority,
+  officerSeniorityYears,
+} from "../../../shared/officer-seniority";
 import type { MasterDataDto as MasterData } from "../../../shared/schemas/master-data-dto";
 import type { OfficerListItem } from "../../../shared/schemas/officer-schemas";
 
@@ -25,6 +30,9 @@ export function OfficersTable({ items, master, onView, onEdit, onDelete }: Props
             <th>Cấp bậc</th>
             <th>Chức vụ</th>
             <th>Đơn vị / đội</th>
+            <th>Vào ngành</th>
+            <th>Thâm niên</th>
+            <th>Xếp loại</th>
             <th>Số khen thưởng</th>
             <th className="col-actions">Thao tác</th>
           </tr>
@@ -57,6 +65,9 @@ export function OfficersTable({ items, master, onView, onEdit, onDelete }: Props
                   {u?.name ?? "—"}
                   {team ? <div className="where">{team.name}</div> : null}
                 </td>
+                <td className="tnum">{formatJoinedMonth(o.joined_month)}</td>
+                <td className="tnum">{formatSeniority(officerSeniorityYears(o.joined_month))}</td>
+                <td>{o.rating_name ?? "—"}</td>
                 <td className="tnum">{o.award_count}</td>
                 <td className="col-actions">
                   <div className="row-actions">

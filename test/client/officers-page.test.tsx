@@ -1,61 +1,10 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { MasterDataDto } from "../../src/shared/schemas/master-data-dto";
-import type { OfficerListItem } from "../../src/shared/schemas/officer-schemas";
-import { errorBody, makeMe, mockApi, renderApp } from "./helpers/render-with-providers";
+import { base, officer, page } from "./helpers/officers-page-fixtures";
+import { errorBody, mockApi, renderApp } from "./helpers/render-with-providers";
 
 afterEach(() => vi.unstubAllGlobals());
-
-const admin = makeMe("ADMIN");
-const master: MasterDataDto = {
-  units: [
-    {
-      id: 1,
-      code: "P1",
-      name: "Phòng 1",
-      kind: "PHONG",
-      description: null,
-      sort_order: 1,
-      teams: [{ id: 11, unit_id: 1, code: "P1-T1", name: "Đội một", sort_order: 1 }],
-    },
-    {
-      id: 2,
-      code: "P2",
-      name: "Phòng 2",
-      kind: "PHONG",
-      description: null,
-      sort_order: 2,
-      teams: [],
-    },
-  ],
-  ranks: [{ id: 3, code: "R3", name: "Đại úy", rank_group: "CAP_UY", sort_order: 1 }],
-  positions: [{ id: 4, code: "P4", name: "Cán bộ", level: "CAN_BO", sort_order: 1 }],
-  authorities: [],
-  award_types: [],
-  award_variants: [],
-};
-const officer = (over: Partial<OfficerListItem> = {}): OfficerListItem => ({
-  id: 7,
-  code: "CB007",
-  full_name: "Nguyễn Văn An",
-  birth_year: 1990,
-  badge_number: "123456",
-  rank_id: 3,
-  position_id: 4,
-  unit_id: 1,
-  team_id: 11,
-  award_count: 3,
-  ...over,
-});
-const page = (items: OfficerListItem[]) => ({
-  body: { items, total: items.length, page: 1, size: 10 },
-});
-const base = (items = [officer()]) => ({
-  "GET /api/me": { body: admin },
-  "GET /api/master": { body: master },
-  "GET /api/officers": page(items),
-});
 
 describe("F05 officers page", () => {
   it("renders names for rank, position, unit and team; view link sets ?officer", async () => {
@@ -129,6 +78,8 @@ describe("F05 officers page", () => {
       position_id: 4,
       unit_id: 1,
       team_id: null,
+      joined_month: null,
+      rating_id: null,
     });
   });
 

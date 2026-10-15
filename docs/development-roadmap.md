@@ -1,6 +1,6 @@
 # Lộ trình phát triển
 
-Kế hoạch chi tiết: `plans/261014-1644-awards-management-system/plan.md`. Cập nhật: 2026-10-14.
+Kế hoạch chi tiết: `plans/261014-1644-awards-management-system/plan.md`. Cập nhật: 2026-10-15.
 
 | # | Phase | Trạng thái |
 |---|---|---|
@@ -13,6 +13,7 @@ Kế hoạch chi tiết: `plans/261014-1644-awards-management-system/plan.md`. C
 | 07 | Import Excel (F04) | Hoàn thành |
 | 08 | Test và hardening | Hoàn thành |
 | - | Sửa theo review (khóa tạm, đồng thời, giới hạn import) | Đang thực hiện |
+| - | Cán bộ: tháng năm vào ngành, xếp loại, thâm niên (`plans/261015-0814-officer-seniority-and-rating/`) | Hoàn thành (migration 0006 cần áp dụng khi deploy) |
 | 09 | Triển khai, backup, tài liệu | Đang thực hiện: workflow và tài liệu đã viết; còn secrets, environments, chạy backup lần đầu và diễn tập khôi phục |
 
 ## Việc còn lại cho phase 09

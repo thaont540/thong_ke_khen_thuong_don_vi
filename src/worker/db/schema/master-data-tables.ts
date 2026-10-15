@@ -71,3 +71,11 @@ export const awardVariants = sqliteTable("award_variants", {
   sortOrder: integer("sort_order").notNull(),
   isActive: integer("is_active").notNull(),
 });
+
+export const officerRatings = sqliteTable("officer_ratings", {
+  id: integer("id").primaryKey(),
+  code: text("code").notNull(),
+  name: text("name").notNull(),
+  sortOrder: integer("sort_order").notNull(),
+  isActive: integer("is_active").notNull(),
+});

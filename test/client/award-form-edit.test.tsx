@@ -23,6 +23,11 @@ describe("F09 edit form", () => {
     expect(screen.getByLabelText(/Số quyết định/)).toHaveValue("125/QĐ-ĐV");
     expect(screen.getByLabelText(/Cán bộ/)).toHaveValue("5");
     expect(screen.getByLabelText(/Cấp quyết định/)).toHaveValue("4");
+    expect(
+      await screen.findByText(`Thâm niên: ${new Date().getFullYear() - 2015} năm`, {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("tab")).not.toBeInTheDocument();
     for (const name of ["Lưu và thêm tiếp", "Xóa nội dung", "Lưu khen thưởng"]) {
       expect(screen.queryByRole("button", { name })).not.toBeInTheDocument();

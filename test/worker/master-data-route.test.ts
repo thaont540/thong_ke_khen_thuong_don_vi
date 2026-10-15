@@ -26,6 +26,8 @@ describe("GET /api/master", () => {
     expect(data.authorities).toHaveLength(4);
     expect(data.award_types).toHaveLength(12);
     expect(data.award_variants).toHaveLength(6);
+    expect(data.officer_ratings.map((r) => r.code)).toEqual(["HTXSNV", "HTTNV", "HTNV", "KHTNV"]);
+    expect(data.officer_ratings[0]?.name).toBe("Hoàn thành xuất sắc nhiệm vụ");
   });
 
   it("is sorted by sort_order and nests teams under their unit", async () => {

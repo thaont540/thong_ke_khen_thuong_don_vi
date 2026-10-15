@@ -13,6 +13,7 @@ import { SelectField } from "../../components/ui/select-field";
 import { UnitTeamSelect } from "../../components/unit-team-select";
 import { errorMessage, isApiError } from "../../lib/api-error";
 import { fieldMessage } from "../../lib/field-message";
+import { OfficerFormCareerFields } from "./officer-form-career-fields";
 import { useCreateOfficer, useUpdateOfficer } from "./use-officers-queries";
 
 type FormValues = z.input<typeof officerInputSchema>;
@@ -25,6 +26,8 @@ const FIELD_NAMES: Fields[] = [
   "position_id",
   "unit_id",
   "team_id",
+  "joined_month",
+  "rating_id",
 ];
 const FORM_ID = "officer-form";
 /** Empty select/number input -> undefined so zod reports "required" instead of NaN. */
@@ -52,6 +55,8 @@ export function OfficerFormModal({ officer, master, onClose, onSaved }: Props) {
       position_id: officer?.position_id,
       unit_id: officer?.unit_id,
       team_id: officer?.team_id ?? null,
+      joined_month: officer?.joined_month ?? "",
+      rating_id: officer?.rating_id ?? null,
     },
   });
   const { errors } = form.formState;
@@ -172,6 +177,11 @@ export function OfficerFormModal({ officer, master, onClose, onSaved }: Props) {
             Chọn đơn vị
           </div>
         ) : null}
+        <OfficerFormCareerFields
+          register={form.register}
+          errors={errors}
+          ratings={master.officer_ratings}
+        />
       </form>
     </ModalDialog>
   );

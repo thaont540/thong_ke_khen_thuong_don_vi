@@ -44,6 +44,13 @@ export const authorityDtoSchema = z.object({
   sort_order: z.number().int(),
 });
 
+export const officerRatingDtoSchema = z.object({
+  id,
+  code: z.string(),
+  name: z.string(),
+  sort_order: z.number().int(),
+});
+
 export const awardTypeDtoSchema = z.object({
   id,
   code: z.string(),
@@ -63,12 +70,13 @@ export const awardVariantDtoSchema = z.object({
   sort_order: z.number().int(),
 });
 
-/** GET /api/master response. Award types / variants: active only. */
+/** GET /api/master response. Award types / variants / officer ratings: active only. */
 export const masterDataDtoSchema = z.object({
   units: z.array(unitDtoSchema),
   ranks: z.array(rankDtoSchema),
   positions: z.array(positionDtoSchema),
   authorities: z.array(authorityDtoSchema),
+  officer_ratings: z.array(officerRatingDtoSchema),
   award_types: z.array(awardTypeDtoSchema),
   award_variants: z.array(awardVariantDtoSchema),
 });
@@ -78,6 +86,7 @@ export type UnitDto = z.infer<typeof unitDtoSchema>;
 export type RankDto = z.infer<typeof rankDtoSchema>;
 export type PositionDto = z.infer<typeof positionDtoSchema>;
 export type AuthorityDto = z.infer<typeof authorityDtoSchema>;
+export type OfficerRatingDto = z.infer<typeof officerRatingDtoSchema>;
 export type AwardTypeDto = z.infer<typeof awardTypeDtoSchema>;
 export type AwardVariantDto = z.infer<typeof awardVariantDtoSchema>;
 export type MasterDataDto = z.infer<typeof masterDataDtoSchema>;

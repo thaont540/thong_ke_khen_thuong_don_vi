@@ -6,6 +6,7 @@ import {
   AWARD_RECORD_JOINS,
   toAwardRecord,
 } from "./award-record-sql";
+import { OFFICER_COLUMNS, OFFICER_RATING_JOIN } from "./officer-record";
 
 const OPTIONS_CAP = 5000;
 
@@ -39,8 +40,8 @@ export async function getOfficerDetail(d1: D1Database, id: number): Promise<Offi
   const [officer, awards] = await d1.batch([
     d1
       .prepare(
-        `SELECT id, code, full_name, birth_year, badge_number, rank_id, position_id, unit_id, team_id
-         FROM officers WHERE id = ? AND deleted_at IS NULL`,
+        `SELECT ${OFFICER_COLUMNS} FROM officers o ${OFFICER_RATING_JOIN}
+         WHERE o.id = ? AND o.deleted_at IS NULL`,
       )
       .bind(id),
     d1

@@ -27,6 +27,10 @@ export const master: MasterDataDto = {
       teams: [],
     },
   ],
+  officer_ratings: [
+    { id: 1, code: "HTXSNV", name: "Hoàn thành xuất sắc nhiệm vụ", sort_order: 1 },
+    { id: 2, code: "HTTNV", name: "Hoàn thành tốt nhiệm vụ", sort_order: 2 },
+  ],
   ranks: [{ id: 7, code: "DAI_UY", name: "Đại úy", rank_group: "CAP_UY", sort_order: 1 }],
   positions: [{ id: 7, code: "CAN_BO", name: "Cán bộ", level: "CAN_BO", sort_order: 1 }],
   authorities: [
@@ -148,6 +152,9 @@ export const officerDetail = (awards: AwardRecord[] = [award()]): OfficerDetail 
   position_id: 7,
   unit_id: 6,
   team_id: 1,
+  joined_month: "2015-06",
+  rating_id: 2,
+  rating_name: "Hoàn thành tốt nhiệm vụ",
   awards,
 });
 

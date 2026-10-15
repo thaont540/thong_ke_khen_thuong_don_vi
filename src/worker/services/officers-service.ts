@@ -22,6 +22,8 @@ interface OfficerRow {
   position_id: number;
   unit_id: number;
   team_id: number | null;
+  joined_month: string | null;
+  rating_id: number | null;
 }
 
 const auditView = (o: OfficerInput | OfficerRow) => ({
@@ -32,6 +34,8 @@ const auditView = (o: OfficerInput | OfficerRow) => ({
   position_id: o.position_id,
   unit_id: o.unit_id,
   team_id: o.team_id,
+  joined_month: o.joined_month,
+  rating_id: o.rating_id,
 });
 
 async function insertOfficer(d1: D1Database, actorId: number, i: OfficerInput): Promise<number> {
@@ -47,6 +51,8 @@ async function insertOfficer(d1: D1Database, actorId: number, i: OfficerInput): 
         i.position_id,
         i.unit_id,
         i.team_id,
+        i.joined_month,
+        i.rating_id,
         actorId,
       ),
     auditStatement(d1, {
@@ -101,7 +107,8 @@ export async function updateOfficer(
       d1
         .prepare(
           `UPDATE officers SET full_name = ?, full_name_search = ?, birth_year = ?, badge_number = ?,
-             rank_id = ?, position_id = ?, unit_id = ?, team_id = ?, updated_at = ?
+             rank_id = ?, position_id = ?, unit_id = ?, team_id = ?, joined_month = ?, rating_id = ?,
+             updated_at = ?
            WHERE id = ? AND deleted_at IS NULL`,
         )
         .bind(
@@ -113,6 +120,8 @@ export async function updateOfficer(
           input.position_id,
           input.unit_id,
           input.team_id,
+          input.joined_month,
+          input.rating_id,
           sqlTimestamp(),
           id,
         ),

@@ -1,3 +1,4 @@
+import { formatSeniority, officerSeniorityYears } from "../../../shared/officer-seniority";
 import type { MasterDataDto } from "../../../shared/schemas/master-data-dto";
 import { useOfficerDetail } from "../../officer-detail/use-officer-detail";
 
@@ -28,6 +29,8 @@ export function AwardFormOfficerInfo({
       <br />
       {unit?.name}
       {team ? ` / ${team.name}` : ""}
+      <br />
+      Thâm niên: {formatSeniority(officerSeniorityYears(o.joined_month))}
     </div>
   );
 }

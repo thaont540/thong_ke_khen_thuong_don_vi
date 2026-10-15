@@ -47,15 +47,16 @@ Lỗi đi qua `handleError` (`lib/error-handler.ts`), trả `{ error: { code, me
 
 ## 4. Mô hình dữ liệu (tóm tắt)
 
-14 bảng (13 theo spec + `award_counters`). Chi tiết cột: `spec.md` §7, DDL: `migrations/`.
+15 bảng (13 theo spec + `award_counters` + `officer_ratings`). Chi tiết cột: `spec.md` §7, DDL: `migrations/`.
 
 | Nhóm | Bảng |
 |---|---|
-| Danh mục | `units`, `teams`, `ranks`, `positions`, `authorities`, `award_types`, `award_variants` |
+| Danh mục | `units`, `teams`, `ranks`, `positions`, `authorities`, `award_types`, `award_variants`, `officer_ratings` |
 | Hệ thống | `users`, `sessions` |
 | Nghiệp vụ | `officers`, `awards` (trung tâm), `import_batches`, `audit_logs` |
 | Thống kê | `award_counters` |
 
+- `officers.joined_month` (`YYYY-MM`, CHECK) và `officers.rating_id` (FK `officer_ratings`) đều NULL được; thâm niên không lưu mà tính khi hiển thị (`src/shared/officer-seniority.ts`, năm hiện tại giờ Asia/Ho_Chi_Minh trừ năm vào ngành). DTO cán bộ trả thêm `rating_name`.
 - Xóa mềm bằng `deleted_at` cho `officers` và `awards`; index một phần `WHERE deleted_at IS NULL`.
 - Ràng buộc chéo bảng bằng **trigger** (đội thuộc đơn vị, danh hiệu hợp đối tượng, huân chương có loại, chặn xóa đơn vị/đội đang dùng, `imported_rows <= total_rows`). Ghi nhiều câu lệnh dùng `db.batch()` (atomic, rollback khi một câu lỗi).
 - Migration: 0001 schema, 0002 seed danh mục, 0003 `award_counters` + index danh sách, 0004 trigger chặn quá số dòng của đợt import.

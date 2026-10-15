@@ -2,6 +2,11 @@
 
 Định dạng: theo ngày, nhóm theo loại. Nguồn: `git log` và kế hoạch `plans/261014-1644-awards-management-system/`.
 
+## 2026-10-15
+
+### Added
+- Cán bộ: tháng năm vào ngành (`officers.joined_month`), xếp loại (`officers.rating_id`, danh mục `officer_ratings` 4 mức) và thâm niên tính khi hiển thị (năm hiện tại giờ VN trừ năm vào ngành). Migration 0006; `GET /api/master` thêm `officer_ratings`; DTO cán bộ thêm `joined_month`, `rating_id`, `rating_name`. F05 có thêm 2 ô nhập và 3 cột, F02 thêm 3 dòng thông tin, F03 hiện thâm niên. Validation: không ở tương lai, năm vào ngành >= năm sinh + 16, xếp loại phải tồn tại và đang hoạt động.
+
 ## 2026-10-14
 
 ### Added
