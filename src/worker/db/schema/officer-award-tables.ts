@@ -17,8 +17,8 @@ export const officers = sqliteTable("officers", {
   code: text("code").notNull(),
   fullName: text("full_name").notNull(),
   fullNameSearch: text("full_name_search").notNull(),
-  birthYear: integer("birth_year").notNull(),
-  badgeNumber: text("badge_number").notNull(),
+  birthYear: integer("birth_year"),
+  badgeNumber: text("badge_number"),
   rankId: integer("rank_id")
     .notNull()
     .references(() => ranks.id),
@@ -30,6 +30,7 @@ export const officers = sqliteTable("officers", {
     .references(() => units.id),
   teamId: integer("team_id").references(() => teams.id),
   joinedMonth: text("joined_month"),
+  /** Deprecated (migration 0007): the rating is the latest XEP_LOAI award. Never read or written. */
   ratingId: integer("rating_id").references(() => officerRatings.id),
   createdBy: integer("created_by").references(() => users.id),
   createdAt: text("created_at").notNull(),

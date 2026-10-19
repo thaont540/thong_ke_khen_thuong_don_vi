@@ -39,6 +39,12 @@ export const routes: RouteObject[] = [
                 children: [{ path: "/units", lazy: () => import("./pages/units/units-page") }],
               },
               {
+                element: <RoleGuardRoute screen="documents" />,
+                children: [
+                  { path: "/documents", lazy: () => import("./pages/documents/documents-page") },
+                ],
+              },
+              {
                 element: <RoleGuardRoute screen="users" />,
                 children: [{ path: "/users", lazy: () => import("./pages/users/users-page") }],
               },

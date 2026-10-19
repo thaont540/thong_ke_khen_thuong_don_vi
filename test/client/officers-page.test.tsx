@@ -79,7 +79,6 @@ describe("F05 officers page", () => {
       unit_id: 1,
       team_id: null,
       joined_month: null,
-      rating_id: null,
     });
   });
 

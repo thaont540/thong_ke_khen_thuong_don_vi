@@ -35,8 +35,8 @@ describe("F02 officer detail modal", () => {
     expect(within(dialog).getByText("Thâm niên").nextSibling).toHaveTextContent(
       `${new Date().getFullYear() - 2015} năm`,
     );
-    expect(within(dialog).getByText("Xếp loại").nextSibling).toHaveTextContent(
-      "Hoàn thành tốt nhiệm vụ",
+    expect(within(dialog).getByText("Xếp loại (năm)").nextSibling).toHaveTextContent(
+      "Hoàn thành tốt nhiệm vụ (2025)",
     );
     // current award is a danh hieu: "Hình thức khen thưởng" is N/A
     expect(within(dialog).getByText("Hình thức khen thưởng").nextSibling).toHaveTextContent("—");

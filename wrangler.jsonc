@@ -18,6 +18,9 @@
       "migrations_dir": "migrations"
     }
   ],
+  // Regulation documents (file bodies); create the buckets once R2 is enabled on the account:
+  //   wrangler r2 bucket create app-nghia-docs / app-nghia-docs-staging
+  "r2_buckets": [{ "binding": "DOCS", "bucket_name": "app-nghia-docs" }],
   // Per-IP throttle for POST /api/auth/login (code skips it when the binding is absent)
   "ratelimits": [
     { "name": "LOGIN_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
@@ -37,6 +40,7 @@
           "migrations_dir": "migrations"
         }
       ],
+      "r2_buckets": [{ "binding": "DOCS", "bucket_name": "app-nghia-docs-staging" }],
       "ratelimits": [
         { "name": "LOGIN_LIMITER", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } }
       ],

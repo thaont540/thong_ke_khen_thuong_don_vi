@@ -27,7 +27,7 @@ export function OfficerDeleteDialog({ officer, onClose }: Props) {
   return (
     <ConfirmDialog
       title="Xóa cán bộ"
-      message={`Xóa cán bộ ${officer.full_name} (số hiệu ${officer.badge_number})? ${officer.award_count} khen thưởng của cán bộ này sẽ bị xóa theo.`}
+      message={`Xóa cán bộ ${officer.full_name} (số hiệu ${officer.badge_number ?? "—"})? ${officer.award_count} khen thưởng của cán bộ này sẽ bị xóa theo.`}
       confirmLabel="Xóa"
       danger
       busy={remove.isPending}

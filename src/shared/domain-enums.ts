@@ -6,7 +6,12 @@ export const SUBJECT = { TAP_THE: "TAP_THE", CA_NHAN: "CA_NHAN" } as const;
 export type Subject = (typeof SUBJECT)[keyof typeof SUBJECT];
 export const SUBJECTS = Object.values(SUBJECT) as [Subject, ...Subject[]];
 
-export const FORM = { DANH_HIEU: "DANH_HIEU", KHEN_THUONG: "KHEN_THUONG" } as const;
+/** XEP_LOAI = yearly officer rating ("Xếp loại cán bộ"), individual only (see award_types.subject_scope). */
+export const FORM = {
+  DANH_HIEU: "DANH_HIEU",
+  KHEN_THUONG: "KHEN_THUONG",
+  XEP_LOAI: "XEP_LOAI",
+} as const;
 export type Form = (typeof FORM)[keyof typeof FORM];
 export const FORMS = Object.values(FORM) as [Form, ...Form[]];
 
@@ -30,7 +35,7 @@ export const AUDIT_ACTION = {
 } as const;
 export type AuditAction = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];
 
-export const UNIT_KIND = { PHONG: "PHONG", THUY_DOAN: "THUY_DOAN" } as const;
+export const UNIT_KIND = { CUC: "CUC", PHONG: "PHONG", THUY_DOAN: "THUY_DOAN" } as const;
 export type UnitKind = (typeof UNIT_KIND)[keyof typeof UNIT_KIND];
 export const UNIT_KINDS = Object.values(UNIT_KIND) as [UnitKind, ...UnitKind[]];
 

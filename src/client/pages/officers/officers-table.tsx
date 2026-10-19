@@ -5,6 +5,7 @@ import {
 } from "../../../shared/officer-seniority";
 import type { MasterDataDto as MasterData } from "../../../shared/schemas/master-data-dto";
 import type { OfficerListItem } from "../../../shared/schemas/officer-schemas";
+import { formatCurrentRating } from "../../lib/format-current-rating";
 
 interface Props {
   items: OfficerListItem[];
@@ -32,7 +33,7 @@ export function OfficersTable({ items, master, onView, onEdit, onDelete }: Props
             <th>Đơn vị / đội</th>
             <th>Vào ngành</th>
             <th>Thâm niên</th>
-            <th>Xếp loại</th>
+            <th>Xếp loại (năm)</th>
             <th>Số khen thưởng</th>
             <th className="col-actions">Thao tác</th>
           </tr>
@@ -57,8 +58,8 @@ export function OfficersTable({ items, master, onView, onEdit, onDelete }: Props
                     {o.full_name}
                   </a>
                 </td>
-                <td className="tnum">{o.birth_year}</td>
-                <td className="tnum">{o.badge_number}</td>
+                <td className="tnum">{o.birth_year ?? "—"}</td>
+                <td className="tnum">{o.badge_number ?? "—"}</td>
                 <td>{rank.get(o.rank_id) ?? "—"}</td>
                 <td>{position.get(o.position_id) ?? "—"}</td>
                 <td>
@@ -67,7 +68,7 @@ export function OfficersTable({ items, master, onView, onEdit, onDelete }: Props
                 </td>
                 <td className="tnum">{formatJoinedMonth(o.joined_month)}</td>
                 <td className="tnum">{formatSeniority(officerSeniorityYears(o.joined_month))}</td>
-                <td>{o.rating_name ?? "—"}</td>
+                <td>{formatCurrentRating(o.current_rating)}</td>
                 <td className="tnum">{o.award_count}</td>
                 <td className="col-actions">
                   <div className="row-actions">

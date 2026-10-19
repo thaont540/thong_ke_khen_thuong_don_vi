@@ -16,6 +16,7 @@ import { TeamListEditor, type UnitFormValues } from "./team-list-editor";
 import { useCreateUnit, useUnitDetail, useUpdateUnit } from "./use-units-queries";
 
 export const KIND_LABEL: Record<(typeof UNIT_KINDS)[number], string> = {
+  CUC: "Cục",
   PHONG: "Phòng",
   THUY_DOAN: "Thủy đoàn",
 };

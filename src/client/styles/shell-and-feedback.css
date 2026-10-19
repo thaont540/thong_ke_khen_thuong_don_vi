@@ -66,6 +66,15 @@
 }
 .auth-card .brand {
   color: var(--primary);
+  flex-direction: column;
+  text-align: center;
+  gap: 8px;
+}
+.auth-card .brand-logo {
+  width: 72px;
+}
+.auth-card .brand span {
+  font-size: 15px;
 }
 .auth-card form {
   display: grid;

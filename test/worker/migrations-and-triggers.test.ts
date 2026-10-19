@@ -22,10 +22,10 @@ describe("seed counts (§8)", () => {
           "authorities",
           "award_types",
           "award_variants",
-          "officer_ratings",
+          "officer_ratings", // deprecated by 0007, kept
         ].map(count),
       ),
-    ).toEqual([10, 13, 15, 7, 4, 12, 6, 4]);
+    ).toEqual([11, 13, 15, 9, 5, 16, 6, 4]);
   });
 
   it("all triggers and partial indexes exist", async () => {
@@ -50,6 +50,13 @@ describe("seed counts (§8)", () => {
       "ix_awards_type",
       "trg_import_batches_row_cap",
       "ix_awards_import_batch",
+      "trg_awards_xep_loai_ins",
+      "trg_awards_xep_loai_upd",
+      "trg_award_counters_ins",
+      "trg_award_counters_upd_old",
+      "trg_award_counters_upd_new",
+      "trg_award_counters_del",
+      "ix_awards_unit_list",
     ])
       expect(names).toContain(n);
   });

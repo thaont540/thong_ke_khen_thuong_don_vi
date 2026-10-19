@@ -1,6 +1,7 @@
 import { isoToDisplay } from "../../../shared/date-format";
 import type { AwardRecord } from "../../../shared/schemas/award-schemas";
 import { StatusBadge } from "../../components/ui/status-badge";
+import { FORM_LABEL, FORM_TONE } from "../../lib/form-labels";
 import { awardPlaceLine, awardSubjectName, awardTitle } from "./award-display-text";
 
 interface Props {
@@ -56,9 +57,7 @@ export function AwardsTable({ items, offset, canWrite, onOpenOfficer, onEdit, on
                 </StatusBadge>
               </td>
               <td>
-                <StatusBadge tone={r.form === "DANH_HIEU" ? "dh" : "kt"}>
-                  {r.form === "DANH_HIEU" ? "Danh hiệu" : "Khen thưởng"}
-                </StatusBadge>
+                <StatusBadge tone={FORM_TONE[r.form]}>{FORM_LABEL[r.form]}</StatusBadge>
               </td>
               <td>
                 <div className="award">{awardTitle(r)}</div>

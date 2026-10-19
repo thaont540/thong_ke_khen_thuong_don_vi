@@ -7,8 +7,8 @@ import * as schema from "../../src/worker/db/schema";
 const tables: SQLiteTable[] = Object.values(schema).filter((v) => is(v, SQLiteTable));
 
 describe("Drizzle schema mirrors migrations", () => {
-  it("covers all 14 tables", () => {
-    expect(tables).toHaveLength(14);
+  it("covers all 15 tables", () => {
+    expect(tables).toHaveLength(15);
   });
 
   for (const table of tables) {

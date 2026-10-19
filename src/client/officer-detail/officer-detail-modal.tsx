@@ -9,6 +9,7 @@ import { ModalDialog } from "../components/ui/modal-dialog";
 import { useCurrentUser } from "../hooks/use-current-user";
 import { useMasterData } from "../hooks/use-master-data";
 import { errorMessage } from "../lib/api-error";
+import { formatCurrentRating } from "../lib/format-current-rating";
 import { OfficerAwardHistoryTable } from "./officer-award-history-table";
 import { OfficerCurrentAwardCard } from "./officer-current-award-card";
 import { useOfficerDetail } from "./use-officer-detail";
@@ -96,11 +97,11 @@ export function OfficerDetailModal({ officerId, awardId, onClose }: Props) {
               </div>
               <div>
                 <dt>Năm sinh</dt>
-                <dd>{o.birth_year}</dd>
+                <dd>{o.birth_year ?? "—"}</dd>
               </div>
               <div>
                 <dt>Số hiệu</dt>
-                <dd>{o.badge_number}</dd>
+                <dd>{o.badge_number ?? "—"}</dd>
               </div>
               <div>
                 <dt>Cấp bậc</dt>
@@ -123,8 +124,8 @@ export function OfficerDetailModal({ officerId, awardId, onClose }: Props) {
                 <dd>{formatSeniority(officerSeniorityYears(o.joined_month))}</dd>
               </div>
               <div>
-                <dt>Xếp loại</dt>
-                <dd>{o.rating_name ?? "—"}</dd>
+                <dt>Xếp loại (năm)</dt>
+                <dd>{formatCurrentRating(o.current_rating)}</dd>
               </div>
               <div className="full">
                 <dt>Đơn vị</dt>

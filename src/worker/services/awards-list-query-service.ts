@@ -15,6 +15,7 @@ interface StatsRow {
   total: number;
   danh_hieu: number | null;
   khen_thuong: number | null;
+  xep_loai: number | null;
   tap_the: number | null;
   ca_nhan: number | null;
 }
@@ -52,6 +53,7 @@ function buildCounterStats(d1: D1Database, query: AwardListQuery): D1PreparedSta
       `SELECT COALESCE(SUM(c.n), 0) AS total,
               SUM(CASE WHEN t.form = 'DANH_HIEU' THEN c.n END) AS danh_hieu,
               SUM(CASE WHEN t.form = 'KHEN_THUONG' THEN c.n END) AS khen_thuong,
+              SUM(CASE WHEN t.form = 'XEP_LOAI' THEN c.n END) AS xep_loai,
               SUM(CASE WHEN c.subject = 'TAP_THE' THEN c.n END) AS tap_the,
               SUM(CASE WHEN c.subject = 'CA_NHAN' THEN c.n END) AS ca_nhan
        FROM award_counters c JOIN award_types t ON t.id = c.award_type_id
@@ -84,6 +86,7 @@ export async function listAwards(d1: D1Database, query: AwardListQuery) {
         .prepare(
           `SELECT COUNT(*) AS total,
                   SUM(t.form = 'DANH_HIEU') AS danh_hieu, SUM(t.form = 'KHEN_THUONG') AS khen_thuong,
+                  SUM(t.form = 'XEP_LOAI') AS xep_loai,
                   SUM(a.subject = 'TAP_THE') AS tap_the, SUM(a.subject = 'CA_NHAN') AS ca_nhan
            FROM awards a JOIN award_types t ON t.id = a.award_type_id WHERE ${where}`,
         )
@@ -94,6 +97,7 @@ export async function listAwards(d1: D1Database, query: AwardListQuery) {
     total: s.total,
     danh_hieu: s.danh_hieu ?? 0,
     khen_thuong: s.khen_thuong ?? 0,
+    xep_loai: s.xep_loai ?? 0,
     tap_the: s.tap_the ?? 0,
     ca_nhan: s.ca_nhan ?? 0,
   };

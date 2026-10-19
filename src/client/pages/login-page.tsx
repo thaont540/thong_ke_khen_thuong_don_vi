@@ -7,6 +7,7 @@ import {
   loginRequestSchema,
   meResponseSchema,
 } from "../../shared/schemas/auth-schemas";
+import { SYSTEM_NAME } from "../../shared/system-name";
 import { FormField, fieldA11y } from "../components/ui/form-field";
 import { api } from "../lib/api-client";
 import { errorMessage } from "../lib/api-error";
@@ -46,7 +47,10 @@ export function LoginPage() {
   return (
     <div className="auth-wrap">
       <div className="card auth-card">
-        <div className="brand">Thi đua, khen thưởng</div>
+        <div className="brand">
+          <img className="brand-logo" src="/logo-192.png" width="72" height="86" alt="" />
+          <span>{SYSTEM_NAME}</span>
+        </div>
         <h1>Đăng nhập</h1>
         <form noValidate onSubmit={form.handleSubmit((v) => login.mutate(v))}>
           {login.error ? (

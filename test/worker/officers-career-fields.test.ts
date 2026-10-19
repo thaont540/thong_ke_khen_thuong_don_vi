@@ -3,7 +3,13 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { vnYearMonth } from "../../src/shared/officer-seniority";
 import { officerDetailSchema } from "../../src/shared/schemas/officer-schemas";
 import { api, createSession, errorOf } from "./helpers/auth-helpers";
-import { insertUser, resetTestData, SEED } from "./helpers/test-fixtures";
+import {
+  insertAward,
+  insertOfficer,
+  insertUser,
+  resetTestData,
+  SEED,
+} from "./helpers/test-fixtures";
 
 const db = env.DB;
 let token: string;
@@ -33,70 +39,67 @@ const nextMonth = () => {
   return month === 12 ? `${year + 1}-01` : `${year}-${String(month + 1).padStart(2, "0")}`;
 };
 
-describe("officer joined_month / rating_id", () => {
-  it("are optional: omitted -> null, rating_name null", async () => {
+describe("officer joined_month / optional birth year, badge / derived current_rating", () => {
+  it("joined_month is optional: omitted -> null; current_rating null without a rating record", async () => {
     const res = await post(body());
     expect(res.status).toBe(201);
-    expect(await res.json()).toMatchObject({
-      joined_month: null,
-      rating_id: null,
-      rating_name: null,
-    });
+    const json = await res.json();
+    expect(json).toMatchObject({ joined_month: null, current_rating: null });
+    expect(json).not.toHaveProperty("rating_id");
   });
 
-  it("create returns the values and rating name; list and detail expose them too", async () => {
-    const res = await post(body({ joined_month: "2012-09", rating_id: 2 }));
-    expect(res.status).toBe(201);
-    const created = (await res.json()) as { id: number };
-    expect(created).toMatchObject({
-      joined_month: "2012-09",
-      rating_id: 2,
-      rating_name: "Hoàn thành tốt nhiệm vụ",
-    });
-    const list = (await (await api("/api/officers", { token })).json()) as {
-      items: Record<string, unknown>[];
+  it("birth_year and badge_number may be omitted or null; several officers without badge coexist", async () => {
+    const { birth_year: _y, badge_number: _b, ...bare } = body();
+    const first = await post({ ...bare, full_name: "Người Một" });
+    expect(first.status).toBe(201);
+    expect(await first.json()).toMatchObject({ birth_year: null, badge_number: null });
+    const second = await post({ ...bare, full_name: "Người Hai", badge_number: null });
+    expect(second.status).toBe(201);
+    const { items } = (await (await api("/api/officers", { token })).json()) as {
+      items: { badge_number: string | null }[];
     };
-    expect(list.items[0]).toMatchObject({
-      joined_month: "2012-09",
-      rating_name: "Hoàn thành tốt nhiệm vụ",
-    });
-    const detail = officerDetailSchema.parse(
-      await (await api(`/api/officers/${created.id}`, { token })).json(),
-    );
-    expect(detail).toMatchObject({ joined_month: "2012-09", rating_id: 2 });
-    expect(detail.rating_name).toBe("Hoàn thành tốt nhiệm vụ");
+    expect(items.map((o) => o.badge_number)).toEqual([null, null]);
+    // A real badge still has to be unique, and a malformed one is rejected.
+    expect((await post(body({ badge_number: "123456" }))).status).toBe(201);
+    expect((await post(body({ badge_number: "123456" }))).status).toBe(409);
+    expect((await post(body({ badge_number: "12" }))).status).toBe(400);
   });
 
-  it("update sets and clears the fields; audit before/after contain them", async () => {
+  it("update can clear birth_year and badge_number, and the badge is then free again", async () => {
     const created = (await (await post(body())).json()) as { id: number };
-    const set = await put(created.id, body({ joined_month: "2015-06", rating_id: 1 }));
-    expect(await set.json()).toMatchObject({ joined_month: "2015-06", rating_id: 1 });
-    const clear = await put(created.id, body({ joined_month: null, rating_id: null }));
-    expect(await clear.json()).toMatchObject({ joined_month: null, rating_name: null });
+    const cleared = await put(created.id, body({ birth_year: null, badge_number: null }));
+    expect(cleared.status).toBe(200);
+    expect(await cleared.json()).toMatchObject({ birth_year: null, badge_number: null });
+    expect((await post(body({ badge_number: "123456" }))).status).toBe(201);
+  });
+
+  it("update sets and clears joined_month; audit before/after contain it (no rating_id)", async () => {
+    const created = (await (await post(body())).json()) as { id: number };
+    const set = await put(created.id, body({ joined_month: "2015-06" }));
+    expect(await set.json()).toMatchObject({ joined_month: "2015-06" });
+    const clear = await put(created.id, body({ joined_month: null }));
+    expect(await clear.json()).toMatchObject({ joined_month: null });
     const { results } = await db
       .prepare(
         "SELECT detail FROM audit_logs WHERE action = 'UPDATE' AND entity = 'officer' ORDER BY id",
       )
       .all<{ detail: string }>();
     expect(JSON.parse(results[0]?.detail ?? "{}")).toEqual({
-      before: { joined_month: null, rating_id: null },
-      after: { joined_month: "2015-06", rating_id: 1 },
+      before: { joined_month: null },
+      after: { joined_month: "2015-06" },
     });
     expect(JSON.parse(results[1]?.detail ?? "{}")).toEqual({
-      before: { joined_month: "2015-06", rating_id: 1 },
-      after: { joined_month: null, rating_id: null },
+      before: { joined_month: "2015-06" },
+      after: { joined_month: null },
     });
   });
 
-  it("create audit records the new fields", async () => {
-    await post(body({ joined_month: "2012-09", rating_id: 3 }));
+  it("create audit records joined_month", async () => {
+    await post(body({ joined_month: "2012-09" }));
     const row = await db
       .prepare("SELECT detail FROM audit_logs WHERE action = 'CREATE' AND entity = 'officer'")
       .first<{ detail: string }>();
-    expect(JSON.parse(row?.detail ?? "{}").after).toMatchObject({
-      joined_month: "2012-09",
-      rating_id: 3,
-    });
+    expect(JSON.parse(row?.detail ?? "{}").after).toMatchObject({ joined_month: "2012-09" });
   });
 
   it("rejects a future month, month before birth year + 16, and a malformed month with 400", async () => {
@@ -123,18 +126,6 @@ describe("officer joined_month / rating_id", () => {
     );
   });
 
-  it("rejects unknown and inactive ratings with a field error", async () => {
-    const unknown = await post(body({ rating_id: 999 }));
-    expect(unknown.status).toBe(400);
-    expect((await errorOf(unknown)).fields?.rating_id).toBe("Xếp loại không hợp lệ");
-    await db.prepare("UPDATE officer_ratings SET is_active = 0 WHERE id = 4").run();
-    const inactive = await post(body({ rating_id: 4 }));
-    expect(inactive.status).toBe(400);
-    expect((await errorOf(inactive)).fields?.rating_id).toBe("Xếp loại không hợp lệ");
-    const created = (await (await post(body())).json()) as { id: number };
-    expect((await put(created.id, body({ rating_id: 4 }))).status).toBe(400);
-  });
-
   it("DB CHECK rejects invalid joined_month text", async () => {
     for (const bad of ["2015-13", "2015-00", "2015/06", "15-06-01"]) {
       await expect(
@@ -148,17 +139,5 @@ describe("officer joined_month / rating_id", () => {
           .run(),
       ).rejects.toThrow();
     }
-  });
-
-  it("DB foreign key rejects an unknown rating_id", async () => {
-    await expect(
-      db
-        .prepare(
-          `INSERT INTO officers (id, code, full_name, full_name_search, birth_year, badge_number,
-                                 rank_id, position_id, unit_id, rating_id)
-           VALUES (1, 'CB001', 'A', 'a', 1990, '123456', 7, 7, 6, 999)`,
-        )
-        .run(),
-    ).rejects.toThrow();
   });
 });

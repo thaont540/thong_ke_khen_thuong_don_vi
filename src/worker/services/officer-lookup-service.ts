@@ -6,7 +6,7 @@ import {
   AWARD_RECORD_JOINS,
   toAwardRecord,
 } from "./award-record-sql";
-import { OFFICER_COLUMNS, OFFICER_RATING_JOIN } from "./officer-record";
+import { OFFICER_COLUMNS, type RawOfficerRow, withCurrentRating } from "./officer-record";
 
 const OPTIONS_CAP = 5000;
 
@@ -40,7 +40,7 @@ export async function getOfficerDetail(d1: D1Database, id: number): Promise<Offi
   const [officer, awards] = await d1.batch([
     d1
       .prepare(
-        `SELECT ${OFFICER_COLUMNS} FROM officers o ${OFFICER_RATING_JOIN}
+        `SELECT ${OFFICER_COLUMNS} FROM officers o
          WHERE o.id = ? AND o.deleted_at IS NULL`,
       )
       .bind(id),
@@ -51,7 +51,7 @@ export async function getOfficerDetail(d1: D1Database, id: number): Promise<Offi
       )
       .bind(id),
   ]);
-  const row = officer?.results[0] as Omit<OfficerDetail, "awards"> | undefined;
+  const row = officer?.results[0] as RawOfficerRow<Omit<OfficerDetail, "awards">> | undefined;
   if (!row) throw AppError.notFound("Không tìm thấy cán bộ");
-  return { ...row, awards: (awards?.results ?? []).map(toAwardRecord) };
+  return { ...withCurrentRating(row), awards: (awards?.results ?? []).map(toAwardRecord) };
 }

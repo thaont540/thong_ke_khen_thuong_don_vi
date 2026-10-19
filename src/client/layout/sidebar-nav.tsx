@@ -25,6 +25,10 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
       { screen: "units", to: "/units", label: "Quản lý đơn vị" },
     ],
   },
+  {
+    title: "Tài liệu",
+    items: [{ screen: "documents", to: "/documents", label: "Văn bản quy định" }],
+  },
   { title: "Hệ thống", items: [{ screen: "users", to: "/users", label: "Quản lý người dùng" }] },
 ];
 

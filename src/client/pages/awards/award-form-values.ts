@@ -92,7 +92,11 @@ export function validateAwardForm(v: AwardFormValues, needsVariant: boolean): Aw
   if (v.subject === "CA_NHAN" && !v.officer_id) e.officer_id = "Chọn cán bộ";
   if (!v.award_type_id) {
     e.award_type_id =
-      v.form === "DANH_HIEU" ? "Chọn danh hiệu thi đua" : "Chọn hình thức khen thưởng";
+      v.form === "DANH_HIEU"
+        ? "Chọn danh hiệu thi đua"
+        : v.form === "XEP_LOAI"
+          ? "Chọn xếp loại"
+          : "Chọn hình thức khen thưởng";
   }
   if (needsVariant && !v.award_variant_id) e.award_variant_id = "Chọn loại huân chương";
   const year = Number(v.year);

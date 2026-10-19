@@ -16,14 +16,13 @@ interface OfficerRow {
   id: number;
   code: string;
   full_name: string;
-  birth_year: number;
-  badge_number: string;
+  birth_year: number | null;
+  badge_number: string | null;
   rank_id: number;
   position_id: number;
   unit_id: number;
   team_id: number | null;
   joined_month: string | null;
-  rating_id: number | null;
 }
 
 const auditView = (o: OfficerInput | OfficerRow) => ({
@@ -35,7 +34,6 @@ const auditView = (o: OfficerInput | OfficerRow) => ({
   unit_id: o.unit_id,
   team_id: o.team_id,
   joined_month: o.joined_month,
-  rating_id: o.rating_id,
 });
 
 async function insertOfficer(d1: D1Database, actorId: number, i: OfficerInput): Promise<number> {
@@ -52,7 +50,6 @@ async function insertOfficer(d1: D1Database, actorId: number, i: OfficerInput): 
         i.unit_id,
         i.team_id,
         i.joined_month,
-        i.rating_id,
         actorId,
       ),
     auditStatement(d1, {
@@ -107,7 +104,7 @@ export async function updateOfficer(
       d1
         .prepare(
           `UPDATE officers SET full_name = ?, full_name_search = ?, birth_year = ?, badge_number = ?,
-             rank_id = ?, position_id = ?, unit_id = ?, team_id = ?, joined_month = ?, rating_id = ?,
+             rank_id = ?, position_id = ?, unit_id = ?, team_id = ?, joined_month = ?,
              updated_at = ?
            WHERE id = ? AND deleted_at IS NULL`,
         )
@@ -121,7 +118,6 @@ export async function updateOfficer(
           input.unit_id,
           input.team_id,
           input.joined_month,
-          input.rating_id,
           sqlTimestamp(),
           id,
         ),

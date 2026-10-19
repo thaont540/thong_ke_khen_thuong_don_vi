@@ -1,6 +1,7 @@
 import { isoToDisplay } from "../../shared/date-format";
 import type { AwardRecord } from "../../shared/schemas/award-schemas";
 import { StatusBadge } from "../components/ui/status-badge";
+import { FORM_LABEL, FORM_TONE } from "../lib/form-labels";
 import { awardTitle } from "../pages/awards/award-display-text";
 
 /** F02 "Quá trình thi đua, khen thưởng": year desc (server order), current record highlighted. */
@@ -32,9 +33,7 @@ export function OfficerAwardHistoryTable({
             >
               <td className="tnum">{a.year}</td>
               <td>
-                <StatusBadge tone={a.form === "DANH_HIEU" ? "dh" : "kt"}>
-                  {a.form === "DANH_HIEU" ? "Danh hiệu" : "Khen thưởng"}
-                </StatusBadge>
+                <StatusBadge tone={FORM_TONE[a.form]}>{FORM_LABEL[a.form]}</StatusBadge>
               </td>
               <td>{awardTitle(a)}</td>
               <td className="decision">

@@ -1,5 +1,6 @@
 import { formatSeniority, officerSeniorityYears } from "../../../shared/officer-seniority";
 import type { MasterDataDto } from "../../../shared/schemas/master-data-dto";
+import { formatCurrentRating } from "../../lib/format-current-rating";
 import { useOfficerDetail } from "../../officer-detail/use-officer-detail";
 
 /** Read-only officer card of F03 (name, birth year, rank, position, unit / team). */
@@ -22,7 +23,7 @@ export function AwardFormOfficerInfo({
   const team = unit?.teams.find((t) => t.id === o.team_id);
   return (
     <div className="person-card">
-      <strong>{o.full_name}</strong>, sinh {o.birth_year}
+      <strong>{o.full_name}</strong>, sinh {o.birth_year ?? "—"}
       <br />
       {master.ranks.find((r) => r.id === o.rank_id)?.name},{" "}
       {master.positions.find((p) => p.id === o.position_id)?.name}
@@ -31,6 +32,8 @@ export function AwardFormOfficerInfo({
       {team ? ` / ${team.name}` : ""}
       <br />
       Thâm niên: {formatSeniority(officerSeniorityYears(o.joined_month))}
+      <br />
+      Xếp loại: {formatCurrentRating(o.current_rating)}
     </div>
   );
 }

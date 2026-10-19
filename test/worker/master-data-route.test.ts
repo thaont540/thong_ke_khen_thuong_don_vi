@@ -19,15 +19,36 @@ describe("GET /api/master", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("no-store");
     const data = masterDataDtoSchema.parse(await res.json());
-    expect(data.units).toHaveLength(10);
+    expect(data.units).toHaveLength(11);
     expect(data.units.flatMap((u) => u.teams)).toHaveLength(13);
     expect(data.ranks).toHaveLength(15);
-    expect(data.positions).toHaveLength(7);
-    expect(data.authorities).toHaveLength(4);
-    expect(data.award_types).toHaveLength(12);
+    expect(data.positions).toHaveLength(9);
+    expect(data.authorities).toHaveLength(5);
+    expect(data.award_types).toHaveLength(16);
     expect(data.award_variants).toHaveLength(6);
-    expect(data.officer_ratings.map((r) => r.code)).toEqual(["HTXSNV", "HTTNV", "HTNV", "KHTNV"]);
-    expect(data.officer_ratings[0]?.name).toBe("Hoàn thành xuất sắc nhiệm vụ");
+    expect(data).not.toHaveProperty("officer_ratings");
+  });
+
+  it("CR 19/10/2026 catalog: Cục CSGT first, Cục leadership, Cục authority, 4 rating types", async () => {
+    const data = masterDataDtoSchema.parse(await (await api("/api/master", { token })).json());
+    expect(data.units[0]).toMatchObject({
+      code: "C08",
+      name: "Cục Cảnh sát giao thông",
+      kind: "CUC",
+      teams: [],
+    });
+    expect(data.positions.slice(0, 2).map((p) => p.name)).toEqual(["Cục trưởng", "Phó Cục trưởng"]);
+    const authority = data.authorities.find((a) => a.code === "CUC_TRUONG");
+    expect(authority?.name).toBe("Cục trưởng Cục CSGT");
+    const ratings = data.award_types.filter((t) => t.form === "XEP_LOAI");
+    expect(ratings.map((t) => t.name)).toEqual([
+      "Hoàn thành xuất sắc nhiệm vụ",
+      "Hoàn thành tốt nhiệm vụ",
+      "Hoàn thành nhiệm vụ",
+      "Không hoàn thành nhiệm vụ",
+    ]);
+    expect(ratings.every((t) => t.subject_scope === "CA_NHAN" && !t.requires_variant)).toBe(true);
+    expect(ratings.every((t) => t.default_authority_id === authority?.id)).toBe(true);
   });
 
   it("is sorted by sort_order and nests teams under their unit", async () => {

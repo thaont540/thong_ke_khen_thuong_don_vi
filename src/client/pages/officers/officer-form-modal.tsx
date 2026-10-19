@@ -27,11 +27,13 @@ const FIELD_NAMES: Fields[] = [
   "unit_id",
   "team_id",
   "joined_month",
-  "rating_id",
 ];
 const FORM_ID = "officer-form";
 /** Empty select/number input -> undefined so zod reports "required" instead of NaN. */
 const toNumber = (v: unknown) => (v === "" || v == null ? undefined : Number(v));
+/** Optional number / text inputs: empty -> null (not declared). */
+const toNullableNumber = (v: unknown) => (v === "" || v == null ? null : Number(v));
+const toNullableText = (v: unknown) => (typeof v === "string" && v.trim() !== "" ? v.trim() : null);
 
 interface Props {
   /** null = create. */
@@ -49,14 +51,13 @@ export function OfficerFormModal({ officer, master, onClose, onSaved }: Props) {
     resolver: zodResolver(officerInputSchema),
     defaultValues: {
       full_name: officer?.full_name ?? "",
-      birth_year: officer?.birth_year,
+      birth_year: officer?.birth_year ?? null,
       badge_number: officer?.badge_number ?? "",
       rank_id: officer?.rank_id,
       position_id: officer?.position_id,
       unit_id: officer?.unit_id,
       team_id: officer?.team_id ?? null,
       joined_month: officer?.joined_month ?? "",
-      rating_id: officer?.rating_id ?? null,
     },
   });
   const { errors } = form.formState;
@@ -117,21 +118,21 @@ export function OfficerFormModal({ officer, master, onClose, onSaved }: Props) {
             {...fieldA11y("of-name", nameError)}
           />
         </FormField>
-        <FormField id="of-year" label="Năm sinh" required error={yearError}>
+        <FormField id="of-year" label="Năm sinh" error={yearError}>
           <input
             type="number"
             inputMode="numeric"
-            {...form.register("birth_year", { setValueAs: toNumber })}
+            {...form.register("birth_year", { setValueAs: toNullableNumber })}
             {...fieldA11y("of-year", yearError)}
           />
         </FormField>
-        <FormField id="of-badge" label="Số hiệu" required error={badgeError}>
+        <FormField id="of-badge" label="Số hiệu" error={badgeError}>
           <input
             type="text"
             inputMode="numeric"
             maxLength={6}
             autoComplete="off"
-            {...form.register("badge_number")}
+            {...form.register("badge_number", { setValueAs: toNullableText })}
             {...fieldA11y("of-badge", badgeError)}
           />
         </FormField>
@@ -177,11 +178,7 @@ export function OfficerFormModal({ officer, master, onClose, onSaved }: Props) {
             Chọn đơn vị
           </div>
         ) : null}
-        <OfficerFormCareerFields
-          register={form.register}
-          errors={errors}
-          ratings={master.officer_ratings}
-        />
+        <OfficerFormCareerFields register={form.register} errors={errors} />
       </form>
     </ModalDialog>
   );

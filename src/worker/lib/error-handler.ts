@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 import { ERROR_CODE } from "../../shared/schemas/api-common-schemas";
 import { AppError } from "./app-error";
 
-/** RAISE(ABORT, ...) texts from migration 0001 mapped to user-facing messages. */
+/** RAISE(ABORT, ...) texts from migrations 0001/0004/0007 mapped to user-facing messages. */
 const TRIGGER_MESSAGES = [
   "Đội không thuộc đơn vị của cán bộ",
   "Đội không thuộc đơn vị",
@@ -13,6 +13,7 @@ const TRIGGER_MESSAGES = [
   "Đơn vị còn cán bộ hoặc khen thưởng",
   "Đội còn cán bộ hoặc khen thưởng",
   "Vượt quá số dòng đã khai báo của đợt import",
+  "Cán bộ đã có xếp loại năm này",
 ] as const;
 
 /**

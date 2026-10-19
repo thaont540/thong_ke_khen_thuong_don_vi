@@ -120,4 +120,24 @@ describe("F06 units page", () => {
     await user.click(form.getByRole("button", { name: "Lưu" }));
     expect(await form.findByText("Tên đội bị trùng trong đơn vị")).toBeInTheDocument();
   });
+  it("unit kind select offers Cục and the table labels a Cục unit", async () => {
+    mockApi({
+      "GET /api/me": { body: admin },
+      "GET /api/units": page([
+        row({ id: 2, code: "C08", name: "Cục Cảnh sát giao thông", kind: "CUC" }),
+      ]),
+    });
+    const user = userEvent.setup();
+    renderApp("/units");
+    expect(await screen.findByRole("cell", { name: "Cục" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Thêm đơn vị" }));
+    const kind = within(screen.getByRole("dialog", { name: "Thêm đơn vị" })).getByLabelText(
+      /Loại đơn vị/,
+    );
+    expect(
+      within(kind)
+        .getAllByRole("option")
+        .map((o) => o.textContent),
+    ).toEqual(["Cục", "Phòng", "Thủy đoàn"]);
+  });
 });

@@ -13,6 +13,8 @@ export interface ApiEventHandlers {
 
 export interface ApiRequestOptions<T> {
   body?: unknown;
+  /** Multipart upload; the browser sets Content-Type with the boundary. Mutually exclusive with `body`. */
+  formData?: FormData;
   query?: Record<string, string | number | undefined | null>;
   /** zod schema validating the success payload (omit for empty bodies). */
   schema?: z.ZodType<T>;
@@ -56,18 +58,15 @@ async function toApiError(res: Response): Promise<ApiRequestError> {
   return new ApiRequestError(res.status, code, message, fields, extra);
 }
 
-export async function apiRequest<T = void>(
-  method: Method,
-  path: string,
-  opts: ApiRequestOptions<T> = {},
-): Promise<T> {
+/** fetch + shared error handling (network, 401/403 handlers); resolves only for 2xx. */
+async function send(method: Method, path: string, opts: ApiRequestOptions<unknown>) {
   let res: Response;
   try {
     res = await fetch(buildUrl(path, opts.query), {
       method,
       credentials: "same-origin",
       headers: opts.body !== undefined ? { "Content-Type": "application/json" } : undefined,
-      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      body: opts.formData ?? (opts.body !== undefined ? JSON.stringify(opts.body) : undefined),
       signal: opts.signal,
     });
   } catch (e) {
@@ -81,9 +80,30 @@ export async function apiRequest<T = void>(
     if (res.status === 403 && !opts.skipAuthRedirect) handlers.onForbidden(err);
     throw err;
   }
+  return res;
+}
 
+export async function apiRequest<T = void>(
+  method: Method,
+  path: string,
+  opts: ApiRequestOptions<T> = {},
+): Promise<T> {
+  const res = await send(method, path, opts);
   if (!opts.schema) return undefined as T;
   return opts.schema.parse(await res.json());
+}
+
+/** GET a binary response and hands it to the browser as a file save (no navigation, errors are typed). */
+export async function apiDownload(path: string, fileName: string): Promise<void> {
+  const res = await send("GET", path, {});
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 export const api = {

@@ -15,13 +15,14 @@ test.beforeEach(() => {
   });
 });
 
-test("viewer sees one menu item, is redirected away from admin screens and cannot edit in the officer modal", async ({
+test("viewer sees two menu items, is redirected away from admin screens and cannot edit in the officer modal", async ({
   page,
 }) => {
   await loginViaForm(page, "viewer");
   const menu = page.getByRole("navigation", { name: "Điều hướng chính" });
-  await expect(menu.getByRole("link")).toHaveCount(1);
+  await expect(menu.getByRole("link")).toHaveCount(2);
   await expect(menu.getByRole("link", { name: "Danh hiệu, khen thưởng" })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Văn bản quy định" })).toBeVisible();
 
   await page.goto("/units");
   await expect(page).toHaveURL(/\/$/);

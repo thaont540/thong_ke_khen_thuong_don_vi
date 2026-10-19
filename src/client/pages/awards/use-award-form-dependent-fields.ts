@@ -51,12 +51,17 @@ export function useAwardFormDependentFields(
     selectedOfficer,
     set,
     setOfficer: (id: string) => set({ officer_id: id }),
-    changeSubject: (subject: Subject) =>
+    changeSubject: (subject: Subject) => {
+      // Xếp loại cán bộ is individual-only: switching to Tập thể falls back to Danh hiệu.
+      const form: Form =
+        subject === "TAP_THE" && values.form === "XEP_LOAI" ? "DANH_HIEU" : values.form;
       set({
         subject,
+        form,
         ...(subject === "TAP_THE" ? { officer_id: "" } : {}),
-        ...typePatch(subject, values.form),
-      }),
+        ...typePatch(subject, form),
+      });
+    },
     changeForm: (form: Form) => set({ form, ...typePatch(values.subject, form) }),
     changeUnit: (nextUnit: string) =>
       set({

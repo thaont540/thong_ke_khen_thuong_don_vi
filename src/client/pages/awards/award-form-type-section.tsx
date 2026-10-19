@@ -1,4 +1,5 @@
 import { SelectField } from "../../components/ui/select-field";
+import { FORM_LABEL } from "../../lib/form-labels";
 import type { AwardSectionProps } from "./award-form-section-props";
 import { SegmentedField } from "./award-form-segmented-field";
 import { FIELD_IDS } from "./award-form-values";
@@ -6,6 +7,7 @@ import { FIELD_IDS } from "./award-form-values";
 /** Group 2: Danh hiệu, khen thưởng (+ loại huân chương only for Huân chương). */
 export function AwardFormTypeSection({ values, errors, dep }: AwardSectionProps) {
   const isTitle = values.form === "DANH_HIEU";
+  const isRating = values.form === "XEP_LOAI";
   return (
     <>
       <div className="group-title">Danh hiệu, khen thưởng</div>
@@ -16,17 +18,28 @@ export function AwardFormTypeSection({ values, errors, dep }: AwardSectionProps)
         options={[
           { value: "DANH_HIEU", label: "Danh hiệu" },
           { value: "KHEN_THUONG", label: "Khen thưởng" },
+          // Yearly officer rating exists for individuals only.
+          ...(values.subject === "CA_NHAN"
+            ? [{ value: "XEP_LOAI" as const, label: FORM_LABEL.XEP_LOAI }]
+            : []),
         ]}
         onChange={dep.changeForm}
       />
       <SelectField
         id={FIELD_IDS.award_type_id}
-        label={isTitle ? "Danh hiệu thi đua" : "Hình thức khen thưởng"}
+        label={isTitle ? "Danh hiệu thi đua" : isRating ? "Xếp loại" : "Hình thức khen thưởng"}
         required
         error={errors.award_type_id}
         value={values.award_type_id}
         options={[
-          { value: "", label: isTitle ? "Chọn danh hiệu" : "Chọn hình thức khen thưởng" },
+          {
+            value: "",
+            label: isTitle
+              ? "Chọn danh hiệu"
+              : isRating
+                ? "Chọn xếp loại"
+                : "Chọn hình thức khen thưởng",
+          },
           ...dep.typeOptions.map((t) => ({ value: t.id, label: t.name })),
         ]}
         onChange={(e) => dep.changeType(e.target.value)}

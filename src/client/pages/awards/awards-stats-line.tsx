@@ -14,6 +14,9 @@ export function AwardsStatsLine({ stats }: { stats: AwardStats }) {
         <strong>{stats.khen_thuong}</strong>khen thưởng
       </span>
       <span>
+        <strong>{stats.xep_loai}</strong>xếp loại
+      </span>
+      <span>
         <strong>{stats.tap_the}</strong>tập thể
       </span>
       <span>

@@ -65,6 +65,7 @@ export function AwardsFilterBar({ filters, onChange, onReset }: Props) {
           { value: "", label: "Tất cả" },
           { value: "DANH_HIEU", label: "Danh hiệu" },
           { value: "KHEN_THUONG", label: "Khen thưởng" },
+          { value: "XEP_LOAI", label: "Xếp loại cán bộ" },
         ]}
         onChange={(e) => onChange({ form: e.target.value as AwardFilters["form"] })}
       />

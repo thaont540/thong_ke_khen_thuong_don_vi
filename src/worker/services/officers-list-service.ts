@@ -4,7 +4,8 @@ import { LIKE_ESCAPE, toLikePattern } from "../lib/sql-like-pattern";
 import {
   OFFICER_AWARD_COUNT as AWARD_COUNT,
   OFFICER_COLUMNS as COLUMNS,
-  OFFICER_RATING_JOIN as RATING_JOIN,
+  type RawOfficerRow,
+  withCurrentRating,
 } from "./officer-record";
 
 export interface OfficerListQuery {
@@ -43,16 +44,16 @@ export async function listOfficers(d1: D1Database, q: OfficerListQuery) {
     d1
       .prepare(
         `SELECT ${COLUMNS}, ${AWARD_COUNT} AS award_count
-         FROM officers o JOIN units u ON u.id = o.unit_id ${RATING_JOIN}
+         FROM officers o JOIN units u ON u.id = o.unit_id
          WHERE ${clause}
          ORDER BY u.sort_order, o.full_name_search, o.id LIMIT ? OFFSET ?`,
       )
       .bind(...binds, limit, offset)
-      .all<OfficerListItem>(),
+      .all<RawOfficerRow<OfficerListItem>>(),
     d1
       .prepare(`SELECT COUNT(*) AS n FROM officers o WHERE ${clause}`)
       .bind(...binds)
       .first<{ n: number }>(),
   ]);
-  return { items: rows.results, total: total?.n ?? 0, page, size };
+  return { items: rows.results.map(withCurrentRating), total: total?.n ?? 0, page, size };
 }

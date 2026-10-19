@@ -11,17 +11,20 @@ const joinedMonthSchema = z
 
 const officerInputBaseSchema = z.object({
   full_name: z.string().transform(collapseSpaces).pipe(z.string().min(1).max(100)),
-  birth_year: z.number().int().min(1950).max(2010),
-  badge_number: z.string().regex(/^\d{6}$/, "Số hiệu gồm đúng 6 chữ số"),
+  birth_year: z.number().int().min(1950).max(2010).nullable().default(null),
+  badge_number: z
+    .string()
+    .regex(/^\d{6}$/, "Số hiệu gồm đúng 6 chữ số")
+    .nullable()
+    .default(null),
   rank_id: idSchema,
   position_id: idSchema,
   unit_id: idSchema,
   team_id: idSchema.nullable().default(null),
   joined_month: joinedMonthSchema.nullable().default(null),
-  rating_id: idSchema.nullable().default(null),
 });
 
-/** Cross-field rules: joined month not in the future (VN time) and >= birth year + 16. */
+/** Cross-field rules: joined month not in the future (VN time) and, when birth year is known, >= birth year + 16. */
 export const officerInputSchema = officerInputBaseSchema.superRefine((v, ctx) => {
   const joined = v.joined_month ? parseJoinedMonth(v.joined_month) : null;
   if (!joined) return;
@@ -31,7 +34,7 @@ export const officerInputSchema = officerInputBaseSchema.superRefine((v, ctx) =>
       path: ["joined_month"],
       message: "Tháng năm vào ngành không được ở tương lai",
     });
-  } else if (joined.year < v.birth_year + MIN_JOIN_AGE) {
+  } else if (v.birth_year !== null && joined.year < v.birth_year + MIN_JOIN_AGE) {
     ctx.addIssue({
       code: "custom",
       path: ["joined_month"],
@@ -40,20 +43,22 @@ export const officerInputSchema = officerInputBaseSchema.superRefine((v, ctx) =>
   }
 });
 
+/** Latest-year non-deleted XEP_LOAI award of the officer (derived, never stored on the officer). */
+export const currentRatingSchema = z.object({ name: z.string(), year: z.number().int() });
+
 /** F05 list row. */
 export const officerListItemSchema = z.object({
   id: idSchema,
   code: z.string(),
   full_name: z.string(),
-  birth_year: z.number().int(),
-  badge_number: z.string(),
+  birth_year: z.number().int().nullable(),
+  badge_number: z.string().nullable(),
   rank_id: idSchema,
   position_id: idSchema,
   unit_id: idSchema,
   team_id: idSchema.nullable(),
   joined_month: z.string().nullable(),
-  rating_id: idSchema.nullable(),
-  rating_name: z.string().nullable(),
+  current_rating: currentRatingSchema.nullable(),
   award_count: z.number().int(),
 });
 
@@ -63,7 +68,7 @@ export const officerOptionSchema = z.object({
   code: z.string(),
   full_name: z.string(),
   rank_id: idSchema,
-  badge_number: z.string(),
+  badge_number: z.string().nullable(),
   unit_id: idSchema,
   team_id: idSchema.nullable(),
 });
@@ -78,5 +83,6 @@ export const officerOptionsResponseSchema = z.object({ items: z.array(officerOpt
 
 export type OfficerInput = z.infer<typeof officerInputSchema>;
 export type OfficerListItem = z.infer<typeof officerListItemSchema>;
+export type CurrentRating = z.infer<typeof currentRatingSchema>;
 export type OfficerOption = z.infer<typeof officerOptionSchema>;
 export type OfficerDetail = z.infer<typeof officerDetailSchema>;

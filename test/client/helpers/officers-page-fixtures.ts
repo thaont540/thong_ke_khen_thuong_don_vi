@@ -26,10 +26,6 @@ export const master: MasterDataDto = {
   ],
   ranks: [{ id: 3, code: "R3", name: "Đại úy", rank_group: "CAP_UY", sort_order: 1 }],
   positions: [{ id: 4, code: "P4", name: "Cán bộ", level: "CAN_BO", sort_order: 1 }],
-  officer_ratings: [
-    { id: 1, code: "HTXSNV", name: "Hoàn thành xuất sắc nhiệm vụ", sort_order: 1 },
-    { id: 2, code: "HTTNV", name: "Hoàn thành tốt nhiệm vụ", sort_order: 2 },
-  ],
   authorities: [],
   award_types: [],
   award_variants: [],
@@ -45,8 +41,7 @@ export const officer = (over: Partial<OfficerListItem> = {}): OfficerListItem =>
   unit_id: 1,
   team_id: 11,
   joined_month: null,
-  rating_id: null,
-  rating_name: null,
+  current_rating: null,
   award_count: 3,
   ...over,
 });

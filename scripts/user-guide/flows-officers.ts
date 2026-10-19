@@ -37,7 +37,6 @@ export async function captureOfficerForm(page: Page): Promise<void> {
   await d.locator("#of-unit").selectOption({ label: "Phòng 6" });
   await d.locator("#of-team").selectOption({ label: "Đội CSGT đường bộ cao tốc số 3" });
   await d.locator("#of-joined").fill("2015-09");
-  await d.locator("#of-rating").selectOption({ label: "Hoàn thành tốt nhiệm vụ" });
   await shot(page, {
     name: "25-officer-form",
     height: 900,
@@ -51,9 +50,8 @@ export async function captureOfficerForm(page: Page): Promise<void> {
       { at: d.locator("#of-unit"), n: 7 },
       { at: d.locator("#of-team"), n: 8 },
       { at: d.locator("#of-joined"), n: 9 },
-      { at: d.locator("#of-rating"), n: 10 },
-      { at: d.getByRole("button", { name: "Lưu" }), n: 11, pos: "tr" },
-      { at: d.getByRole("button", { name: "Hủy" }), n: 12, pos: "tl" },
+      { at: d.getByRole("button", { name: "Lưu" }), n: 10, pos: "tr" },
+      { at: d.getByRole("button", { name: "Hủy" }), n: 11, pos: "tl" },
     ],
   });
 

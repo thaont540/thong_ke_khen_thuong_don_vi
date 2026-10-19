@@ -4,7 +4,6 @@ import type {
   AwardTypeDto,
   AwardVariantDto,
   MasterDataDto,
-  OfficerRatingDto,
   PositionDto,
   RankDto,
   TeamDto,
@@ -13,9 +12,9 @@ import type {
 
 type Row<T> = Omit<T, "requires_variant"> & { requires_variant?: number };
 
-/** Reads all 8 catalog tables in one `db.batch` (8 statements, ~70 rows). */
+/** Reads all 7 catalog tables in one `db.batch` (7 statements, ~70 rows). */
 export async function getMasterData(d1: D1Database): Promise<MasterDataDto> {
-  const [units, teams, ranks, positions, authorities, ratings, types, variants] = await d1.batch([
+  const [units, teams, ranks, positions, authorities, types, variants] = await d1.batch([
     d1.prepare(
       "SELECT id, code, name, kind, description, sort_order FROM units ORDER BY sort_order, id",
     ),
@@ -23,9 +22,6 @@ export async function getMasterData(d1: D1Database): Promise<MasterDataDto> {
     d1.prepare("SELECT id, code, name, rank_group, sort_order FROM ranks ORDER BY sort_order, id"),
     d1.prepare("SELECT id, code, name, level, sort_order FROM positions ORDER BY sort_order, id"),
     d1.prepare("SELECT id, code, name, sort_order FROM authorities ORDER BY sort_order, id"),
-    d1.prepare(
-      "SELECT id, code, name, sort_order FROM officer_ratings WHERE is_active = 1 ORDER BY sort_order, id",
-    ),
     d1.prepare(
       `SELECT id, code, name, form, subject_scope, default_authority_id, requires_variant, sort_order
          FROM award_types WHERE is_active = 1 ORDER BY sort_order, id`,
@@ -43,7 +39,6 @@ export async function getMasterData(d1: D1Database): Promise<MasterDataDto> {
     ranks: (ranks?.results ?? []) as RankDto[],
     positions: (positions?.results ?? []) as PositionDto[],
     authorities: (authorities?.results ?? []) as AuthorityDto[],
-    officer_ratings: (ratings?.results ?? []) as OfficerRatingDto[],
     award_types: ((types?.results ?? []) as Row<AwardTypeDto>[]).map((t) => ({
       ...t,
       requires_variant: t.requires_variant === 1,

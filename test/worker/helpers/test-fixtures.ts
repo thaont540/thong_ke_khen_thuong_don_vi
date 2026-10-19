@@ -15,6 +15,9 @@ export const SEED = {
   typeCstdCoSo: 7, // CA_NHAN
   typeHuanChuong: 9, // CA_HAI, requires variant
   typeGiayKhen: 12,
+  typeXepLoaiXs: 13, // XEP_LOAI, CA_NHAN
+  typeXepLoaiTot: 14,
+  typeXepLoaiHt: 15,
   variantHcBvtq1: 1,
   authorityDv: 4,
   rankDaiUy: 7,
@@ -108,6 +111,7 @@ export interface AwardFixture {
   teamId?: number | null;
   awardTypeId?: number;
   variantId?: number | null;
+  year?: number;
 }
 
 /** Plain INSERT (triggers apply). Defaults to an individual CSTD cơ sở award. */
@@ -118,7 +122,7 @@ export async function insertAward(db: D1Database, o: AwardFixture = {}) {
     db,
     `INSERT INTO awards (id, subject, officer_id, unit_id, team_id, award_type_id, award_variant_id,
                          year, decision_number, decision_number_search, decision_date, authority_id, achievement)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 2026, ?, ?, '2026-09-15', ?, 'Hoàn thành xuất sắc nhiệm vụ')`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '2026-09-15', ?, 'Hoàn thành xuất sắc nhiệm vụ')`,
     o.id ?? null,
     subject,
     subject === "CA_NHAN" ? (o.officerId ?? null) : null,
@@ -126,6 +130,7 @@ export async function insertAward(db: D1Database, o: AwardFixture = {}) {
     o.teamId ?? null,
     o.awardTypeId ?? (subject === "CA_NHAN" ? SEED.typeCstdCoSo : SEED.typeDvTienTien),
     o.variantId ?? null,
+    o.year ?? 2026,
     decision,
     normalizeText(decision),
     SEED.authorityDv,
@@ -138,11 +143,11 @@ export async function resetTestData(db: D1Database) {
     db.prepare("DELETE FROM awards"),
     db.prepare("DELETE FROM import_batches"),
     db.prepare("DELETE FROM officers"),
+    db.prepare("DELETE FROM regulation_documents"),
     db.prepare("DELETE FROM audit_logs"),
     db.prepare("DELETE FROM sessions"),
     db.prepare("DELETE FROM users"),
     db.prepare("DELETE FROM teams WHERE id >= 900"),
     db.prepare("DELETE FROM units WHERE id >= 900"),
-    db.prepare("UPDATE officer_ratings SET is_active = 1"),
   ]);
 }

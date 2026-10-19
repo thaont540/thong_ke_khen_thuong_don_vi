@@ -12,9 +12,9 @@ const menuLinks = async () => {
 
 describe("menu visibility per role (spec §1)", () => {
   it.each<[Role, number]>([
-    ["VIEWER", 1],
-    ["EDITOR", 2],
-    ["ADMIN", 5],
+    ["VIEWER", 2],
+    ["EDITOR", 3],
+    ["ADMIN", 6],
   ])("%s sees %i menu item(s)", async (role, count) => {
     mockApi({ "GET /api/me": { body: makeMe(role) } });
     renderApp("/");

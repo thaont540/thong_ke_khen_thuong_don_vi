@@ -26,7 +26,12 @@ export function mockApi(handlers: Record<string, MockHandler>) {
   const fn = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(input), "http://localhost");
     const method = init?.method ?? "GET";
-    const body = typeof init?.body === "string" ? JSON.parse(init.body) : undefined;
+    const body =
+      init?.body instanceof FormData
+        ? init.body
+        : typeof init?.body === "string"
+          ? JSON.parse(init.body)
+          : undefined;
     calls.push({ method, path: url.pathname, query: url.searchParams, body });
     const h = handlers[`${method} ${url.pathname}`];
     if (!h) throw new Error(`Unmocked request: ${method} ${url.pathname}`);

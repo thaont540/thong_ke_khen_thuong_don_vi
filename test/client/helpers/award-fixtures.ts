@@ -27,10 +27,6 @@ export const master: MasterDataDto = {
       teams: [],
     },
   ],
-  officer_ratings: [
-    { id: 1, code: "HTXSNV", name: "Hoàn thành xuất sắc nhiệm vụ", sort_order: 1 },
-    { id: 2, code: "HTTNV", name: "Hoàn thành tốt nhiệm vụ", sort_order: 2 },
-  ],
   ranks: [{ id: 7, code: "DAI_UY", name: "Đại úy", rank_group: "CAP_UY", sort_order: 1 }],
   positions: [{ id: 7, code: "CAN_BO", name: "Cán bộ", level: "CAN_BO", sort_order: 1 }],
   authorities: [
@@ -67,6 +63,16 @@ export const master: MasterDataDto = {
       default_authority_id: 1,
       requires_variant: true,
       sort_order: 9,
+    },
+    {
+      id: 13,
+      code: "XL_HTXSNV",
+      name: "Hoàn thành xuất sắc nhiệm vụ",
+      form: "XEP_LOAI",
+      subject_scope: "CA_NHAN",
+      default_authority_id: 4,
+      requires_variant: false,
+      sort_order: 13,
     },
     {
       id: 12,
@@ -153,8 +159,7 @@ export const officerDetail = (awards: AwardRecord[] = [award()]): OfficerDetail 
   unit_id: 6,
   team_id: 1,
   joined_month: "2015-06",
-  rating_id: 2,
-  rating_name: "Hoàn thành tốt nhiệm vụ",
+  current_rating: { name: "Hoàn thành tốt nhiệm vụ", year: 2025 },
   awards,
 });
 
@@ -163,5 +168,5 @@ export const listBody = (items: AwardRecord[], total = items.length, page = 1) =
   total,
   page,
   size: 10,
-  stats: { total, danh_hieu: total, khen_thuong: 0, tap_the: 0, ca_nhan: total },
+  stats: { total, danh_hieu: total, khen_thuong: 0, xep_loai: 0, tap_the: 0, ca_nhan: total },
 });

@@ -13,13 +13,25 @@ describe("officerInputSchema career fields", () => {
   it("career fields are optional and default to null", () => {
     const o = officerInputSchema.parse(base);
     expect(o.joined_month).toBeNull();
-    expect(o.rating_id).toBeNull();
-    expect(
-      officerInputSchema.parse({ ...base, joined_month: "2015-06", rating_id: 2 }),
-    ).toMatchObject({
+    expect(officerInputSchema.parse({ ...base, joined_month: "2015-06" })).toMatchObject({
       joined_month: "2015-06",
-      rating_id: 2,
     });
+  });
+  it("birth year and badge number are optional (default null) but still validated when present", () => {
+    const { birth_year: _y, badge_number: _b, ...bare } = base;
+    expect(officerInputSchema.parse(bare)).toMatchObject({ birth_year: null, badge_number: null });
+    expect(officerInputSchema.safeParse({ ...bare, birth_year: 1949 }).success).toBe(false);
+    expect(officerInputSchema.safeParse({ ...bare, badge_number: "12345" }).success).toBe(false);
+    expect(officerInputSchema.safeParse({ ...bare, badge_number: "" }).success).toBe(false);
+  });
+  it("joined month before birth year + 16 is only checked when the birth year is known", () => {
+    const { birth_year: _y, ...noBirth } = base;
+    expect(officerInputSchema.safeParse({ ...noBirth, joined_month: "1960-01" }).success).toBe(
+      true,
+    );
+  });
+  it("rating_id is no longer part of the input (stripped)", () => {
+    expect(officerInputSchema.parse({ ...base, rating_id: 2 })).not.toHaveProperty("rating_id");
   });
   const messageFor = (over: object) => {
     const r = officerInputSchema.safeParse({ ...base, ...over });

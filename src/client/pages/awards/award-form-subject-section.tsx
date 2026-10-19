@@ -59,7 +59,7 @@ export function AwardFormSubjectSection({ values, errors, dep, master }: AwardSe
               { value: "", label: dep.unit ? "Chọn cán bộ" : "Chọn đơn vị trước" },
               ...dep.officerChoices.map((o) => ({
                 value: o.id,
-                label: `${o.full_name} (${master.ranks.find((r) => r.id === o.rank_id)?.name ?? "—"}, ${o.badge_number})`,
+                label: `${o.full_name} (${[master.ranks.find((r) => r.id === o.rank_id)?.name ?? "—", o.badge_number].filter(Boolean).join(", ")})`,
               })),
             ]}
             onChange={(e) => dep.setOfficer(e.target.value)}

@@ -85,6 +85,7 @@ export const awardStatsSchema = z.object({
   total: z.number().int(),
   danh_hieu: z.number().int(),
   khen_thuong: z.number().int(),
+  xep_loai: z.number().int(),
   tap_the: z.number().int(),
   ca_nhan: z.number().int(),
 });

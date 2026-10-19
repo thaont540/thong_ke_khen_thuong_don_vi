@@ -43,6 +43,12 @@ const EXPECTED: Record<string, readonly Role[] | null> = {
   "POST /api/awards": WRITERS,
   "PUT /api/awards/:id": WRITERS,
   "DELETE /api/awards/:id": WRITERS,
+  "GET /api/documents": ALL,
+  "GET /api/documents/:id/download": ALL,
+  "GET /api/documents/:id": ALL,
+  "POST /api/documents": WRITERS,
+  "PUT /api/documents/:id": WRITERS,
+  "DELETE /api/documents/:id": WRITERS,
 };
 
 /** Routes still reachable while must_change_password = 1 (mirrors the gate). */
