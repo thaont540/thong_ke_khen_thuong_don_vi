@@ -101,10 +101,14 @@ export async function captureRoleMenus(pages: {
         ? [
             { at: link(page, "Quản lý cán bộ"), n: 3, pos: "ir" as const, pad: 2 },
             { at: link(page, "Quản lý đơn vị"), n: 4, pos: "ir" as const, pad: 2 },
-            { at: link(page, "Quản lý người dùng"), n: 5, pos: "ir" as const, pad: 2 },
           ]
         : []),
-      { at: who(page), n: 6, pos: "tr" as const },
+      // Every role sees the regulation documents.
+      { at: link(page, "Văn bản quy định"), n: 5, pos: "ir" as const, pad: 2 },
+      ...(key === "admin"
+        ? [{ at: link(page, "Quản lý người dùng"), n: 6, pos: "ir" as const, pad: 2 }]
+        : []),
+      { at: who(page), n: 7, pos: "tr" as const },
     ];
     await shot(page, { name, callouts });
   }

@@ -1,4 +1,4 @@
-/** F04 import from Excel: tab, preview with OK / duplicate / error rows, commit. */
+/** F04 import from Excel (14-column template): tab, preview with OK / new officer / duplicate / error rows, commit. */
 import { rmSync } from "node:fs";
 import { dirname } from "node:path";
 import type { Page } from "@playwright/test";
@@ -29,12 +29,14 @@ export async function captureImport(page: Page): Promise<void> {
 
   const demoFile = writeDemoImportFile();
   await page.getByLabel("Chọn file import").setInputFiles(demoFile);
-  await expect(page.getByText("8 dòng")).toBeVisible();
+  await expect(page.getByText("9 dòng")).toBeVisible();
   await expect(page.locator("tr.row-err")).toHaveCount(2);
   await expect(page.locator("tr.row-warn")).toHaveCount(2);
   const commit = page.getByRole("button", { name: /^Nhập \d+ dòng hợp lệ$/ });
-  await expect(commit).toHaveText("Nhập 4 dòng hợp lệ");
+  await expect(commit).toHaveText("Nhập 5 dòng hợp lệ");
 
+  const newBadge = page.locator(".new-officer-badge").first();
+  await expect(newBadge).toBeVisible();
   const include = page.getByLabel(/^Nhập cả \d+ dòng có thể trùng/);
   await shot(page, {
     name: "21-import-preview",
@@ -42,16 +44,17 @@ export async function captureImport(page: Page): Promise<void> {
     callouts: [
       { at: page.locator(".import-head p"), n: 1 },
       { at: page.getByRole("columnheader", { name: "Trạng thái" }), n: 2 },
-      { at: page.locator("tr.row-warn").first(), n: 3, pos: "l", pad: 1 },
-      { at: page.locator("tr.row-err").first(), n: 4, pos: "l", pad: 1 },
-      { at: page.locator(".check-inline"), n: 5 },
-      { at: page.getByRole("button", { name: "Chọn file khác" }), n: 6, pos: "tl" },
-      { at: commit, n: 7, pos: "tr" },
+      { at: newBadge, n: 3, pos: "r", pad: 2 },
+      { at: page.locator("tr.row-warn").first(), n: 4, pos: "l", pad: 1 },
+      { at: page.locator("tr.row-err").first(), n: 5, pos: "l", pad: 1 },
+      { at: page.locator(".check-inline"), n: 6 },
+      { at: page.getByRole("button", { name: "Chọn file khác" }), n: 7, pos: "tl" },
+      { at: commit, n: 8, pos: "tr" },
     ],
   });
 
   await include.check();
-  await expect(commit).toHaveText("Nhập 6 dòng hợp lệ");
+  await expect(commit).toHaveText("Nhập 7 dòng hợp lệ");
   await shot(page, {
     name: "22-import-include-duplicates",
     height: 560,
@@ -63,7 +66,7 @@ export async function captureImport(page: Page): Promise<void> {
   await include.uncheck();
   rmSync(dirname(demoFile), { recursive: true, force: true });
   await commit.click();
-  await expect(page.getByText(/Đã nhập 4/)).toBeVisible();
+  await expect(page.getByText(/Đã nhập 5/)).toBeVisible();
   await expect(page).toHaveURL(/\/$/);
   await shot(page, {
     name: "23-import-done",

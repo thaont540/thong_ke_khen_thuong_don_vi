@@ -1,55 +1,60 @@
-/** Fake officers and awards (ids follow migrations/0002: units 1..10, teams 1..13). */
+/**
+ * Fake officers and awards. Ids follow migrations 0002 + 0007: units 1..10 (+11 Cục CSGT), teams 1..13,
+ * positions 1..7 (+8 Cục trưởng, 9 Phó Cục trưởng), authority 5 = Cục trưởng Cục CSGT,
+ * award types 13..16 = yearly ratings (xuất sắc, tốt, hoàn thành, không hoàn thành).
+ */
 
 interface DemoOfficer {
   id: number;
   name: string;
-  birthYear: number;
-  badge: string;
+  birthYear: number | null;
+  badge: string | null;
   rankId: number;
   positionId: number;
   unitId: number;
   teamId: number | null;
   joined: string | null;
-  ratingId: number | null;
 }
 
 const o = (
   id: number,
   name: string,
-  birthYear: number,
+  birthYear: number | null,
   rankId: number,
   positionId: number,
   unitId: number,
   teamId: number | null,
   joined: string | null,
-  ratingId: number | null,
 ): DemoOfficer => ({
   id,
   name,
   birthYear,
-  badge: String(100100 + id),
+  // Birth year and badge number are optional since CR 19/10/2026 (officers created by import have none).
+  badge: birthYear === null ? null : String(100100 + id),
   rankId,
   positionId,
   unitId,
   teamId,
   joined,
-  ratingId,
 });
 
 export const DEMO_OFFICERS: readonly DemoOfficer[] = [
-  o(1, "Nguyễn Văn Hùng", 1985, 8, 5, 6, 1, "2008-09", 1),
-  o(2, "Trần Thị Lan Anh", 1990, 7, 7, 6, 1, "2013-07", 2),
-  o(3, "Lê Quang Minh", 1988, 8, 6, 6, 2, "2010-08", 1),
-  o(4, "Phạm Thanh Tùng", 1993, 6, 7, 6, 2, "2016-06", 2),
-  o(5, "Hoàng Đức Long", 1980, 9, 2, 6, null, "2003-09", 1),
-  o(6, "Vũ Thị Hạnh", 1992, 7, 7, 6, 8, "2015-07", 3),
-  o(7, "Đặng Văn Khoa", 1987, 8, 5, 6, 10, "2009-05", 2),
-  o(8, "Bùi Ngọc Sơn", 1995, 5, 7, 7, 12, "2018-08", null),
-  o(9, "Ngô Thị Phương", 1991, 6, 7, 7, 13, "2014-09", 2),
-  o(10, "Đỗ Mạnh Cường", 1978, 10, 1, 7, null, "2000-10", 1),
-  o(11, "Phan Văn Bình", 1989, 7, 7, 3, null, "2011-07", 3),
-  o(12, "Lý Thanh Hải", 1983, 8, 3, 9, null, "2005-08", 1),
-  o(13, "Trương Minh Đạt", 1994, 4, 7, 6, 1, null, null),
+  o(1, "Nguyễn Văn Hùng", 1985, 8, 5, 6, 1, "2008-09"),
+  o(2, "Trần Thị Lan Anh", 1990, 7, 7, 6, 1, "2013-07"),
+  o(3, "Lê Quang Minh", 1988, 8, 6, 6, 2, "2010-08"),
+  o(4, "Phạm Thanh Tùng", 1993, 6, 7, 6, 2, "2016-06"),
+  o(5, "Hoàng Đức Long", 1980, 9, 2, 6, null, "2003-09"),
+  o(6, "Vũ Thị Hạnh", 1992, 7, 7, 6, 8, "2015-07"),
+  o(7, "Đặng Văn Khoa", 1987, 8, 5, 6, 10, "2009-05"),
+  o(8, "Bùi Ngọc Sơn", 1995, 5, 7, 7, 12, "2018-08"),
+  o(9, "Ngô Thị Phương", 1991, 6, 7, 7, 13, "2014-09"),
+  o(10, "Đỗ Mạnh Cường", 1978, 10, 1, 7, null, "2000-10"),
+  o(11, "Phan Văn Bình", 1989, 7, 7, 3, null, "2011-07"),
+  o(12, "Lý Thanh Hải", 1983, 8, 3, 9, null, "2005-08"),
+  o(13, "Trương Minh Đạt", 1994, 4, 7, 6, 1, null),
+  o(14, "Trần Quốc Việt", 1972, 12, 8, 11, null, "1995-09"),
+  o(15, "Lê Hồng Phong", 1976, 11, 9, 11, null, "1999-08"),
+  o(16, "Nguyễn Hữu Bảo", null, 5, 7, 6, 2, "2019-07"),
 ];
 
 interface DemoAward {
@@ -91,8 +96,37 @@ const a = (
 
 const XS = "Hoàn thành xuất sắc nhiệm vụ";
 
-/** Insertion order = oldest first; the list shows year DESC then newest first. */
+/** Yearly rating of an officer (authority 5 = Cục trưởng Cục CSGT). */
+const rating = (
+  officerId: number,
+  unitId: number,
+  typeId: number,
+  year: number,
+  n: number,
+): DemoAward =>
+  a(
+    officerId,
+    unitId,
+    null,
+    typeId,
+    null,
+    year,
+    `${String(n).padStart(2, "0")}/QĐ-C08`,
+    `${year}-12-30`,
+    5,
+    `Xếp loại cán bộ năm ${year}`,
+  );
+
+/** Insertion order = oldest first; the list shows year DESC then newest first (ratings first: they sort last per year). */
 export const DEMO_AWARDS: readonly DemoAward[] = [
+  rating(6, 6, 14, 2024, 1),
+  rating(1, 6, 13, 2025, 2),
+  rating(2, 6, 14, 2025, 3),
+  rating(3, 6, 13, 2025, 4),
+  rating(4, 6, 15, 2025, 5),
+  rating(5, 6, 14, 2025, 6),
+  rating(6, 6, 15, 2025, 7),
+  rating(14, 11, 13, 2025, 8),
   a(
     12,
     9,

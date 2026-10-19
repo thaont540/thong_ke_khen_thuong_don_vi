@@ -9,6 +9,9 @@ export async function captureUnits(page: Page): Promise<void> {
   await openFromMenu(page, "Quản lý đơn vị", "Quản lý đơn vị");
   await waitForRows(page);
   const row = page.getByRole("row", { name: /Phòng 6/ });
+  // Cục CSGT (kind Cục) is listed before every Phòng / Thủy đoàn.
+  const cuc = page.locator("table.data tbody tr, table.data-sm tbody tr").first();
+  await expect(cuc).toContainText("Cục Cảnh sát giao thông");
   await shot(page, {
     name: "28-units-list",
     fullPage: true,
@@ -17,6 +20,7 @@ export async function captureUnits(page: Page): Promise<void> {
       { at: page.locator("#units-search"), n: 2 },
       { at: row.getByRole("button", { name: "Xem Phòng 6" }), n: 3, pos: "l" },
       { at: row.locator(".row-actions"), n: 4, pos: "tr" },
+      { at: cuc, n: 5, pos: "l", pad: 1 },
     ],
   });
 

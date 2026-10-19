@@ -33,7 +33,7 @@ export async function captureAwardsFiltered(page: Page): Promise<void> {
   await page.locator("#f-unit").selectOption({ label: "Phòng 6" });
   await page.locator("#f-subject").selectOption({ label: "Cá nhân" });
   await page.locator("#f-q").fill("hùng");
-  await expect(page.locator("table.data tbody tr")).toHaveCount(3);
+  await expect(page.locator("table.data tbody tr")).toHaveCount(4);
   await page.waitForLoadState("networkidle");
   await shot(page, {
     name: "11-awards-filtered",
@@ -113,4 +113,22 @@ export async function captureDeleteConfirm(page: Page): Promise<void> {
     ],
   });
   await dialog.getByRole("button", { name: "Hủy" }).click();
+}
+
+/** F01 filter "Hình thức = Xếp loại cán bộ": only yearly rating records, counted in the stats line. */
+export async function captureRatingFilter(page: Page): Promise<void> {
+  await page.goto("/");
+  await waitForRows(page);
+  await page.locator("#f-form").selectOption({ label: "Xếp loại cán bộ" });
+  await expect(page.locator("table.data tbody tr")).toHaveCount(8);
+  await page.waitForLoadState("networkidle");
+  await shot(page, {
+    name: "40-awards-filter-rating",
+    height: 760,
+    callouts: [
+      { at: page.locator("#f-form"), n: 1 },
+      { at: page.locator("table.data tbody tr").first().locator("td").nth(4), n: 2, pos: "tl" },
+      { at: page.locator(".summary"), n: 3, pos: "l" },
+    ],
+  });
 }

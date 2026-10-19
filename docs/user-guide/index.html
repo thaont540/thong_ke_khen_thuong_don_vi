@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hướng dẫn sử dụng - Hệ thống quản lý thi đua, khen thưởng</title>
+<title>Hướng dẫn sử dụng - Hệ thống theo dõi thi đua, khen thưởng của Cục Cảnh sát giao thông</title>
 <style>
 :root{--bg:#f4f6f4;--surface:#fff;--ink:#1c2a22;--muted:#5b6b62;--line:#d9e0db;--primary:#24503f;--accent:#e11d2e;--note:#eef6f1;--warn:#fff6e0;--warn-line:#e8c66a;--code:#eef1ee}
 @media (prefers-color-scheme:dark){:root{--bg:#121a15;--surface:#1a251e;--ink:#e6eee8;--muted:#9fb0a5;--line:#2f3e35;--primary:#7fc4a2;--note:#1d2e24;--warn:#33290f;--warn-line:#8a6d1c;--code:#25332b}}
@@ -57,7 +57,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <h1>Hướng dẫn sử dụng hệ thống quản lý thi đua, khen thưởng</h1>
+  <h1>Hướng dẫn sử dụng Hệ thống theo dõi thi đua, khen thưởng của Cục Cảnh sát giao thông</h1>
   <p>Dành cho cán bộ phụ trách công tác thi đua (vai trò Quản trị, Biên tập, Xem)</p>
 </div></header>
 
@@ -65,7 +65,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
 
 <section id="tong-quan">
   <h2>1. Giới thiệu</h2>
-  <p>Hệ thống giúp đơn vị lưu và tra cứu <strong>danh hiệu thi đua</strong> và <strong>hình thức khen thưởng</strong> của tập thể và cá nhân, thay cho sổ sách và các file Excel rời rạc. Bạn dùng trình duyệt (Chrome, Edge, Firefox, Safari) trên máy tính hoặc điện thoại, không cần cài thêm phần mềm.</p>
+  <p>Hệ thống giúp Cục Cảnh sát giao thông và các đơn vị trực thuộc lưu và tra cứu <strong>danh hiệu thi đua</strong>, <strong>hình thức khen thưởng</strong> và <strong>xếp loại cán bộ hằng năm</strong> của tập thể và cá nhân, kèm kho <strong>văn bản quy định</strong>, thay cho sổ sách và các file Excel rời rạc. Tên hệ thống và biểu tượng CSGT hiện ở đầu menu bên trái và trên màn hình đăng nhập. Bạn dùng trình duyệt (Chrome, Edge, Firefox, Safari) trên máy tính hoặc điện thoại, không cần cài thêm phần mềm.</p>
   <p>Cách đọc tài liệu: mỗi ảnh chụp màn hình có các <strong>vòng tròn đỏ đánh số</strong> <span class="n">1</span> <span class="n">2</span> <span class="n">3</span>. Số trong ảnh trùng với số của bước hướng dẫn ngay bên dưới. Bấm vào ảnh để mở ảnh cỡ đầy đủ trong tab mới.</p>
   <p class="demo">Mọi tên người, số hiệu, số quyết định trong ảnh đều là <strong>dữ liệu minh họa giả</strong>, không phải dữ liệu thật.</p>
   <nav class="toc" aria-label="Mục lục">
@@ -82,6 +82,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <li><a href="#import">Import khen thưởng từ Excel</a></li>
       <li><a href="#can-bo">Quản lý cán bộ</a></li>
       <li><a href="#don-vi">Quản lý đơn vị và đội</a></li>
+      <li><a href="#van-ban">Văn bản quy định</a></li>
       <li><a href="#nguoi-dung">Quản lý người dùng</a></li>
       <li><a href="#dien-thoai">Dùng trên điện thoại</a></li>
       <li><a href="#faq">Câu hỏi thường gặp, xử lý sự cố</a></li>
@@ -101,6 +102,8 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><td>Thêm khen thưởng thủ công</td><td class="yes">Có</td><td class="yes">Có</td><td class="no">Không</td></tr>
       <tr><td>Import khen thưởng từ Excel</td><td class="yes">Có</td><td class="yes">Có</td><td class="no">Không</td></tr>
       <tr><td>Sửa, xóa khen thưởng</td><td class="yes">Có</td><td class="yes">Có</td><td class="no">Không</td></tr>
+      <tr><td>Xem, tìm kiếm, tải về văn bản quy định</td><td class="yes">Có</td><td class="yes">Có</td><td class="yes">Có</td></tr>
+      <tr><td>Thêm, sửa, xóa văn bản quy định</td><td class="yes">Có</td><td class="yes">Có</td><td class="no">Không</td></tr>
       <tr><td>Quản lý cán bộ (thêm, sửa, xóa)</td><td class="yes">Có</td><td class="no">Không</td><td class="no">Không</td></tr>
       <tr><td>Quản lý đơn vị và đội</td><td class="yes">Có</td><td class="no">Không</td><td class="no">Không</td></tr>
       <tr><td>Quản lý người dùng</td><td class="yes">Có</td><td class="no">Không</td><td class="no">Không</td></tr>
@@ -108,29 +111,30 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
     </tbody>
   </table></div>
   <ul>
-    <li><strong>Xem</strong> chỉ thấy một mục menu: <em>Danh hiệu, khen thưởng</em>. Trong cửa sổ chi tiết cán bộ chỉ có nút Đóng.</li>
-    <li><strong>Biên tập</strong> thấy thêm <em>Thêm khen thưởng</em> (gồm cả tab Import từ Excel), và nút Sửa, Xóa trên từng dòng.</li>
+    <li><strong>Xem</strong> thấy hai mục menu: <em>Danh hiệu, khen thưởng</em> và <em>Văn bản quy định</em> (chỉ xem và tải về). Trong cửa sổ chi tiết cán bộ chỉ có nút Đóng.</li>
+    <li><strong>Biên tập</strong> thấy thêm <em>Thêm khen thưởng</em> (gồm cả tab Import từ Excel), nút Sửa, Xóa trên từng dòng, và được thêm, sửa, xóa văn bản quy định.</li>
     <li><strong>Quản trị</strong> thấy đủ menu, thêm các mục Quản lý cán bộ, Quản lý đơn vị, Quản lý người dùng, và nút Sửa thông tin cán bộ.</li>
     <li>Nếu bạn mở thẳng đường dẫn của màn hình không được phép, hệ thống đưa về danh sách và báo <q>Bạn không có quyền truy cập chức năng này</q>.</li>
   </ul>
-  <figure><a href="images/06-menu-admin.png" target="_blank" rel="noopener"><img src="images/06-menu-admin.png" alt="Menu của vai trò Quản trị" width="1366" height="800" loading="lazy"></a><figcaption>Hình 2.1. Quản trị: thấy đủ 5 mục menu. (Ảnh đang lọc Phòng 7 cho gọn.)</figcaption></figure>
+  <figure><a href="images/06-menu-admin.png" target="_blank" rel="noopener"><img src="images/06-menu-admin.png" alt="Menu của vai trò Quản trị" width="1366" height="800" loading="lazy"></a><figcaption>Hình 2.1. Quản trị: thấy đủ 6 mục menu. (Ảnh đang lọc Phòng 7 cho gọn.)</figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span>Danh hiệu, khen thưởng: màn hình mặc định, mọi vai trò đều có.</span></li>
     <li><span class="n">2</span><span>Thêm khen thưởng: nhập tay hoặc import Excel (Quản trị, Biên tập).</span></li>
     <li><span class="n">3</span><span>Quản lý cán bộ (chỉ Quản trị).</span></li>
     <li><span class="n">4</span><span>Quản lý đơn vị (chỉ Quản trị).</span></li>
-    <li><span class="n">5</span><span>Quản lý người dùng (chỉ Quản trị).</span></li>
-    <li><span class="n">6</span><span>Khung cuối menu: họ tên, vai trò của bạn, nút Đổi mật khẩu và Đăng xuất.</span></li>
+    <li><span class="n">5</span><span>Văn bản quy định: mọi vai trò đều xem và tải về được (mục <a href="#van-ban">12</a>).</span></li>
+    <li><span class="n">6</span><span>Quản lý người dùng (chỉ Quản trị).</span></li>
+    <li><span class="n">7</span><span>Khung cuối menu: họ tên, vai trò của bạn, nút Đổi mật khẩu và Đăng xuất.</span></li>
   </ol>
-  <figure><a href="images/07-menu-editor.png" target="_blank" rel="noopener"><img src="images/07-menu-editor.png" alt="Menu của vai trò Biên tập" width="1366" height="800" loading="lazy"></a><figcaption>Hình 2.2. Biên tập: chỉ có mục <span class="n">1</span> và <span class="n">2</span>, không có menu Danh mục và Hệ thống.</figcaption></figure>
-  <figure><a href="images/08-menu-viewer.png" target="_blank" rel="noopener"><img src="images/08-menu-viewer.png" alt="Menu của vai trò Xem" width="1366" height="800" loading="lazy"></a><figcaption>Hình 2.3. Xem: chỉ có mục <span class="n">1</span>; danh sách không có cột Thao tác và nút Thêm khen thưởng.</figcaption></figure>
+  <figure><a href="images/07-menu-editor.png" target="_blank" rel="noopener"><img src="images/07-menu-editor.png" alt="Menu của vai trò Biên tập" width="1366" height="800" loading="lazy"></a><figcaption>Hình 2.2. Biên tập: có các mục <span class="n">1</span>, <span class="n">2</span> và <span class="n">5</span>, không có menu Danh mục và Hệ thống.</figcaption></figure>
+  <figure><a href="images/08-menu-viewer.png" target="_blank" rel="noopener"><img src="images/08-menu-viewer.png" alt="Menu của vai trò Xem" width="1366" height="800" loading="lazy"></a><figcaption>Hình 2.3. Xem: chỉ có mục <span class="n">1</span> và <span class="n">5</span>; danh sách không có cột Thao tác và nút Thêm khen thưởng.</figcaption></figure>
 </section>
 
 <section id="dang-nhap">
   <h2>3. Đăng nhập, đổi mật khẩu, đăng xuất</h2>
   <h3>3.1. Đăng nhập</h3>
   <p>Mở địa chỉ của hệ thống do Quản trị cung cấp. Chưa đăng nhập thì mọi đường dẫn đều chuyển về trang đăng nhập.</p>
-  <figure><a href="images/01-login.png" target="_blank" rel="noopener"><img src="images/01-login.png" alt="Màn hình đăng nhập" width="1366" height="800" loading="lazy"></a><figcaption>Hình 3.1. Màn hình đăng nhập</figcaption></figure>
+  <figure><a href="images/01-login.png" target="_blank" rel="noopener"><img src="images/01-login.png" alt="Màn hình đăng nhập" width="1366" height="800" loading="lazy"></a><figcaption>Hình 3.1. Màn hình đăng nhập (biểu tượng CSGT và tên hệ thống)</figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span>Nhập <strong>Tên đăng nhập</strong> (do Quản trị cấp, ví dụ <code>bientap.demo</code>).</span></li>
     <li><span class="n">2</span><span>Nhập <strong>Mật khẩu</strong>.</span></li>
@@ -182,7 +186,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
 
 <section id="man-hinh">
   <h2>4. Bố cục màn hình và menu</h2>
-  <p>Màn hình chia hai phần: <strong>menu bên trái</strong> (chuyển giữa các chức năng) và <strong>nội dung bên phải</strong>. Mục đang mở được tô sáng. Ảnh minh họa đầy đủ ở mục <a href="#vai-tro">2</a> (Hình 2.1 đến 2.3) và mục <a href="#danh-sach">5</a>.</p>
+  <p>Màn hình chia hai phần: <strong>menu bên trái</strong> (chuyển giữa các chức năng) và <strong>nội dung bên phải</strong>. Mục đang mở được tô sáng. Ảnh minh họa đầy đủ ở mục <a href="#vai-tro">2</a> (Hình 2.1 đến 2.3) và mục <a href="#danh-sach">5</a>. Menu chia nhóm: Khen thưởng, Danh mục, Tài liệu, Hệ thống.</p>
   <table>
     <thead><tr><th>Bạn muốn</th><th>Bấm vào</th></tr></thead>
     <tbody>
@@ -193,6 +197,8 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><td>Xem hồ sơ và quá trình khen thưởng của cán bộ</td><td>Bấm tên cán bộ trong danh sách</td></tr>
       <tr><td>Thêm, sửa cán bộ</td><td>Menu <em>Quản lý cán bộ</em> (Quản trị)</td></tr>
       <tr><td>Thêm, sửa đơn vị và đội</td><td>Menu <em>Quản lý đơn vị</em> (Quản trị)</td></tr>
+      <tr><td>Tra cứu, tải về văn bản quy định</td><td>Menu <em>Văn bản quy định</em></td></tr>
+      <tr><td>Thêm, sửa, xóa văn bản quy định</td><td>Menu <em>Văn bản quy định</em>, nút <span class="btn">Thêm văn bản</span> hoặc <span class="btn">Sửa</span>, <span class="btn">Xóa</span> cuối dòng (Quản trị, Biên tập)</td></tr>
       <tr><td>Tạo tài khoản, đặt lại mật khẩu, khóa tài khoản</td><td>Menu <em>Quản lý người dùng</em> (Quản trị)</td></tr>
       <tr><td>Đổi mật khẩu của mình, đăng xuất</td><td>Hai nút ở cuối menu</td></tr>
     </tbody>
@@ -208,22 +214,24 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
     <li><span class="n">2</span><span><strong>Đơn vị</strong>: chọn một đơn vị để chỉ xem khen thưởng của đơn vị đó. Đổi đơn vị thì danh sách đội tự đổi theo.</span></li>
     <li><span class="n">3</span><span><strong>Đội</strong>: chọn đội thuộc đơn vị đang chọn. Đơn vị không có đội thì ô này bị khóa ở <em>Tất cả</em>.</span></li>
     <li><span class="n">4</span><span><strong>Đối tượng</strong>: Tất cả, Tập thể hoặc Cá nhân.</span></li>
-    <li><span class="n">5</span><span><strong>Hình thức</strong>: Tất cả, Danh hiệu hoặc Khen thưởng.</span></li>
+    <li><span class="n">5</span><span><strong>Hình thức</strong>: Tất cả, Danh hiệu, Khen thưởng hoặc <strong>Xếp loại cán bộ</strong> (xem Hình 5.3).</span></li>
     <li><span class="n">6</span><span><strong>Tìm kiếm</strong>: gõ từ 2 ký tự trở lên, khớp một phần với tên tập thể, tên cán bộ hoặc số quyết định. Không phân biệt hoa thường, không cần gõ đúng dấu cách thừa.</span></li>
     <li><span class="n">7</span><span><span class="btn">Xóa bộ lọc</span>: đưa mọi bộ lọc về Tất cả và xóa ô tìm kiếm.</span></li>
-    <li><span class="n">8</span><span><strong>Dòng thống kê</strong>: tổng số bản ghi, số danh hiệu, khen thưởng, tập thể, cá nhân <em>theo kết quả lọc hiện tại</em>.</span></li>
+    <li><span class="n">8</span><span><strong>Dòng thống kê</strong>: tổng số bản ghi, số danh hiệu, khen thưởng, <strong>xếp loại</strong>, tập thể, cá nhân <em>theo kết quả lọc hiện tại</em>.</span></li>
     <li><span class="n">9</span><span><strong>Tên cá nhân</strong> là liên kết: bấm để xem chi tiết cán bộ (mục <a href="#chi-tiet-can-bo">6</a>). Tên tập thể không bấm được.</span></li>
     <li><span class="n">10</span><span><span class="btn">Sửa</span> và <span class="btn">Xóa</span> từng bản ghi (mục <a href="#sua-xoa">8</a>). Vai trò Xem không có cột này.</span></li>
     <li><span class="n">11</span><span><strong>Phân trang</strong>: <q>Hiển thị a–b trong N</q> và các nút trang. Đổi bộ lọc thì quay về trang 1.</span></li>
   </ol>
   <figure><a href="images/11-awards-filtered.png" target="_blank" rel="noopener"><img src="images/11-awards-filtered.png" alt="Danh sách sau khi lọc" width="1366" height="640" loading="lazy"></a><figcaption>Hình 5.2. Ví dụ lọc: <span class="n">1</span> đơn vị Phòng 6, <span class="n">2</span> đối tượng Cá nhân, <span class="n">3</span> tìm &quot;hùng&quot;; <span class="n">4</span> thống kê cập nhật theo kết quả lọc</figcaption></figure>
+  <figure><a href="images/40-awards-filter-rating.png" target="_blank" rel="noopener"><img src="images/40-awards-filter-rating.png" alt="Lọc hình thức Xếp loại cán bộ" width="1366" height="760" loading="lazy"></a><figcaption>Hình 5.3. Lọc <span class="n">1</span> Hình thức = Xếp loại cán bộ: <span class="n">2</span> các dòng đều là xếp loại theo năm, <span class="n">3</span> thống kê chỉ còn số xếp loại</figcaption></figure>
+  <p><strong>Xếp loại cán bộ</strong> là bản ghi theo năm của từng cá nhân (4 mức: Hoàn thành xuất sắc nhiệm vụ, Hoàn thành tốt nhiệm vụ, Hoàn thành nhiệm vụ, Không hoàn thành nhiệm vụ), cấp quyết định mặc định là <em>Cục trưởng Cục CSGT</em>. Mỗi cán bộ chỉ có <strong>một xếp loại mỗi năm</strong>.</p>
   <table>
     <thead><tr><th>Cột</th><th>Nội dung</th></tr></thead>
     <tbody>
       <tr><td>STT, Năm</td><td>Số thứ tự liên tục qua các trang; năm khen thưởng.</td></tr>
-      <tr><td>Tập thể / cá nhân</td><td>Tên cán bộ, đội hoặc đơn vị. Dòng nhỏ bên dưới: cấp bậc, đơn vị / đội; tập thể cấp đơn vị ghi <q>Cấp đơn vị</q>.</td></tr>
-      <tr><td>Đối tượng, Hình thức</td><td>Nhãn Tập thể / Cá nhân và Danh hiệu / Khen thưởng.</td></tr>
-      <tr><td>Danh hiệu / khen thưởng</td><td>Tên danh hiệu hoặc khen thưởng (huân chương ghi tên loại); dòng nhỏ là cấp quyết định.</td></tr>
+      <tr><td>Tập thể / cá nhân</td><td>Tên cán bộ, đội hoặc đơn vị. Dòng nhỏ bên dưới: cấp bậc, đơn vị / đội (cán bộ của Cục ghi <q>Cục Cảnh sát giao thông</q>); tập thể cấp đơn vị ghi <q>Cấp đơn vị</q>.</td></tr>
+      <tr><td>Đối tượng, Hình thức</td><td>Nhãn Tập thể / Cá nhân và Danh hiệu / Khen thưởng / Xếp loại cán bộ.</td></tr>
+      <tr><td>Danh hiệu / khen thưởng</td><td>Tên danh hiệu, khen thưởng hoặc mức xếp loại (huân chương ghi tên loại); dòng nhỏ là cấp quyết định.</td></tr>
       <tr><td>Quyết định</td><td>Số quyết định và ngày quyết định (dd/mm/yyyy).</td></tr>
     </tbody>
   </table>
@@ -235,9 +243,9 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
   <p>Bấm vào <strong>tên cán bộ</strong> (chữ có gạch chân hoặc đậm) trong danh sách khen thưởng, hoặc trong màn hình Quản lý cán bộ.</p>
   <figure><a href="images/12-officer-modal.png" target="_blank" rel="noopener"><img src="images/12-officer-modal.png" alt="Cửa sổ chi tiết cán bộ" width="1366" height="1150" loading="lazy"></a><figcaption>Hình 6.1. Cửa sổ chi tiết cán bộ</figcaption></figure>
   <ol class="steps">
-    <li><span class="n">1</span><span><strong>Thông tin cán bộ</strong>: họ tên, năm sinh, số hiệu, cấp bậc, chức vụ, mã cán bộ, tháng năm vào ngành, <strong>thâm niên</strong> (số năm, tính từ năm vào ngành), xếp loại, đơn vị / đội. Chưa có dữ liệu thì hiện &quot;—&quot;.</span></li>
+    <li><span class="n">1</span><span><strong>Thông tin cán bộ</strong>: họ tên, năm sinh, số hiệu, cấp bậc, chức vụ, mã cán bộ, tháng năm vào ngành, <strong>thâm niên</strong> (số năm, tính từ năm vào ngành), <strong>xếp loại (năm)</strong> (mức xếp loại của năm gần nhất, kèm năm), đơn vị / đội. Chưa có dữ liệu (ví dụ cán bộ tạo từ import chưa có năm sinh, số hiệu) thì hiện &quot;—&quot;.</span></li>
     <li><span class="n">2</span><span><strong>Khen thưởng đang xem</strong>: chi tiết bản ghi bạn vừa bấm (chỉ hiện khi mở từ danh sách khen thưởng).</span></li>
-    <li><span class="n">3</span><span><strong>Quá trình thi đua, khen thưởng</strong>: mọi bản ghi của cán bộ, năm mới nhất ở trên; dòng đang xem được tô nổi. Chưa có thì hiện <q>Cán bộ này chưa có khen thưởng nào</q>.</span></li>
+    <li><span class="n">3</span><span><strong>Quá trình thi đua, khen thưởng</strong>: mọi bản ghi của cán bộ (danh hiệu, khen thưởng và xếp loại các năm), năm mới nhất ở trên; dòng đang xem được tô nổi. Chưa có thì hiện <q>Cán bộ này chưa có khen thưởng nào</q>.</span></li>
     <li><span class="n">4</span><span><span class="btn">Đóng</span> (hoặc nút ×, phím <kbd>Esc</kbd>, bấm ra vùng nền tối).</span></li>
     <li><span class="n">5</span><span><span class="btn">Thêm khen thưởng</span>: mở form thêm với cán bộ, đơn vị, đội đã chọn sẵn (Quản trị, Biên tập).</span></li>
     <li><span class="n">6</span><span><span class="btn">Sửa thông tin</span>: mở form sửa cán bộ (chỉ Quản trị).</span></li>
@@ -250,14 +258,14 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
   <p>Dành cho Quản trị và Biên tập. Vào menu <em>Thêm khen thưởng</em> (tab <em>Nhập thủ công</em>). Form chia 4 nhóm; ô có dấu <strong>*</strong> là bắt buộc.</p>
 
   <h3>7.1. Khen thưởng cho cá nhân</h3>
-  <figure><a href="images/13-add-personal.png" target="_blank" rel="noopener"><img src="images/13-add-personal.png" alt="Form thêm khen thưởng cho cá nhân" width="1366" height="1214" loading="lazy"></a><figcaption>Hình 7.1. Thêm khen thưởng cho cá nhân (đã điền mẫu)</figcaption></figure>
+  <figure><a href="images/13-add-personal.png" target="_blank" rel="noopener"><img src="images/13-add-personal.png" alt="Form thêm khen thưởng cho cá nhân" width="1366" height="1255" loading="lazy"></a><figcaption>Hình 7.1. Thêm khen thưởng cho cá nhân (đã điền mẫu)</figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span><strong>Đối tượng</strong>: chọn <em>Cá nhân</em> (mặc định).</span></li>
     <li><span class="n">2</span><span><strong>Đơn vị *</strong>: chọn đơn vị của cán bộ.</span></li>
     <li><span class="n">3</span><span><strong>Đội</strong>: không bắt buộc. Với cá nhân, mục đầu là <q>Tất cả đội</q> và chỉ dùng để thu hẹp danh sách cán bộ. Đơn vị không có đội thì ô bị khóa.</span></li>
-    <li><span class="n">4</span><span><strong>Cán bộ *</strong>: chọn người được khen, hiển thị dạng <q>Họ tên (cấp bậc, số hiệu)</q>. Ô bị khóa cho tới khi bạn chọn đơn vị.</span></li>
-    <li><span class="n">5</span><span><strong>Thông tin cán bộ</strong>: chỉ đọc, giúp kiểm tra đã chọn đúng người (họ tên, năm sinh, cấp bậc, chức vụ, đơn vị / đội, thâm niên).</span></li>
-    <li><span class="n">6</span><span><strong>Hình thức</strong>: <em>Danh hiệu</em> (mặc định) hoặc <em>Khen thưởng</em>.</span></li>
+    <li><span class="n">4</span><span><strong>Cán bộ *</strong>: chọn người được khen, hiển thị dạng <q>Họ tên (cấp bậc, số hiệu)</q> (cán bộ chưa có số hiệu thì không hiện số hiệu). Ô bị khóa cho tới khi bạn chọn đơn vị.</span></li>
+    <li><span class="n">5</span><span><strong>Thông tin cán bộ</strong>: chỉ đọc, giúp kiểm tra đã chọn đúng người (họ tên, năm sinh, cấp bậc, chức vụ, đơn vị / đội, thâm niên, xếp loại gần nhất). Cán bộ chưa có năm sinh thì hiện &quot;—&quot;.</span></li>
+    <li><span class="n">6</span><span><strong>Hình thức</strong>: <em>Danh hiệu</em> (mặc định), <em>Khen thưởng</em> hoặc <em>Xếp loại cán bộ</em> (chỉ có khi Đối tượng là Cá nhân, xem mục 7.4).</span></li>
     <li><span class="n">7</span><span><strong>Danh hiệu thi đua *</strong> (hoặc <strong>Hình thức khen thưởng *</strong>): danh sách thay đổi theo đối tượng và hình thức.</span></li>
     <li><span class="n">8</span><span><strong>Năm khen thưởng *</strong>: từ 1990 đến 2100, mặc định năm hiện tại.</span></li>
     <li><span class="n">9</span><span><strong>Số quyết định *</strong>: tối đa 50 ký tự, ví dụ <code>125/QĐ-BCA</code>.</span></li>
@@ -273,7 +281,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
   <h3>7.2. Khen thưởng cho tập thể</h3>
   <figure><a href="images/14-add-collective.png" target="_blank" rel="noopener"><img src="images/14-add-collective.png" alt="Form thêm khen thưởng cho tập thể" width="1366" height="760" loading="lazy"></a><figcaption>Hình 7.2. Thêm khen thưởng cho tập thể</figcaption></figure>
   <ol class="steps">
-    <li><span class="n">1</span><span>Chọn <strong>Đối tượng</strong> là <em>Tập thể</em>. Ô <em>Cán bộ</em> biến mất vì không cần.</span></li>
+    <li><span class="n">1</span><span>Chọn <strong>Đối tượng</strong> là <em>Tập thể</em>. Ô <em>Cán bộ</em> biến mất vì không cần, và hình thức <em>Xếp loại cán bộ</em> cũng không còn (xếp loại chỉ dành cho cá nhân).</span></li>
     <li><span class="n">2</span><span>Chọn <strong>Đơn vị</strong>.</span></li>
     <li><span class="n">3</span><span><strong>Đội</strong>: để mục đầu <q>Khen cho cả đơn vị</q> nếu khen cấp đơn vị, hoặc chọn một đội cụ thể.</span></li>
     <li><span class="n">4</span><span>Danh sách <strong>Danh hiệu thi đua</strong> chỉ gồm danh hiệu dành cho tập thể (Cờ thi đua của Chính phủ, Cờ thi đua của Bộ Công an, Đơn vị quyết thắng, Đơn vị tiên tiến).</span></li>
@@ -295,13 +303,26 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><td>Cờ Thi đua của Chính phủ; Chiến sĩ thi đua toàn quốc; Bằng khen Thủ tướng Chính phủ</td><td>Thủ tướng Chính phủ</td></tr>
       <tr><td>Cờ thi đua của Bộ Công an; Chiến sĩ thi đua toàn lực lượng; Bằng khen Bộ Công an</td><td>Bộ trưởng Bộ Công an</td></tr>
       <tr><td>Đơn vị quyết thắng; Đơn vị tiên tiến; Chiến sĩ thi đua cơ sở; Chiến sĩ tiên tiến; Giấy khen</td><td>Thủ trưởng đơn vị</td></tr>
+      <tr><td>Bốn mức Xếp loại cán bộ</td><td>Cục trưởng Cục CSGT</td></tr>
     </tbody>
   </table>
   <p><strong>Danh hiệu theo đối tượng:</strong> Tập thể: Cờ Thi đua của Chính phủ; Cờ thi đua của Bộ Công an; Đơn vị quyết thắng; Đơn vị tiên tiến. Cá nhân: Chiến sĩ thi đua toàn quốc; Chiến sĩ thi đua toàn lực lượng; Chiến sĩ thi đua cơ sở; Chiến sĩ tiên tiến.</p>
 
-  <h3>7.4. Thông báo lỗi khi lưu</h3>
+  <h3>7.4. Xếp loại cán bộ theo năm</h3>
+  <p>Xếp loại cán bộ (Hoàn thành xuất sắc / tốt / Hoàn thành / Không hoàn thành nhiệm vụ) được ghi như một bản ghi theo <strong>năm</strong>, nhập cùng form này. Mỗi cán bộ chỉ có <strong>một xếp loại mỗi năm</strong>. Xếp loại hiển thị ở cột <em>Xếp loại (năm)</em> trong Quản lý cán bộ và trong cửa sổ chi tiết cán bộ là mức của <strong>năm gần nhất</strong>, nên muốn đổi xếp loại hãy thêm hoặc sửa bản ghi xếp loại ở đây (không còn ô chọn xếp loại trong form cán bộ).</p>
+  <figure><a href="images/41-add-rating.png" target="_blank" rel="noopener"><img src="images/41-add-rating.png" alt="Form thêm xếp loại cán bộ" width="1366" height="1255" loading="lazy"></a><figcaption>Hình 7.4. Thêm xếp loại cán bộ cho một cá nhân</figcaption></figure>
+  <ol class="steps">
+    <li><span class="n">1</span><span><strong>Cán bộ *</strong>: chọn đơn vị, rồi chọn cán bộ (thẻ thông tin bên cạnh cho biết xếp loại hiện có).</span></li>
+    <li><span class="n">2</span><span><strong>Hình thức</strong>: chọn <em>Xếp loại cán bộ</em> (chỉ hiện khi Đối tượng là Cá nhân).</span></li>
+    <li><span class="n">3</span><span><strong>Xếp loại *</strong>: chọn một trong 4 mức.</span></li>
+    <li><span class="n">4</span><span><strong>Năm *</strong>: năm xếp loại (mặc định năm hiện tại).</span></li>
+    <li><span class="n">5</span><span><strong>Cấp quyết định</strong> tự điền <em>Cục trưởng Cục CSGT</em>, đổi được nếu cần. Số quyết định, ngày quyết định, nội dung điền như khen thưởng khác.</span></li>
+  </ol>
+  <p>Cán bộ đã có xếp loại của năm đó thì hệ thống từ chối lưu và báo <q>Cán bộ đã có xếp loại năm này</q>: hãy sửa bản ghi cũ (nút Sửa trong danh sách, lọc Hình thức = Xếp loại cán bộ) thay vì thêm mới.</p>
+
+  <h3>7.5. Thông báo lỗi khi lưu</h3>
   <p>Bấm lưu mà thiếu thông tin thì hệ thống hiện lỗi màu đỏ ngay dưới từng ô và đưa con trỏ tới ô lỗi đầu tiên. Sửa xong bấm lưu lại.</p>
-  <figure><a href="images/16-add-validation-errors.png" target="_blank" rel="noopener"><img src="images/16-add-validation-errors.png" alt="Lỗi nhập thiếu" width="1366" height="1267" loading="lazy"></a><figcaption>Hình 7.4. Bấm lưu khi chưa nhập gì</figcaption></figure>
+  <figure><a href="images/16-add-validation-errors.png" target="_blank" rel="noopener"><img src="images/16-add-validation-errors.png" alt="Lỗi nhập thiếu" width="1366" height="1268" loading="lazy"></a><figcaption>Hình 7.5. Bấm lưu khi chưa nhập gì</figcaption></figure>
   <div class="scroll"><table>
     <thead><tr><th>Số</th><th>Thông báo</th><th>Cách sửa</th></tr></thead>
     <tbody>
@@ -316,9 +337,9 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
     </tbody>
   </table></div>
 
-  <h3>7.5. Cảnh báo trùng</h3>
+  <h3>7.6. Cảnh báo trùng</h3>
   <p>Khi bạn bấm lưu, nếu đã có bản ghi cùng <strong>đối tượng</strong> (cùng cán bộ, hoặc cùng đơn vị và đội), cùng <strong>danh hiệu / khen thưởng</strong> (huân chương thì cùng loại) và cùng <strong>năm</strong>, hệ thống hỏi lại. Đây chỉ là cảnh báo, không chặn.</p>
-  <figure><a href="images/19-duplicate-warning.png" target="_blank" rel="noopener"><img src="images/19-duplicate-warning.png" alt="Hộp thoại cảnh báo trùng" width="1366" height="800" loading="lazy"></a><figcaption>Hình 7.5. Hộp thoại <q>Có thể bị trùng</q></figcaption></figure>
+  <figure><a href="images/19-duplicate-warning.png" target="_blank" rel="noopener"><img src="images/19-duplicate-warning.png" alt="Hộp thoại cảnh báo trùng" width="1366" height="800" loading="lazy"></a><figcaption>Hình 7.6. Hộp thoại <q>Có thể bị trùng</q></figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span>Nội dung nêu ai đã có khen thưởng nào, năm nào, theo số quyết định nào. Đối chiếu để biết có đúng là nhập lặp không.</span></li>
     <li><span class="n">2</span><span><span class="btn">Hủy</span>: quay lại form, giữ nguyên dữ liệu để bạn kiểm tra hoặc sửa.</span></li>
@@ -330,7 +351,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
   <h2>8. Sửa, xóa khen thưởng</h2>
   <p>Dành cho Quản trị và Biên tập, thực hiện từ nút <span class="btn">Sửa</span> / <span class="btn">Xóa</span> cuối mỗi dòng của danh sách (bước <span class="n">10</span> ở Hình 5.1).</p>
   <h3>8.1. Sửa</h3>
-  <figure><a href="images/17-edit-award.png" target="_blank" rel="noopener"><img src="images/17-edit-award.png" alt="Màn hình sửa khen thưởng" width="1366" height="1202" loading="lazy"></a><figcaption>Hình 8.1. Sửa khen thưởng</figcaption></figure>
+  <figure><a href="images/17-edit-award.png" target="_blank" rel="noopener"><img src="images/17-edit-award.png" alt="Màn hình sửa khen thưởng" width="1366" height="1242" loading="lazy"></a><figcaption>Hình 8.1. Sửa khen thưởng</figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span>Dòng thông báo cho biết bạn đang sửa bản ghi nào (<q>Đang sửa bản ghi …: … năm … của …</q>).</span></li>
     <li><span class="n">2</span><span>Mọi ô đã điền sẵn theo bản ghi, kể cả đối tượng, hình thức, loại huân chương. Sửa ô cần đổi, ví dụ chọn cán bộ khác.</span></li>
@@ -352,13 +373,14 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
 
 <section id="import">
   <h2>9. Import khen thưởng từ Excel</h2>
-  <p>Dùng khi có nhiều bản ghi cần nhập cùng lúc. Hệ thống kiểm tra từng dòng trước, <strong>chỉ nhập các dòng hợp lệ</strong>; dòng lỗi được báo rõ lý do để bạn sửa trong file rồi tải lên lại. Dành cho Quản trị và Biên tập.</p>
+  <p>Dùng khi có nhiều bản ghi cần nhập cùng lúc (danh hiệu, khen thưởng và xếp loại cán bộ). Hệ thống kiểm tra từng dòng trước, <strong>chỉ nhập các dòng hợp lệ</strong>; dòng lỗi được báo rõ lý do để bạn sửa trong file rồi tải lên lại. Dành cho Quản trị và Biên tập.</p>
+  <div class="warn"><strong>Mẫu import mới</strong>File mẫu đã đổi: không còn cột <em>Mã cán bộ</em>. Thay vào đó ghi <strong>Họ và tên, Cấp bậc, Chức vụ</strong> của cán bộ; cán bộ chưa có trong hệ thống sẽ được tạo tự động. Hãy tải lại file mẫu mới, file theo mẫu cũ sẽ bị từ chối vì thiếu cột.</div>
   <h3>9.1. Quy trình</h3>
   <figure><a href="images/20-import-tab.png" target="_blank" rel="noopener"><img src="images/20-import-tab.png" alt="Tab Import từ Excel" width="1366" height="700" loading="lazy"></a><figcaption>Hình 9.1. Tab Import từ Excel</figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span>Vào <em>Thêm khen thưởng</em>, bấm tab <strong>Import từ Excel</strong>.</span></li>
-    <li><span class="n">2</span><span>Bấm <span class="btn">Tải file mẫu (.xlsx)</span> để tải file mẫu về máy (có sẵn dòng tiêu đề, 3 dòng ví dụ và sheet <em>Danh mục</em> liệt kê giá trị hợp lệ).</span></li>
-    <li><span class="n">3</span><span>Điền dữ liệu vào sheet đầu tiên (<em>Khen thưởng</em>), mỗi dòng một khen thưởng, rồi lưu file. Sau đó kéo thả file vào <strong>vùng tải lên</strong> này, hoặc bấm vào vùng đó để chọn file.</span></li>
+    <li><span class="n">2</span><span>Bấm <span class="btn">Tải file mẫu (.xlsx)</span> để tải file mẫu về máy (có sẵn dòng tiêu đề, vài dòng ví dụ và sheet <em>Danh mục</em> liệt kê giá trị hợp lệ: danh hiệu, khen thưởng, xếp loại, đơn vị, đội, cấp bậc, chức vụ, cấp quyết định).</span></li>
+    <li><span class="n">3</span><span>Điền dữ liệu vào sheet đầu tiên (<em>Khen thưởng</em>), mỗi dòng một bản ghi, rồi lưu file. Sau đó kéo thả file vào <strong>vùng tải lên</strong> này, hoặc bấm vào vùng đó để chọn file.</span></li>
   </ol>
   <h3>9.2. Giới hạn của file</h3>
   <table>
@@ -366,62 +388,87 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><th>Định dạng</th><td><code>.xlsx</code>, <code>.xls</code>, <code>.csv</code>. Hệ thống chỉ đọc <strong>sheet đầu tiên</strong>, bỏ qua dòng trống.</td></tr>
       <tr><th>Dung lượng</th><td>Tối đa <strong>5 MB</strong> mỗi file. Vượt quá: <q>File vượt quá 5 MB</q>.</td></tr>
       <tr><th>Số dòng</th><td>Tối đa <strong>100 dòng dữ liệu</strong> mỗi lần (không tính dòng tiêu đề và dòng trống). Vượt quá: <q>File có N dòng, tối đa 100 dòng mỗi lần nhập</q>. Hãy tách file thành nhiều file nhỏ.</td></tr>
-      <tr><th>Cột bắt buộc</th><td>Thiếu một cột bắt buộc thì từ chối cả file và liệt kê tên các cột thiếu. Đừng đổi tên hay xóa cột tiêu đề của file mẫu.</td></tr>
+      <tr><th>Cột bắt buộc</th><td>Phải có đủ các cột trừ <em>Đội</em>, <em>Cấp quyết định</em>, <em>Ghi chú</em>. Thiếu một cột bắt buộc thì từ chối cả file và liệt kê tên các cột thiếu. Đừng đổi tên hay xóa cột tiêu đề của file mẫu (file chỉ có tập thể vẫn giữ các cột Họ và tên, Cấp bậc, Chức vụ, chỉ để ô trống).</td></tr>
     </tbody>
   </table>
-  <h3>9.3. Các cột của file mẫu</h3>
+  <h3>9.3. Các cột của file mẫu (14 cột)</h3>
   <div class="scroll"><table>
     <thead><tr><th>Cột</th><th>Bắt buộc</th><th>Ví dụ</th><th>Quy tắc</th></tr></thead>
     <tbody>
       <tr><td>Đối tượng</td><td>Có</td><td>Cá nhân</td><td>Tập thể hoặc Cá nhân</td></tr>
-      <tr><td>Mã cán bộ</td><td>Có, khi Cá nhân</td><td>CB001</td><td>Phải tồn tại (xem mã ở màn hình Quản lý cán bộ hoặc sheet Danh mục); để trống khi Tập thể</td></tr>
-      <tr><td>Đơn vị</td><td>Có</td><td>Phòng 6</td><td>Khớp tên hoặc mã đơn vị</td></tr>
-      <tr><td>Đội</td><td>Không</td><td>Đội Dẫn đoàn số 1</td><td>Phải thuộc đơn vị ở cột Đơn vị</td></tr>
-      <tr><td>Hình thức</td><td>Có</td><td>Danh hiệu</td><td>Danh hiệu hoặc Khen thưởng</td></tr>
-      <tr><td>Danh hiệu / khen thưởng</td><td>Có</td><td>Chiến sĩ thi đua cơ sở</td><td>Hợp lệ theo đối tượng và hình thức. Với huân chương ghi đúng tên loại, ví dụ <em>Huân chương Chiến công hạng Ba</em></td></tr>
-      <tr><td>Năm</td><td>Có</td><td>2026</td><td>Số nguyên từ 1990 đến 2100</td></tr>
+      <tr><td>Họ và tên</td><td>Có, khi Cá nhân</td><td>Nguyễn Hữu Đạt</td><td>Họ tên cán bộ (tối đa 100 ký tự); không phân biệt hoa thường, khoảng trắng thừa. Để trống khi Tập thể</td></tr>
+      <tr><td>Cấp bậc</td><td>Có, nếu cán bộ chưa có trong hệ thống</td><td>Trung úy</td><td>Ghi đúng tên cấp bậc trong sheet Danh mục. Cán bộ đã có trong hệ thống thì dữ liệu hiện có được giữ nguyên, cột này không làm đổi cấp bậc. Để trống khi Tập thể</td></tr>
+      <tr><td>Chức vụ</td><td>Có, nếu cán bộ chưa có trong hệ thống</td><td>Cán bộ</td><td>Ghi đúng tên chức vụ trong sheet Danh mục (gồm Cục trưởng, Phó Cục trưởng). Quy tắc như cột Cấp bậc</td></tr>
+      <tr><td>Đơn vị</td><td>Có</td><td>Phòng 6</td><td>Khớp tên hoặc mã đơn vị (gồm Cục Cảnh sát giao thông)</td></tr>
+      <tr><td>Đội</td><td>Không</td><td>Đội Dẫn đoàn số 1</td><td>Phải thuộc đơn vị ở cột Đơn vị. Có ghi đội thì dùng đội để xác định cán bộ (mục 9.4)</td></tr>
+      <tr><td>Hình thức</td><td>Có</td><td>Danh hiệu</td><td>Danh hiệu, Khen thưởng hoặc <strong>Xếp loại cán bộ</strong> (xếp loại chỉ dành cho Cá nhân)</td></tr>
+      <tr><td>Danh hiệu / khen thưởng</td><td>Có</td><td>Chiến sĩ thi đua cơ sở</td><td>Hợp lệ theo đối tượng và hình thức. Với huân chương ghi đúng tên loại, ví dụ <em>Huân chương Chiến công hạng Ba</em>. Với xếp loại ghi một trong 4 mức, ví dụ <em>Hoàn thành tốt nhiệm vụ</em></td></tr>
+      <tr><td>Năm</td><td>Có</td><td>2026</td><td>Số nguyên từ 1990 đến 2100 (với xếp loại: năm được xếp loại)</td></tr>
       <tr><td>Số quyết định</td><td>Có</td><td>125/QĐ-ĐV</td><td>Tối đa 50 ký tự</td></tr>
       <tr><td>Ngày quyết định</td><td>Có</td><td>15/09/2026</td><td>Dạng dd/mm/yyyy, yyyy-mm-dd hoặc ô kiểu ngày của Excel</td></tr>
-      <tr><td>Cấp quyết định</td><td>Không</td><td>Bộ trưởng Bộ Công an</td><td>Để trống thì lấy mặc định theo loại khen thưởng</td></tr>
-      <tr><td>Chi tiết giải thưởng</td><td>Có</td><td>Hoàn thành xuất sắc nhiệm vụ năm 2026</td><td>Thành tích, nội dung khen thưởng</td></tr>
-      <tr><td>Ghi chú</td><td>Không</td><td></td><td></td></tr>
+      <tr><td>Cấp quyết định</td><td>Không</td><td>Bộ trưởng Bộ Công an</td><td>Để trống thì lấy mặc định theo loại (xếp loại: Cục trưởng Cục CSGT)</td></tr>
+      <tr><td>Chi tiết giải thưởng</td><td>Có</td><td>Hoàn thành xuất sắc nhiệm vụ năm 2026</td><td>Thành tích, nội dung khen thưởng (tối đa 2.000 ký tự)</td></tr>
+      <tr><td>Ghi chú</td><td>Không</td><td></td><td>Tối đa 500 ký tự</td></tr>
     </tbody>
   </table></div>
-  <h3>9.4. Bảng xem trước và trạng thái từng dòng</h3>
-  <figure><a href="images/21-import-preview.png" target="_blank" rel="noopener"><img src="images/21-import-preview.png" alt="Bảng xem trước import" width="1366" height="1113" loading="lazy"></a><figcaption>Hình 9.2. Bảng xem trước sau khi tải file lên (file minh họa 8 dòng)</figcaption></figure>
+  <h3>9.4. Cách hệ thống xác định cán bộ (dòng Cá nhân)</h3>
+  <p>Hệ thống tìm cán bộ theo <strong>Họ và tên</strong> (không phân biệt hoa thường, dấu cách thừa) cùng <strong>Đơn vị</strong>, và cùng <strong>Đội</strong> nếu dòng có ghi đội:</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Tìm thấy</th><th>Kết quả</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Đúng 1 cán bộ</strong></td><td>Dùng cán bộ đó. Cấp bậc, chức vụ trong file chỉ để tham khảo, không cập nhật hồ sơ cán bộ.</td></tr>
+      <tr><td><strong>Chưa có ai</strong></td><td>Hệ thống <strong>tạo cán bộ mới</strong> khi bạn bấm nhập, từ Họ và tên, Cấp bậc, Chức vụ, Đơn vị, Đội của dòng đó (bắt buộc ghi đủ cấp bậc, chức vụ hợp lệ). Mã cán bộ tự sinh; năm sinh, số hiệu để trống, bổ sung sau ở Quản lý cán bộ. Nhiều dòng của cùng một người mới trong file chỉ tạo cán bộ một lần. Bảng xem trước đánh dấu dòng này bằng nhãn <strong>mới</strong>.</td></tr>
+      <tr><td><strong>Từ 2 người trở lên</strong> (trùng tên)</td><td>Báo lỗi dòng <q>Có N cán bộ trùng tên … trong …</q>, không nhập. Hãy ghi thêm cột <em>Đội</em> để phân biệt; nếu vẫn trùng, nhập tay từng bản ghi ở màn hình Thêm khen thưởng.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tip"><strong>Mẹo</strong>Gõ đúng họ tên có dấu như trong hồ sơ. Sai chính tả sẽ bị coi là một người khác và hệ thống tạo cán bộ mới (nhìn nhãn <em>mới</em> ở bảng xem trước trước khi nhập).</div>
+  <h3>9.5. Dòng Xếp loại cán bộ</h3>
+  <ul>
+    <li>Cột <em>Hình thức</em> ghi <strong>Xếp loại cán bộ</strong>, cột <em>Danh hiệu / khen thưởng</em> ghi một trong 4 mức xếp loại, cột <em>Năm</em> là năm xếp loại.</li>
+    <li>Chỉ áp dụng cho <strong>Cá nhân</strong>; dòng Tập thể báo lỗi <q>Xếp loại cán bộ chỉ áp dụng cho cá nhân</q>.</li>
+    <li>Mỗi cán bộ chỉ có <strong>một xếp loại mỗi năm</strong>. Nếu đã có thì dòng bị <strong>lỗi</strong> (không phải &quot;có thể trùng&quot;): <q>Cán bộ đã có xếp loại năm …</q>, hoặc <q>… (trùng với dòng N trong file)</q> khi hai dòng trong file cùng cán bộ, cùng năm.</li>
+  </ul>
+  <h3>9.6. Bảng xem trước và trạng thái từng dòng</h3>
+  <figure><a href="images/21-import-preview.png" target="_blank" rel="noopener"><img src="images/21-import-preview.png" alt="Bảng xem trước import" width="1366" height="1258" loading="lazy"></a><figcaption>Hình 9.2. Bảng xem trước sau khi tải file lên (file minh họa 9 dòng)</figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span>Dòng tóm tắt: tên file, tổng số dòng, số dòng hợp lệ, có thể trùng và lỗi.</span></li>
     <li><span class="n">2</span><span>Cột <strong>Trạng thái</strong> của từng dòng (xem bảng dưới).</span></li>
-    <li><span class="n">3</span><span>Dòng <strong>Có thể trùng</strong> (tô vàng): cột cuối ghi trùng với bản ghi nào.</span></li>
-    <li><span class="n">4</span><span>Dòng <strong>Lỗi</strong> (tô đỏ): cột cuối ghi lý do. Sửa trong file Excel rồi tải lên lại.</span></li>
-    <li><span class="n">5</span><span>Ô tích <strong>Nhập cả N dòng có thể trùng</strong>: chỉ tích khi chắc chắn muốn nhập các dòng trùng.</span></li>
-    <li><span class="n">6</span><span><span class="btn">Chọn file khác</span>: bỏ file này, làm lại từ đầu.</span></li>
-    <li><span class="n">7</span><span><span class="btn">Nhập N dòng hợp lệ</span>: nhập các dòng sẽ được nhập (N là con số chính xác).</span></li>
+    <li><span class="n">3</span><span>Nhãn <strong>mới</strong> cạnh tên: cán bộ chưa có trong hệ thống, sẽ được tạo khi nhập (cột cuối ghi <q>Sẽ tạo cán bộ mới</q>). Kiểm tra họ tên cho đúng trước khi nhập.</span></li>
+    <li><span class="n">4</span><span>Dòng <strong>Có thể trùng</strong> (tô vàng): cột cuối ghi trùng với bản ghi nào.</span></li>
+    <li><span class="n">5</span><span>Dòng <strong>Lỗi</strong> (tô đỏ): cột cuối ghi lý do. Sửa trong file Excel rồi tải lên lại.</span></li>
+    <li><span class="n">6</span><span>Ô tích <strong>Nhập cả N dòng có thể trùng</strong>: chỉ tích khi chắc chắn muốn nhập các dòng trùng.</span></li>
+    <li><span class="n">7</span><span><span class="btn">Chọn file khác</span>: bỏ file này, làm lại từ đầu.</span></li>
+    <li><span class="n">8</span><span><span class="btn">Nhập N dòng hợp lệ</span>: nhập các dòng sẽ được nhập (N là con số chính xác).</span></li>
   </ol>
+  <p>Trong ví dụ: dòng 2 là cán bộ có sẵn, dòng 3 là cán bộ mới (nhãn <em>mới</em>), dòng 4 là một dòng xếp loại (hình thức <em>Xếp loại cán bộ</em>), dòng 7 trùng bản ghi đã có, dòng 8 trùng dòng 2 trong file, dòng 9 lỗi cấp bậc không có trong danh mục, dòng 10 lỗi vì cán bộ đã có xếp loại năm 2025.</p>
   <table>
     <thead><tr><th>Trạng thái</th><th>Nghĩa là</th><th>Mặc định</th></tr></thead>
     <tbody>
-      <tr><td><strong>Hợp lệ</strong></td><td>Dữ liệu đúng, không trùng.</td><td>Được nhập</td></tr>
+      <tr><td><strong>Hợp lệ</strong></td><td>Dữ liệu đúng, không trùng. Có thể kèm nhãn <strong>mới</strong> (sẽ tạo cán bộ mới).</td><td>Được nhập</td></tr>
       <tr><td><strong>Có thể trùng</strong> (vàng)</td><td>Dữ liệu đúng nhưng đã có bản ghi giống (cùng đối tượng, danh hiệu / khen thưởng, năm): <q>Trùng với bản ghi đã có (quyết định …)</q>, hoặc trùng với dòng phía trên trong cùng file: <q>Trùng với dòng … trong file</q>.</td><td>Không nhập, trừ khi tích ô <em>Nhập cả N dòng có thể trùng</em></td></tr>
-      <tr><td><strong>Lỗi</strong> (đỏ)</td><td>Dữ liệu sai hoặc thiếu.</td><td>Không bao giờ được nhập</td></tr>
+      <tr><td><strong>Lỗi</strong> (đỏ)</td><td>Dữ liệu sai hoặc thiếu (kể cả xếp loại đã tồn tại).</td><td>Không bao giờ được nhập</td></tr>
     </tbody>
   </table>
-  <figure><a href="images/22-import-include-duplicates.png" target="_blank" rel="noopener"><img src="images/22-import-include-duplicates.png" alt="Tích ô nhập cả dòng có thể trùng" width="1366" height="560" loading="lazy"></a><figcaption>Hình 9.3. Tích <span class="n">1</span> thì nút nhập <span class="n">2</span> tăng số dòng (4 thành 6)</figcaption></figure>
-  <h3>9.5. Nhập và kết quả</h3>
-  <p>Bấm <span class="btn">Nhập N dòng hợp lệ</span>. Hệ thống lưu các dòng trong cùng một đợt import, hiện <q>Đã nhập N khen thưởng</q> và quay về danh sách.</p>
+  <figure><a href="images/22-import-include-duplicates.png" target="_blank" rel="noopener"><img src="images/22-import-include-duplicates.png" alt="Tích ô nhập cả dòng có thể trùng" width="1366" height="560" loading="lazy"></a><figcaption>Hình 9.3. Tích <span class="n">1</span> thì nút nhập <span class="n">2</span> tăng số dòng (5 thành 7)</figcaption></figure>
+  <h3>9.7. Nhập và kết quả</h3>
+  <p>Bấm <span class="btn">Nhập N dòng hợp lệ</span>. Hệ thống tạo các cán bộ mới (nếu có) và lưu các dòng trong cùng một đợt import, hiện <q>Đã nhập N khen thưởng</q> và quay về danh sách.</p>
   <figure><a href="images/23-import-done.png" target="_blank" rel="noopener"><img src="images/23-import-done.png" alt="Kết quả sau khi nhập" width="1366" height="640" loading="lazy"></a><figcaption>Hình 9.4. Sau khi nhập: <span class="n">1</span> thông báo, <span class="n">2</span> thống kê tăng thêm</figcaption></figure>
-  <h3>9.6. Lỗi theo dòng thường gặp</h3>
+  <h3>9.8. Lỗi theo dòng thường gặp</h3>
   <div class="scroll"><table>
     <thead><tr><th>Thông báo</th><th>Cách sửa trong file</th></tr></thead>
     <tbody>
       <tr><td>Đối tượng phải là Tập thể hoặc Cá nhân</td><td>Sửa cột Đối tượng đúng hai giá trị này.</td></tr>
       <tr><td>Không tìm thấy đơn vị "…"</td><td>Ghi đúng tên hoặc mã đơn vị (xem sheet Danh mục).</td></tr>
       <tr><td>Đội "…" không thuộc …</td><td>Ghi đúng tên đội thuộc đơn vị đó, hoặc để trống.</td></tr>
-      <tr><td>Cá nhân cần có mã cán bộ</td><td>Điền cột Mã cán bộ.</td></tr>
-      <tr><td>Không tìm thấy cán bộ mã …</td><td>Mã sai hoặc chưa có cán bộ: kiểm tra ở Quản lý cán bộ, nhờ Quản trị thêm cán bộ nếu cần.</td></tr>
-      <tr><td>Cán bộ … không thuộc …</td><td>Đơn vị / đội trong file khác với đơn vị / đội hiện tại của cán bộ. Sửa cho khớp.</td></tr>
-      <tr><td>Hình thức phải là Danh hiệu hoặc Khen thưởng</td><td>Sửa cột Hình thức.</td></tr>
-      <tr><td>"…" không phải danh hiệu tập thể / danh hiệu cá nhân / hình thức khen thưởng hợp lệ</td><td>Tên không khớp đối tượng hoặc hình thức (ví dụ ghi danh hiệu tập thể cho cá nhân). Chọn đúng tên trong sheet Danh mục.</td></tr>
+      <tr><td>Cá nhân cần có họ tên</td><td>Điền cột Họ và tên.</td></tr>
+      <tr><td>Cá nhân cần có cấp bậc / Cá nhân cần có chức vụ</td><td>Cán bộ chưa có trong hệ thống nên phải ghi cấp bậc và chức vụ để tạo mới. Điền hai cột này (hoặc sửa họ tên nếu bạn gõ sai tên một cán bộ đã có).</td></tr>
+      <tr><td>Không tìm thấy cấp bậc "…" / Không tìm thấy chức vụ "…"</td><td>Ghi đúng tên trong sheet Danh mục.</td></tr>
+      <tr><td>Có N cán bộ trùng tên "…" trong …</td><td>Trong đơn vị (đội) có nhiều người trùng tên. Ghi thêm cột Đội, hoặc nhập tay bản ghi này.</td></tr>
+      <tr><td>Tập thể không ghi họ tên, cấp bậc, chức vụ</td><td>Dòng Tập thể: để trống ba cột Họ và tên, Cấp bậc, Chức vụ.</td></tr>
+      <tr><td>Hình thức phải là Danh hiệu, Khen thưởng hoặc Xếp loại cán bộ</td><td>Sửa cột Hình thức.</td></tr>
+      <tr><td>Xếp loại cán bộ chỉ áp dụng cho cá nhân</td><td>Dòng xếp loại phải có Đối tượng là Cá nhân.</td></tr>
+      <tr><td>Cán bộ đã có xếp loại năm … (có thể kèm: trùng với dòng N trong file)</td><td>Mỗi cán bộ một xếp loại mỗi năm. Xóa dòng thừa, hoặc sửa bản ghi xếp loại cũ trong hệ thống.</td></tr>
+      <tr><td>"…" không phải danh hiệu tập thể / danh hiệu cá nhân / hình thức khen thưởng / xếp loại hợp lệ</td><td>Tên không khớp đối tượng hoặc hình thức (ví dụ ghi danh hiệu tập thể cho cá nhân). Chọn đúng tên trong sheet Danh mục.</td></tr>
       <tr><td>Ghi rõ loại huân chương, ví dụ Huân chương Chiến công hạng Ba</td><td>Ở cột Danh hiệu / khen thưởng, ghi đủ tên loại huân chương thay cho chữ "Huân chương".</td></tr>
       <tr><td>Năm không hợp lệ</td><td>Năm là số từ 1990 đến 2100.</td></tr>
       <tr><td>Thiếu số quyết định</td><td>Điền cột Số quyết định.</td></tr>
@@ -429,7 +476,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><td>Thiếu chi tiết giải thưởng</td><td>Điền cột Chi tiết giải thưởng.</td></tr>
     </tbody>
   </table></div>
-  <div class="tip"><strong>Mẹo</strong>Điền xong nhớ lưu file trước khi tải lên. Nếu file có hơn 100 dòng, tách thành nhiều file. Có thể tải lại cùng một file nhiều lần để kiểm tra sau khi sửa: dòng đã nhập sẽ hiện là <em>Có thể trùng</em>, không bị nhập hai lần nếu bạn không tích ô nhập dòng trùng.</div>
+  <div class="tip"><strong>Mẹo</strong>Điền xong nhớ lưu file trước khi tải lên. Nếu file có hơn 100 dòng, tách thành nhiều file. Có thể tải lại cùng một file nhiều lần để kiểm tra sau khi sửa: dòng đã nhập sẽ hiện là <em>Có thể trùng</em> (dòng xếp loại đã nhập báo <em>Lỗi</em>), không bị nhập hai lần nếu bạn không tích ô nhập dòng trùng.</div>
 </section>
 
 <section id="can-bo">
@@ -440,11 +487,11 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
     <li><span class="n">1</span><span><span class="btn">Thêm cán bộ</span>: mở form thêm.</span></li>
     <li><span class="n">2</span><span>Lọc theo <strong>Đơn vị</strong>.</span></li>
     <li><span class="n">3</span><span>Lọc theo <strong>Đội</strong> (cách hoạt động giống màn hình danh sách khen thưởng).</span></li>
-    <li><span class="n">4</span><span><strong>Tìm kiếm</strong> theo họ tên, số hiệu hoặc mã cán bộ.</span></li>
+    <li><span class="n">4</span><span><strong>Tìm kiếm</strong> theo họ tên, số hiệu hoặc mã cán bộ. Cán bộ của <em>Cục Cảnh sát giao thông</em> (Cục trưởng, Phó Cục trưởng) cũng nằm trong danh sách này.</span></li>
     <li><span class="n">5</span><span>Bấm <strong>họ tên</strong> để xem chi tiết (mục <a href="#chi-tiet-can-bo">6</a>).</span></li>
     <li><span class="n">6</span><span>Cột <strong>Vào ngành</strong> (tháng/năm).</span></li>
     <li><span class="n">7</span><span>Cột <strong>Thâm niên</strong> (số năm, tự tính từ năm vào ngành; để trống nếu chưa có tháng năm vào ngành).</span></li>
-    <li><span class="n">8</span><span>Cột <strong>Xếp loại</strong>. Các ô chưa có dữ liệu hiện &quot;—&quot;. Bảng còn có cột Số khen thưởng của từng người.</span></li>
+    <li><span class="n">8</span><span>Cột <strong>Xếp loại (năm)</strong>: mức xếp loại của <strong>năm gần nhất</strong> kèm năm, lấy từ bản ghi Xếp loại cán bộ (mục 7.4), không sửa tại đây. Các ô chưa có dữ liệu (cán bộ chưa có xếp loại, chưa có năm sinh hoặc số hiệu) hiện &quot;—&quot;. Bảng còn có cột Số khen thưởng của từng người.</span></li>
     <li><span class="n">9</span><span><span class="btn">Sửa</span> và <span class="btn">Xóa</span> từng cán bộ.</span></li>
   </ol>
   <h3>10.1. Thêm, sửa cán bộ</h3>
@@ -454,38 +501,37 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
     <tbody>
       <tr><td><span class="n">1</span></td><td>Mã cán bộ</td><td>Tự sinh</td><td>Dạng CB + 3 chữ số, không sửa được</td><td>CB014</td></tr>
       <tr><td><span class="n">2</span></td><td>Họ tên</td><td>Có</td><td>Khoảng trắng thừa được tự gộp</td><td>Trần Văn Mẫu</td></tr>
-      <tr><td><span class="n">3</span></td><td>Năm sinh</td><td>Có</td><td>Từ 1950 đến 2010</td><td>1992</td></tr>
-      <tr><td><span class="n">4</span></td><td>Số hiệu</td><td>Có</td><td>Đúng 6 chữ số và không trùng cán bộ khác</td><td>200001</td></tr>
+      <tr><td><span class="n">3</span></td><td>Năm sinh</td><td>Không</td><td>Nếu nhập: từ 1950 đến 2010</td><td>1992</td></tr>
+      <tr><td><span class="n">4</span></td><td>Số hiệu</td><td>Không</td><td>Nếu nhập: đúng 6 chữ số và không trùng cán bộ khác</td><td>200001</td></tr>
       <tr><td><span class="n">5</span></td><td>Cấp bậc</td><td>Có</td><td>Chọn trong danh sách</td><td>Đại úy</td></tr>
       <tr><td><span class="n">6</span></td><td>Chức vụ</td><td>Có</td><td>Chọn trong danh sách</td><td>Cán bộ</td></tr>
       <tr><td><span class="n">7</span></td><td>Đơn vị</td><td>Có</td><td>Chọn trong danh sách</td><td>Phòng 6</td></tr>
       <tr><td><span class="n">8</span></td><td>Đội</td><td>Không</td><td>Mục đầu <q>Không thuộc đội</q>; khóa nếu đơn vị không có đội</td><td>Đội CSGT đường bộ cao tốc số 3</td></tr>
-      <tr><td><span class="n">9</span></td><td>Tháng năm vào ngành</td><td>Không</td><td>Chọn tháng/năm. Không được ở tương lai và năm vào ngành phải từ năm sinh + 16 trở đi</td><td>09/2015</td></tr>
-      <tr><td><span class="n">10</span></td><td>Xếp loại</td><td>Không</td><td>Mục đầu <q>Chưa xếp loại</q>; hoặc chọn 1 trong 4 mức: Hoàn thành xuất sắc / tốt / Hoàn thành / Không hoàn thành nhiệm vụ. Mỗi cán bộ có một xếp loại hiện tại</td><td>Hoàn thành tốt nhiệm vụ</td></tr>
+      <tr><td><span class="n">9</span></td><td>Tháng năm vào ngành</td><td>Không</td><td>Chọn tháng/năm. Không được ở tương lai; nếu đã nhập năm sinh thì năm vào ngành phải từ năm sinh + 16 trở đi</td><td>09/2015</td></tr>
     </tbody>
   </table></div>
-  <p><span class="n">11</span> <span class="btn">Lưu</span>: lưu, đóng cửa sổ và hiện thông báo. <span class="n">12</span> <span class="btn">Hủy</span>: đóng, không lưu.</p>
+  <p><span class="n">10</span> <span class="btn">Lưu</span>: lưu, đóng cửa sổ và hiện thông báo. <span class="n">11</span> <span class="btn">Hủy</span>: đóng, không lưu.</p>
+  <div class="tip"><strong>Lưu ý</strong>Form cán bộ <strong>không còn ô Xếp loại</strong>: xếp loại được ghi theo từng năm ở màn hình Thêm khen thưởng (hình thức Xếp loại cán bộ) hoặc qua import. Năm sinh và số hiệu không bắt buộc, vì cán bộ tạo từ import chưa có hai thông tin này; bạn có thể bổ sung sau bằng nút Sửa.</div>
   <p><strong>Thâm niên</strong> không phải nhập: hệ thống tự tính bằng <em>năm hiện tại trừ năm vào ngành</em> (không xét tháng), hiển thị &quot;N năm&quot;.</p>
   <figure><a href="images/26-officer-form-errors.png" target="_blank" rel="noopener"><img src="images/26-officer-form-errors.png" alt="Lỗi trong form cán bộ" width="1366" height="900" loading="lazy"></a><figcaption>Hình 10.3. Lỗi thường gặp: <span class="n">1</span> số hiệu sai, <span class="n">2</span> tháng năm vào ngành quá sớm</figcaption></figure>
   <div class="scroll"><table>
     <thead><tr><th>Thông báo</th><th>Cách sửa</th></tr></thead>
     <tbody>
       <tr><td>Nhập họ tên</td><td>Điền họ tên.</td></tr>
-      <tr><td>Năm sinh từ 1950 đến 2010</td><td>Nhập năm sinh trong khoảng này.</td></tr>
-      <tr><td>Số hiệu gồm đúng 6 chữ số</td><td>Chỉ gõ 6 chữ số, không chữ cái, không khoảng trắng.</td></tr>
+      <tr><td>Năm sinh từ 1950 đến 2010</td><td>Nếu có nhập năm sinh thì phải trong khoảng này (hoặc để trống).</td></tr>
+      <tr><td>Số hiệu gồm đúng 6 chữ số</td><td>Chỉ gõ 6 chữ số, không chữ cái, không khoảng trắng (hoặc để trống).</td></tr>
       <tr><td>Số hiệu đã tồn tại</td><td>Kiểm tra lại số hiệu; hai cán bộ không được trùng số hiệu.</td></tr>
       <tr><td>Mã đơn vị đã tồn tại / Tên đơn vị đã tồn tại / Tên đội bị trùng trong đơn vị</td><td>(Form đơn vị) đổi mã hoặc tên cho khác với đơn vị, đội đã có.</td></tr>
       <tr><td>Tên đăng nhập đã tồn tại</td><td>(Form người dùng) chọn tên đăng nhập khác.</td></tr>
       <tr><td>Chọn cấp bậc / Chọn chức vụ / Chọn đơn vị</td><td>Chọn từ danh sách.</td></tr>
       <tr><td>Tháng năm vào ngành không được ở tương lai</td><td>Chọn tháng đã qua (tính đến tháng hiện tại).</td></tr>
-      <tr><td>Tháng năm vào ngành phải sau năm sinh ít nhất 16 năm</td><td>Kiểm tra lại năm sinh hoặc tháng năm vào ngành.</td></tr>
-      <tr><td>Xếp loại không hợp lệ</td><td>Chọn lại một mức trong danh sách.</td></tr>
-    </tbody>
+      <tr><td>Tháng năm vào ngành phải sau năm sinh ít nhất 16 năm</td><td>Chỉ xảy ra khi đã nhập năm sinh: kiểm tra lại năm sinh hoặc tháng năm vào ngành.</td></tr>
+          </tbody>
   </table></div>
   <h3>10.2. Xóa cán bộ</h3>
   <figure><a href="images/27-officer-delete-confirm.png" target="_blank" rel="noopener"><img src="images/27-officer-delete-confirm.png" alt="Xác nhận xóa cán bộ" width="1366" height="800" loading="lazy"></a><figcaption>Hình 10.4. Xác nhận xóa cán bộ</figcaption></figure>
   <ol class="steps">
-    <li><span class="n">1</span><span>Hộp thoại nêu họ tên, số hiệu và <strong>số khen thưởng sẽ bị xóa theo</strong> cán bộ.</span></li>
+    <li><span class="n">1</span><span>Hộp thoại nêu họ tên, số hiệu (nếu có) và <strong>số khen thưởng sẽ bị xóa theo</strong> cán bộ (kể cả các bản ghi xếp loại).</span></li>
     <li><span class="n">2</span><span><span class="btn">Hủy</span> để giữ lại.</span></li>
     <li><span class="n">3</span><span><span class="btn">Xóa</span> để xác nhận. Thao tác không hoàn tác được trên giao diện.</span></li>
   </ol>
@@ -494,12 +540,13 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
 
 <section id="don-vi">
   <h2>11. Quản lý đơn vị và đội (chỉ Quản trị)</h2>
-  <figure><a href="images/28-units-list.png" target="_blank" rel="noopener"><img src="images/28-units-list.png" alt="Danh sách đơn vị" width="1366" height="866" loading="lazy"></a><figcaption>Hình 11.1. Danh sách đơn vị</figcaption></figure>
+  <figure><a href="images/28-units-list.png" target="_blank" rel="noopener"><img src="images/28-units-list.png" alt="Danh sách đơn vị" width="1366" height="886" loading="lazy"></a><figcaption>Hình 11.1. Danh sách đơn vị</figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span><span class="btn">Thêm đơn vị</span>.</span></li>
     <li><span class="n">2</span><span><strong>Tìm kiếm</strong> theo tên hoặc mã đơn vị.</span></li>
     <li><span class="n">3</span><span>Bấm <strong>tên đơn vị</strong> để xem chi tiết (số đội, số cán bộ, số khen thưởng, các đội trực thuộc).</span></li>
     <li><span class="n">4</span><span><span class="btn">Sửa</span> và <span class="btn">Xóa</span> đơn vị.</span></li>
+    <li><span class="n">5</span><span><strong>Cục Cảnh sát giao thông</strong> (mã C08, loại <em>Cục</em>) luôn đứng đầu danh sách, trước các phòng và thủy đoàn. Cục có thể có cán bộ (Cục trưởng, Phó Cục trưởng) và bản ghi khen thưởng, xếp loại như đơn vị khác; việc lọc theo đơn vị vẫn theo từng đơn vị, không gộp các phòng vào Cục.</span></li>
   </ol>
   <figure><a href="images/29-unit-detail.png" target="_blank" rel="noopener"><img src="images/29-unit-detail.png" alt="Chi tiết đơn vị" width="1366" height="1000" loading="lazy"></a><figcaption>Hình 11.2. Cửa sổ xem đơn vị</figcaption></figure>
   <ol class="steps">
@@ -514,7 +561,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
     <thead><tr><th>Số</th><th>Trường</th><th>Bắt buộc</th><th>Quy tắc</th></tr></thead>
     <tbody>
       <tr><td><span class="n">1</span></td><td>Mã đơn vị</td><td>Có</td><td>Không trùng mã khác, không phân biệt hoa thường (ví dụ P6)</td></tr>
-      <tr><td><span class="n">2</span></td><td>Loại đơn vị</td><td>Có</td><td>Phòng hoặc Thủy đoàn</td></tr>
+      <tr><td><span class="n">2</span></td><td>Loại đơn vị</td><td>Có</td><td>Cục, Phòng hoặc Thủy đoàn</td></tr>
       <tr><td><span class="n">3</span></td><td>Tên đơn vị</td><td>Có</td><td>Không trùng tên đơn vị khác</td></tr>
       <tr><td><span class="n">4</span></td><td>Mô tả</td><td>Không</td><td>Tối đa 500 ký tự</td></tr>
       <tr><td><span class="n">5</span></td><td>Tên đội</td><td>Không</td><td>Sửa trực tiếp trong ô. Tên không để trống và không trùng trong cùng đơn vị. Đổi tên đội không làm mất lịch sử khen thưởng của đội</td></tr>
@@ -533,9 +580,64 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
   <p>Đơn vị không còn dữ liệu thì bấm Xóa sẽ hiện hộp xác nhận <q>Xóa đơn vị …? Các đội trực thuộc cũng bị xóa.</q></p>
 </section>
 
+<section id="van-ban">
+  <h2>12. Văn bản quy định</h2>
+  <p>Kho văn bản (luật, nghị định, thông tư, quyết định, hướng dẫn...) về công tác thi đua, khen thưởng để tra cứu và tải về. <strong>Mọi vai trò</strong> xem và tải về được; chỉ <strong>Quản trị và Biên tập</strong> thêm, sửa, xóa. Vào menu <em>Văn bản quy định</em> (nhóm Tài liệu).</p>
+  <h3>12.1. Danh sách, tìm kiếm, tải về</h3>
+  <figure><a href="images/42-documents-list.png" target="_blank" rel="noopener"><img src="images/42-documents-list.png" alt="Danh sách văn bản quy định" width="1366" height="760" loading="lazy"></a><figcaption>Hình 12.1. Danh sách văn bản quy định (vai trò Quản trị hoặc Biên tập)</figcaption></figure>
+  <ol class="steps">
+    <li><span class="n">1</span><span><span class="btn">Thêm văn bản</span>: mở form thêm (chỉ Quản trị, Biên tập).</span></li>
+    <li><span class="n">2</span><span><strong>Tìm kiếm</strong>: gõ một phần số hiệu hoặc trích yếu.</span></li>
+    <li><span class="n">3</span><span><strong>Loại văn bản</strong>: Luật, Nghị định, Thông tư, Quyết định, Hướng dẫn hoặc Khác.</span></li>
+    <li><span class="n">4</span><span><strong>Hiệu lực</strong>: Còn hiệu lực hoặc Hết hiệu lực.</span></li>
+    <li><span class="n">5</span><span>Mỗi dòng gồm số hiệu, trích yếu (kèm ghi chú nếu có), loại, cơ quan ban hành, ngày ban hành, hiệu lực, tên tệp và dung lượng. Danh sách xếp ngày ban hành mới nhất trước, mỗi trang 10 dòng.</span></li>
+    <li><span class="n">6</span><span><span class="btn">Tải về</span>: tải tệp văn bản về máy (mọi vai trò).</span></li>
+    <li><span class="n">7</span><span><span class="btn">Sửa</span>: sửa thông tin hoặc thay tệp (Quản trị, Biên tập).</span></li>
+    <li><span class="n">8</span><span><span class="btn">Xóa</span>: xóa văn bản kèm tệp (Quản trị, Biên tập).</span></li>
+  </ol>
+  <h3>12.2. Thêm, sửa văn bản</h3>
+  <figure><a href="images/43-document-form.png" target="_blank" rel="noopener"><img src="images/43-document-form.png" alt="Form thêm văn bản quy định" width="1366" height="900" loading="lazy"></a><figcaption>Hình 12.2. Form thêm văn bản (đã chọn tệp)</figcaption></figure>
+  <div class="scroll"><table>
+    <thead><tr><th>Số</th><th>Trường</th><th>Bắt buộc</th><th>Quy tắc</th></tr></thead>
+    <tbody>
+      <tr><td><span class="n">1</span></td><td>Số hiệu</td><td>Có</td><td>Tối đa 100 ký tự, ví dụ <code>45/2026/TT-BCA</code></td></tr>
+      <tr><td><span class="n">2</span></td><td>Loại văn bản</td><td>Có</td><td>Chọn trong danh sách</td></tr>
+      <tr><td><span class="n">3</span></td><td>Trích yếu</td><td>Có</td><td>Tối đa 1.000 ký tự</td></tr>
+      <tr><td><span class="n">4</span></td><td>Cơ quan ban hành</td><td>Có</td><td>Tối đa 200 ký tự</td></tr>
+      <tr><td><span class="n">5</span></td><td>Ngày ban hành</td><td>Có</td><td>Chọn ngày từ lịch hoặc gõ</td></tr>
+      <tr><td><span class="n">6</span></td><td>Hiệu lực</td><td>Có</td><td>Còn hiệu lực (mặc định) hoặc Hết hiệu lực</td></tr>
+      <tr><td><span class="n">7</span></td><td>Ghi chú</td><td>Không</td><td>Tối đa 1.000 ký tự</td></tr>
+      <tr><td><span class="n">8</span></td><td>Tệp văn bản</td><td>Có, khi thêm</td><td>PDF, DOC, DOCX, XLS, XLSX; tối đa <strong>20 MB</strong>. Sau khi chọn, dòng <q>Đã chọn: tên tệp (dung lượng)</q> hiện bên dưới. Khi sửa, để trống thì giữ tệp cũ, chọn tệp mới thì thay thế</td></tr>
+      <tr><td><span class="n">9</span></td><td><span class="btn">Lưu</span></td><td></td><td>Lưu văn bản, hiện <q>Đã lưu văn bản</q></td></tr>
+      <tr><td><span class="n">10</span></td><td><span class="btn">Hủy</span></td><td></td><td>Đóng, không lưu</td></tr>
+    </tbody>
+  </table></div>
+  <div class="scroll"><table>
+    <thead><tr><th>Thông báo</th><th>Cách sửa</th></tr></thead>
+    <tbody>
+      <tr><td>Chọn tệp văn bản</td><td>Chưa chọn tệp khi thêm văn bản mới.</td></tr>
+      <tr><td>Tệp vượt quá 20 MB</td><td>Nén hoặc tách tệp cho nhỏ hơn 20 MB.</td></tr>
+      <tr><td>Chỉ chấp nhận tệp PDF, DOC, DOCX, XLS, XLSX</td><td>Chuyển tệp sang một trong các định dạng này.</td></tr>
+      <tr><td>Loại tệp không khớp với phần mở rộng / Nội dung tệp không đúng định dạng</td><td>Tệp bị đổi đuôi hoặc hỏng. Xuất lại tệp từ phần mềm gốc (Word, Excel, trình đọc PDF).</td></tr>
+      <tr><td>Tệp rỗng</td><td>Chọn tệp có nội dung.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>12.3. Xóa văn bản</h3>
+  <figure><a href="images/44-document-delete-confirm.png" target="_blank" rel="noopener"><img src="images/44-document-delete-confirm.png" alt="Xác nhận xóa văn bản" width="1366" height="800" loading="lazy"></a><figcaption>Hình 12.3. Hộp xác nhận xóa văn bản</figcaption></figure>
+  <ol class="steps">
+    <li><span class="n">1</span><span>Nội dung nêu số hiệu và tên tệp đính kèm sẽ bị xóa. Thao tác không hoàn tác được.</span></li>
+    <li><span class="n">2</span><span><span class="btn">Hủy</span>: không xóa.</span></li>
+    <li><span class="n">3</span><span><span class="btn">Xóa</span>: xóa văn bản cùng tệp, hiện <q>Đã xóa văn bản …</q>.</span></li>
+  </ol>
+  <h3>12.4. Vai trò Xem</h3>
+  <figure><a href="images/45-documents-viewer.png" target="_blank" rel="noopener"><img src="images/45-documents-viewer.png" alt="Danh sách văn bản quy định của vai trò Xem" width="1366" height="700" loading="lazy"></a><figcaption>Hình 12.4. Vai trò Xem: <span class="n">1</span> tìm kiếm và lọc, <span class="n">2</span> danh sách, <span class="n">3</span> chỉ có nút Tải về</figcaption></figure>
+  <p>Vai trò <strong>Xem</strong> tìm kiếm, lọc và tải về như trên nhưng không có nút <em>Thêm văn bản</em>, <em>Sửa</em>, <em>Xóa</em>.</p>
+  <div class="warn"><strong>Tải về báo &quot;Tệp chưa sẵn sàng&quot;</strong>Tệp vừa được tải lên có thể cần tới khoảng 1 phút mới tải về được ở mọi nơi. Nếu hệ thống báo <q>Tệp chưa sẵn sàng hoặc không tồn tại, vui lòng thử lại sau ít phút</q>, hãy đợi vài phút rồi bấm <span class="btn">Tải về</span> lại. Nếu sau thời gian dài vẫn báo như vậy, báo Quản trị để tải lại tệp (nút Sửa, chọn tệp mới).</div>
+</section>
+
 <section id="nguoi-dung">
-  <h2>12. Quản lý người dùng (chỉ Quản trị)</h2>
-  <figure><a href="images/32-users-list.png" target="_blank" rel="noopener"><img src="images/32-users-list.png" alt="Danh sách người dùng" width="1366" height="800" loading="lazy"></a><figcaption>Hình 12.1. Danh sách người dùng</figcaption></figure>
+  <h2>13. Quản lý người dùng (chỉ Quản trị)</h2>
+  <figure><a href="images/32-users-list.png" target="_blank" rel="noopener"><img src="images/32-users-list.png" alt="Danh sách người dùng" width="1366" height="800" loading="lazy"></a><figcaption>Hình 13.1. Danh sách người dùng</figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span><span class="btn">Thêm người dùng</span>.</span></li>
     <li><span class="n">2</span><span><strong>Tìm kiếm</strong> theo tên đăng nhập hoặc họ tên.</span></li>
@@ -545,8 +647,8 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
     <li><span class="n">6</span><span><span class="btn">Khóa</span> / <span class="btn">Mở khóa</span> tài khoản.</span></li>
   </ol>
   <p>Dòng của chính bạn chỉ có nút Sửa: bạn không tự khóa, tự đặt lại mật khẩu hoặc tự xóa mình được (muốn đổi mật khẩu hãy dùng nút Đổi mật khẩu cuối menu). Hệ thống luôn phải còn ít nhất 1 Quản trị đang hoạt động.</p>
-  <h3>12.1. Thêm người dùng</h3>
-  <figure><a href="images/33-user-form.png" target="_blank" rel="noopener"><img src="images/33-user-form.png" alt="Form thêm người dùng" width="1366" height="800" loading="lazy"></a><figcaption>Hình 12.2. Form thêm người dùng</figcaption></figure>
+  <h3>13.1. Thêm người dùng</h3>
+  <figure><a href="images/33-user-form.png" target="_blank" rel="noopener"><img src="images/33-user-form.png" alt="Form thêm người dùng" width="1366" height="800" loading="lazy"></a><figcaption>Hình 13.2. Form thêm người dùng</figcaption></figure>
   <div class="scroll"><table>
     <thead><tr><th>Số</th><th>Trường</th><th>Bắt buộc</th><th>Quy tắc</th><th>Ví dụ</th></tr></thead>
     <tbody>
@@ -558,47 +660,57 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><td><span class="n">6</span></td><td>Lưu</td><td></td><td>Tạo tài khoản</td><td></td></tr>
     </tbody>
   </table></div>
-  <figure><a href="images/34-user-temp-password.png" target="_blank" rel="noopener"><img src="images/34-user-temp-password.png" alt="Mật khẩu tạm sau khi tạo tài khoản" width="1366" height="800" loading="lazy"></a><figcaption>Hình 12.3. Mật khẩu tạm chỉ hiện <strong>một lần</strong></figcaption></figure>
+  <figure><a href="images/34-user-temp-password.png" target="_blank" rel="noopener"><img src="images/34-user-temp-password.png" alt="Mật khẩu tạm sau khi tạo tài khoản" width="1366" height="800" loading="lazy"></a><figcaption>Hình 13.3. Mật khẩu tạm chỉ hiện <strong>một lần</strong></figcaption></figure>
   <ol class="steps">
     <li><span class="n">1</span><span>Lời nhắc: mật khẩu chỉ hiển thị một lần; người dùng sẽ phải đổi mật khẩu ở lần đăng nhập đầu.</span></li>
     <li><span class="n">2</span><span>Mật khẩu tạm.</span></li>
     <li><span class="n">3</span><span><span class="btn">Sao chép</span> rồi gửi cho người dùng qua kênh an toàn. Đóng cửa sổ là không xem lại được; khi đó hãy đặt lại mật khẩu.</span></li>
   </ol>
-  <h3>12.2. Đặt lại mật khẩu (khi người dùng quên mật khẩu)</h3>
-  <p>Bấm <span class="btn">Đặt lại mật khẩu</span> ở dòng người dùng, xác nhận, hệ thống hiện mật khẩu tạm mới như Hình 12.4. Mọi phiên đăng nhập của người đó bị hủy, họ phải đổi mật khẩu ở lần đăng nhập sau, và tài khoản bị khóa do nhập sai được mở khóa.</p>
-  <figure><a href="images/35-user-reset-password.png" target="_blank" rel="noopener"><img src="images/35-user-reset-password.png" alt="Kết quả đặt lại mật khẩu" width="1366" height="800" loading="lazy"></a><figcaption>Hình 12.4. Kết quả đặt lại mật khẩu: <span class="n">1</span> mật khẩu tạm, <span class="n">2</span> nút sao chép</figcaption></figure>
-  <h3>12.3. Khóa và mở khóa</h3>
-  <figure><a href="images/36-user-lock-confirm.png" target="_blank" rel="noopener"><img src="images/36-user-lock-confirm.png" alt="Xác nhận khóa tài khoản" width="1366" height="800" loading="lazy"></a><figcaption>Hình 12.5. Xác nhận khóa: <span class="n">1</span> nội dung, <span class="n">2</span> nút Khóa</figcaption></figure>
-  <figure><a href="images/37-user-unlock-confirm.png" target="_blank" rel="noopener"><img src="images/37-user-unlock-confirm.png" alt="Xác nhận mở khóa tài khoản" width="1366" height="800" loading="lazy"></a><figcaption>Hình 12.6. Xác nhận mở khóa: <span class="n">1</span> nội dung, <span class="n">2</span> nút Mở khóa</figcaption></figure>
+  <h3>13.2. Đặt lại mật khẩu (khi người dùng quên mật khẩu)</h3>
+  <p>Bấm <span class="btn">Đặt lại mật khẩu</span> ở dòng người dùng, xác nhận, hệ thống hiện mật khẩu tạm mới như Hình 13.4. Mọi phiên đăng nhập của người đó bị hủy, họ phải đổi mật khẩu ở lần đăng nhập sau, và tài khoản bị khóa do nhập sai được mở khóa.</p>
+  <figure><a href="images/35-user-reset-password.png" target="_blank" rel="noopener"><img src="images/35-user-reset-password.png" alt="Kết quả đặt lại mật khẩu" width="1366" height="800" loading="lazy"></a><figcaption>Hình 13.4. Kết quả đặt lại mật khẩu: <span class="n">1</span> mật khẩu tạm, <span class="n">2</span> nút sao chép</figcaption></figure>
+  <h3>13.3. Khóa và mở khóa</h3>
+  <figure><a href="images/36-user-lock-confirm.png" target="_blank" rel="noopener"><img src="images/36-user-lock-confirm.png" alt="Xác nhận khóa tài khoản" width="1366" height="800" loading="lazy"></a><figcaption>Hình 13.5. Xác nhận khóa: <span class="n">1</span> nội dung, <span class="n">2</span> nút Khóa</figcaption></figure>
+  <figure><a href="images/37-user-unlock-confirm.png" target="_blank" rel="noopener"><img src="images/37-user-unlock-confirm.png" alt="Xác nhận mở khóa tài khoản" width="1366" height="800" loading="lazy"></a><figcaption>Hình 13.6. Xác nhận mở khóa: <span class="n">1</span> nội dung, <span class="n">2</span> nút Mở khóa</figcaption></figure>
   <p>Khóa tài khoản làm người đó bị đăng xuất ngay. Đổi vai trò cũng đăng xuất ngay để quyền mới có hiệu lực. Tài khoản đã từng tạo dữ liệu không xóa được, chỉ khóa; tài khoản chưa tạo dữ liệu thì xóa được bằng nút Xóa.</p>
 </section>
 
 <section id="dien-thoai">
-  <h2>13. Dùng trên điện thoại</h2>
+  <h2>14. Dùng trên điện thoại</h2>
   <p>Hệ thống chạy được trên trình duyệt điện thoại. Trên màn hình hẹp, menu nằm ở thanh phía trên, các bộ lọc xếp thành một cột và bảng cuộn ngang.</p>
-  <figure class="phone"><a href="images/38-mobile-list.png" target="_blank" rel="noopener"><img src="images/38-mobile-list.png" alt="Danh sách trên điện thoại" width="390" height="844" loading="lazy"></a><figcaption>Hình 13.1. Danh sách: <span class="n">1</span> thanh menu (vuốt ngang để thấy các mục còn lại), <span class="n">2</span> bộ lọc, <span class="n">3</span> bảng</figcaption></figure>
-  <figure class="phone"><a href="images/39-mobile-add-award.png" target="_blank" rel="noopener"><img src="images/39-mobile-add-award.png" alt="Form thêm khen thưởng trên điện thoại" width="390" height="844" loading="lazy"></a><figcaption>Hình 13.2. Thêm khen thưởng: <span class="n">1</span> tab Import từ Excel, <span class="n">2</span> các ô nhập xếp dọc</figcaption></figure>
+  <figure class="phone"><a href="images/38-mobile-list.png" target="_blank" rel="noopener"><img src="images/38-mobile-list.png" alt="Danh sách trên điện thoại" width="390" height="844" loading="lazy"></a><figcaption>Hình 14.1. Danh sách: <span class="n">1</span> thanh menu (vuốt ngang để thấy các mục còn lại), <span class="n">2</span> bộ lọc, <span class="n">3</span> bảng</figcaption></figure>
+  <figure class="phone"><a href="images/39-mobile-add-award.png" target="_blank" rel="noopener"><img src="images/39-mobile-add-award.png" alt="Form thêm khen thưởng trên điện thoại" width="390" height="844" loading="lazy"></a><figcaption>Hình 14.2. Thêm khen thưởng: <span class="n">1</span> tab Import từ Excel, <span class="n">2</span> các ô nhập xếp dọc</figcaption></figure>
   <div class="tip"><strong>Mẹo</strong>Import Excel và nhập liệu số lượng lớn nên làm trên máy tính. Trên điện thoại, thanh menu và bảng danh sách vuốt ngang được để xem hết các mục, các cột.</div>
 </section>
 
 <section id="faq">
-  <h2>14. Câu hỏi thường gặp, xử lý sự cố</h2>
+  <h2>15. Câu hỏi thường gặp, xử lý sự cố</h2>
   <h3>Tôi quên mật khẩu</h3>
-  <p>Hệ thống không tự khôi phục qua email. Hãy nhờ <strong>Quản trị</strong> bấm <em>Đặt lại mật khẩu</em> cho tài khoản của bạn (mục 12.2). Bạn sẽ nhận một mật khẩu tạm và phải đổi ngay ở lần đăng nhập tiếp theo.</p>
+  <p>Hệ thống không tự khôi phục qua email. Hãy nhờ <strong>Quản trị</strong> bấm <em>Đặt lại mật khẩu</em> cho tài khoản của bạn (mục 13.2). Bạn sẽ nhận một mật khẩu tạm và phải đổi ngay ở lần đăng nhập tiếp theo.</p>
   <h3>Báo &quot;Tài khoản đang bị khóa&quot;</h3>
   <p>Do nhập sai mật khẩu 5 lần liên tiếp (tự mở sau 15 phút) hoặc do Quản trị khóa. Đợi 15 phút rồi thử lại, hoặc nhờ Quản trị mở khóa / đặt lại mật khẩu.</p>
   <h3>Tôi bị đăng xuất đột ngột</h3>
   <p>Có thể phiên đã hết hạn (8 giờ không hoạt động), hoặc Quản trị vừa khóa tài khoản / đổi vai trò / đặt lại mật khẩu của bạn, hoặc bạn vừa đổi mật khẩu trên thiết bị khác. Đăng nhập lại; nếu báo bị khóa, liên hệ Quản trị.</p>
   <h3>Tôi không thấy menu Thêm khen thưởng hoặc Quản lý cán bộ</h3>
-  <p>Menu phụ thuộc vai trò (mục 2). Vai trò Xem chỉ thấy danh sách; Biên tập không có các mục quản lý danh mục. Nếu cần thêm quyền, nhờ Quản trị đổi vai trò (sau khi đổi, bạn cần đăng nhập lại).</p>
+  <p>Menu phụ thuộc vai trò (mục 2). Vai trò Xem chỉ thấy danh sách khen thưởng và Văn bản quy định; Biên tập không có các mục quản lý danh mục. Nếu cần thêm quyền, nhờ Quản trị đổi vai trò (sau khi đổi, bạn cần đăng nhập lại).</p>
   <h3>Tôi không thấy nút Sửa, Xóa</h3>
   <p>Chỉ Quản trị và Biên tập có các nút này. Vai trò Xem chỉ được xem.</p>
   <h3>Không tìm thấy cán bộ trong ô Cán bộ khi thêm khen thưởng</h3>
-  <p>Ô chỉ liệt kê cán bộ thuộc đơn vị (và đội) đang chọn. Kiểm tra lại Đơn vị và Đội; nếu cán bộ chưa có trong hệ thống, nhờ Quản trị thêm ở Quản lý cán bộ.</p>
+  <p>Ô chỉ liệt kê cán bộ thuộc đơn vị (và đội) đang chọn. Kiểm tra lại Đơn vị và Đội; nếu cán bộ chưa có trong hệ thống, nhờ Quản trị thêm ở Quản lý cán bộ (hoặc ghi vào file import, cán bộ mới được tạo tự động).</p>
+  <h3>Import báo &quot;Có N cán bộ trùng tên …&quot; (trùng tên cán bộ)</h3>
+  <p>Trong cùng đơn vị (và đội nếu bạn ghi cột Đội) có từ 2 cán bộ trùng họ tên nên hệ thống không đoán được là ai. Ghi thêm cột <em>Đội</em> trong file để phân biệt; nếu hai người cùng đội thì nhập tay bản ghi đó ở màn hình Thêm khen thưởng (chọn đúng người trong ô Cán bộ). Mục 9.4.</p>
+  <h3>Import tạo ra cán bộ lạ trong danh sách cán bộ</h3>
+  <p>Dòng có họ tên chưa khớp ai (thường do sai chính tả hoặc sai đơn vị) sẽ tạo cán bộ mới, không có năm sinh, số hiệu. Trước khi nhập, xem nhãn <em>mới</em> ở bảng xem trước và sửa file nếu tên sai. Cán bộ tạo nhầm: Quản trị xóa ở Quản lý cán bộ (mục 10.2), lưu ý xóa cán bộ cũng xóa khen thưởng của người đó.</p>
+  <h3>Tải văn bản quy định báo &quot;Tệp chưa sẵn sàng hoặc không tồn tại&quot;</h3>
+  <p>Tệp mới tải lên cần tới khoảng 1 phút để sẵn sàng. Đợi vài phút rồi bấm Tải về lại (mục 12.4). Nếu vẫn lỗi, nhờ Quản trị hoặc Biên tập tải lại tệp.</p>
+  <h3>Không thấy xếp loại của cán bộ ở màn hình Quản lý cán bộ</h3>
+  <p>Cột Xếp loại (năm) chỉ hiện khi cán bộ có bản ghi Xếp loại cán bộ; mức hiển thị là của năm gần nhất. Thêm bản ghi ở Thêm khen thưởng (mục 7.4) hoặc import. Form sửa cán bộ không có ô xếp loại.</p>
+  <h3>Hệ thống báo &quot;Cán bộ đã có xếp loại năm này&quot;</h3>
+  <p>Mỗi cán bộ chỉ có một xếp loại mỗi năm. Sửa bản ghi xếp loại đã có (lọc Hình thức = Xếp loại cán bộ rồi bấm Sửa) thay vì thêm mới.</p>
   <h3>Hệ thống báo dữ liệu có thể trùng</h3>
   <p>Đã có bản ghi cùng đối tượng, cùng danh hiệu / khen thưởng và cùng năm. Mở danh sách (lọc theo người hoặc đơn vị) để kiểm tra. Nếu thực sự là khen thưởng khác thì bấm <em>Vẫn lưu</em>; nếu nhập lặp thì bấm <em>Hủy</em>. Với import, dòng trùng mặc định không được nhập.</p>
   <h3>Import báo lỗi cả file (không hiện bảng xem trước)</h3>
-  <p>Thường do: file quá 5 MB; quá 100 dòng dữ liệu; thiếu cột bắt buộc (không đổi tên cột tiêu đề); hoặc file không phải .xlsx, .xls, .csv. Sửa file rồi tải lại (mục 9.2).</p>
+  <p>Thường do: file quá 5 MB; quá 100 dòng dữ liệu; thiếu cột bắt buộc (không đổi tên cột tiêu đề, file theo mẫu cũ có cột Mã cán bộ nhưng không có Họ và tên, Cấp bậc, Chức vụ sẽ bị từ chối: tải lại file mẫu mới); hoặc file không phải .xlsx, .xls, .csv. Sửa file rồi tải lại (mục 9.2).</p>
   <h3>Tôi nhập nhầm khen thưởng</h3>
   <p>Bấm <em>Sửa</em> ở dòng đó để chỉnh, hoặc <em>Xóa</em> rồi nhập lại. Với import nhầm cả đợt, báo Quản trị hệ thống để hoàn tác theo đợt.</p>
   <h3>Chữ hoặc ô ngày hiển thị khác tài liệu</h3>
@@ -606,13 +718,13 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
 </section>
 
 <section id="cap-nhat">
-  <h2>15. Cập nhật tài liệu này</h2>
+  <h2>16. Cập nhật tài liệu này</h2>
   <p>Ảnh chụp màn hình được tạo tự động từ chính ứng dụng (dữ liệu minh họa giả, cơ sở dữ liệu riêng, cổng 5181), nên không đụng đến dữ liệu thật hay môi trường đang chạy. Khi giao diện thay đổi, chạy lại lệnh sau ở thư mục dự án (cần đã chạy <code>npm ci</code> và <code>npx playwright install chromium</code>):</p>
   <pre style="background:var(--code);padding:12px;border-radius:8px;overflow-x:auto"><code>npm run docs:user-guide</code></pre>
   <p>Lệnh ghi lại toàn bộ ảnh trong <code>docs/user-guide/images/</code> (tên file giữ nguyên). Mã nguồn nằm ở <code>scripts/user-guide/</code>. Nếu thêm màn hình hoặc đổi thứ tự vòng tròn đánh số trong ảnh, cần sửa lại các bước đánh số tương ứng trong file <code>docs/user-guide/index.html</code>.</p>
 </section>
 
-<footer>Phiên bản tài liệu: 15/10/2026 &middot; Hệ thống quản lý thi đua, khen thưởng</footer>
+<footer>Phiên bản tài liệu: 19/10/2026 &middot; Hệ thống theo dõi thi đua, khen thưởng của Cục Cảnh sát giao thông</footer>
 </main>
 </body>
 </html>

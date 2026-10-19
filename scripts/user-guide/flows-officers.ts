@@ -1,4 +1,4 @@
-/** F05 officers list, add/edit modal (join month, rating, seniority), validation and delete. */
+/** F05 officers list, add/edit modal (join month, seniority; rating is a yearly award record, not a form field), validation and delete. */
 import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { shot } from "./annotate";

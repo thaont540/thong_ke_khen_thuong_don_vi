@@ -140,3 +140,26 @@ export async function captureDuplicateWarning(page: Page): Promise<void> {
   await dialog.getByRole("button", { name: "Hủy" }).click();
   await expect(dialog).toBeHidden();
 }
+
+/** F03 third form "Xếp loại cán bộ": only for Cá nhân, one rating per officer per year. */
+export async function captureRatingForm(page: Page): Promise<void> {
+  await openForm(page);
+  await page.locator("#a-unit").selectOption({ label: "Phòng 6" });
+  await pickOfficer(page.locator("#a-officer"), "Hoàng Đức Long");
+  await page.locator('input[name="a-form"][value="XEP_LOAI"]').check();
+  await page.locator("#a-award").selectOption({ label: "Hoàn thành tốt nhiệm vụ" });
+  await expect(page.locator("#a-authority option:checked")).toHaveText("Cục trưởng Cục CSGT");
+  await fillDecision(page, "09/QĐ-C08");
+  await page.locator("#a-details").fill("Xếp loại cán bộ năm 2026");
+  await shot(page, {
+    name: "41-add-rating",
+    fullPage: true,
+    callouts: [
+      { at: page.locator("#a-officer"), n: 1 },
+      { at: radios(page, "Hình thức"), n: 2 },
+      { at: page.locator("#a-award"), n: 3 },
+      { at: page.locator("#a-year"), n: 4 },
+      { at: page.locator("#a-authority"), n: 5 },
+    ],
+  });
+}

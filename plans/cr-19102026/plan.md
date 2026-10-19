@@ -1,6 +1,6 @@
 ---
 title: "CR 19/10/2026: logo CSGT, Cục CSGT, xếp loại theo năm, import mẫu mới, văn bản quy định"
-status: in-progress
+status: completed
 priority: P1
 branch: develop
 created: 2026-10-19
@@ -12,10 +12,10 @@ Nguồn: [cr-detail.md](cr-detail.md), file mẫu [mau-import-khen-thuong.xlsx](
 
 | # | Phase | Phụ thuộc | Status |
 |---|---|---|---|
-| A | Branding + Cục CSGT + Xếp loại theo năm + cán bộ không bắt buộc năm sinh/số hiệu (migration 0007) | – | pending |
-| C | Văn bản quy định (KV, migration 0008) | – (song song A) | pending |
-| B | Import theo mẫu mới (khớp/tự tạo cán bộ, xếp loại) | A | pending |
-| D | Tài liệu (spec, user guide, docs), review, deploy | A, B, C | pending |
+| A | Branding + Cục CSGT + Xếp loại theo năm + cán bộ không bắt buộc năm sinh/số hiệu (migration 0007) | – | done |
+| C | Văn bản quy định (KV, migration 0008) | – (song song A) | done |
+| B | Import theo mẫu mới (khớp/tự tạo cán bộ, xếp loại) | A | done |
+| D | Tài liệu (spec, user guide, docs), review, deploy | A, B, C | done |
 
 ## A. Core
 - Logo `logo.bmp` → PNG nền trong suốt (tách nền trắng) trong `public/`/assets; thay cờ ở sidebar, login, favicon. Tên hệ thống: "Hệ thống theo dõi thi đua, khen thưởng của Cục Cảnh sát giao thông" (sidebar, login, `<title>`).

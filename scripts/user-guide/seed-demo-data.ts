@@ -1,6 +1,6 @@
 /**
  * Prepares the isolated guide database: wipes the state dir, applies migrations, inserts clearly
- * fake demo users, officers and awards. Direct SQL (like e2e/helpers/seed-e2e-database.ts).
+ * fake demo users, officers and awards (including yearly ratings). Direct SQL (like e2e/helpers/seed-e2e-database.ts).
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, rmSync } from "node:fs";
@@ -58,8 +58,8 @@ export async function prepareDemoDatabase(): Promise<void> {
     }
     const officer = db.prepare(
       `INSERT INTO officers (id, code, full_name, full_name_search, birth_year, badge_number,
-                             rank_id, position_id, unit_id, team_id, joined_month, rating_id, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+                             rank_id, position_id, unit_id, team_id, joined_month, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
     );
     for (const o of DEMO_OFFICERS) {
       officer.run(
@@ -74,7 +74,6 @@ export async function prepareDemoDatabase(): Promise<void> {
         o.unitId,
         o.teamId,
         o.joined,
-        o.ratingId,
       );
     }
     const award = db.prepare(

@@ -17,6 +17,7 @@ import {
   captureDuplicateWarning,
   captureMedalForm,
   capturePersonalForm,
+  captureRatingForm,
   captureValidationErrors,
 } from "./flows-awards-form";
 import {
@@ -25,7 +26,15 @@ import {
   captureDeleteConfirm,
   captureEditAward,
   captureOfficerModal,
+  captureRatingFilter,
 } from "./flows-awards-list";
+import {
+  captureDocumentDelete,
+  captureDocumentForm,
+  captureDocuments,
+  captureDocumentsViewer,
+  seedDemoDocuments,
+} from "./flows-documents";
 import { captureImport } from "./flows-import";
 import { captureMobile } from "./flows-mobile";
 import { captureOfficerDelete, captureOfficerForm, captureOfficers } from "./flows-officers";
@@ -56,10 +65,12 @@ async function main(): Promise<void> {
     await captureUserMenu(admin);
     await captureAwardsList(admin);
     await captureAwardsFiltered(admin);
+    await captureRatingFilter(admin);
     await captureOfficerModal(admin);
     await capturePersonalForm(editor);
     await captureCollectiveForm(editor);
     await captureMedalForm(editor);
+    await captureRatingForm(editor);
     await captureValidationErrors(editor);
     await captureEditAward(editor);
     await captureDeleteConfirm(editor);
@@ -69,6 +80,11 @@ async function main(): Promise<void> {
     await captureOfficerForm(admin);
     await captureOfficerDelete(admin);
     await captureUnits(admin);
+    await seedDemoDocuments(admin);
+    await captureDocuments(admin);
+    await captureDocumentForm(admin);
+    await captureDocumentDelete(admin);
+    await captureDocumentsViewer(browser);
     await captureUsers(admin);
     await captureMobile(browser);
   } finally {
