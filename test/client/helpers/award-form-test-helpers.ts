@@ -39,7 +39,7 @@ export const field = (label: RegExp | string) => screen.findByLabelText(label);
 
 export async function fillCommon(user: ReturnType<typeof userEvent.setup>) {
   await user.type(await field(/Số quyết định/), "99/QĐ");
-  await user.type(screen.getByLabelText(/Ngày quyết định/), "2026-05-01");
+  await user.type(screen.getByLabelText(/Ngày quyết định/), "01/05/2026");
   await user.type(screen.getByLabelText(/Thành tích/), "Thành tích tốt");
 }
 

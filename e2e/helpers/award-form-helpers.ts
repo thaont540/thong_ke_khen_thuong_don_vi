@@ -21,7 +21,7 @@ export async function fillPersonalAwardForm(page: Page, a: PersonalAwardInput): 
   await selectOptionContaining(page.locator("#a-officer"), a.officer);
   await page.locator("#a-award").selectOption({ label: "Chiến sĩ thi đua cơ sở" });
   await page.locator("#a-decision").fill(a.decision);
-  await page.locator("#a-date").fill("2026-05-01");
+  await page.locator("#a-date").fill("01/05/2026");
   await expect(page.locator("#a-authority")).toHaveValue(/\d+/); // defaulted from the type
   await page.locator("#a-details").fill("Hoàn thành xuất sắc nhiệm vụ");
 }

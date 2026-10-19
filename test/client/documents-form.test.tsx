@@ -28,6 +28,14 @@ describe("documents page: form", () => {
     expect(api.calls.some((c) => c.method === "POST")).toBe(false);
   });
 
+  it("flags an impossible issue date (31/02) with the existing message", async () => {
+    const { api, user, form } = await open();
+    await user.type(form.getByLabelText(/Ngày ban hành/), "31/02/2026");
+    await user.click(form.getByRole("button", { name: "Lưu" }));
+    expect(await form.findByText("Ngày ban hành không hợp lệ")).toBeInTheDocument();
+    expect(api.calls.some((c) => c.method === "POST")).toBe(false);
+  });
+
   it("rejects files over 20 MB or of a wrong type on selection", async () => {
     const { user, form } = await open();
     const input = form.getByLabelText(/Tệp văn bản/);
@@ -45,7 +53,7 @@ describe("documents page: form", () => {
     await user.selectOptions(form.getByLabelText(/Loại văn bản/), "Nghị định");
     await user.type(form.getByLabelText(/Trích yếu/), "  Quy định   về thi đua ");
     await user.type(form.getByLabelText(/Cơ quan ban hành/), "Chính phủ");
-    await user.type(form.getByLabelText(/Ngày ban hành/), "2026-03-15");
+    await user.type(form.getByLabelText(/Ngày ban hành/), "15/03/2026");
     await user.upload(
       form.getByLabelText(/Tệp văn bản/),
       new File(["%PDF-1"], "nd12.pdf", { type: "application/pdf" }),
@@ -98,7 +106,7 @@ describe("documents page: form", () => {
     await user.selectOptions(form.getByLabelText(/Loại văn bản/), "Luật");
     await user.type(form.getByLabelText(/Trích yếu/), "t");
     await user.type(form.getByLabelText(/Cơ quan ban hành/), "c");
-    await user.type(form.getByLabelText(/Ngày ban hành/), "2026-01-02");
+    await user.type(form.getByLabelText(/Ngày ban hành/), "02/01/2026");
     await user.upload(
       form.getByLabelText(/Tệp văn bản/),
       new File(["%PDF-1"], "a.pdf", { type: "application/pdf" }),

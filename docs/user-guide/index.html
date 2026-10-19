@@ -269,7 +269,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
     <li><span class="n">7</span><span><strong>Danh hiệu thi đua *</strong> (hoặc <strong>Hình thức khen thưởng *</strong>): danh sách thay đổi theo đối tượng và hình thức.</span></li>
     <li><span class="n">8</span><span><strong>Năm khen thưởng *</strong>: từ 1990 đến 2100, mặc định năm hiện tại.</span></li>
     <li><span class="n">9</span><span><strong>Số quyết định *</strong>: tối đa 50 ký tự, ví dụ <code>125/QĐ-BCA</code>.</span></li>
-    <li><span class="n">10</span><span><strong>Ngày quyết định *</strong>: chọn ngày từ lịch hoặc gõ. Ô ngày hiển thị theo ngôn ngữ của trình duyệt (có thể là mm/dd/yyyy).</span></li>
+    <li><span class="n">10</span><span><strong>Ngày quyết định *</strong>: gõ theo dạng dd/mm/yyyy (tự thêm dấu /) hoặc bấm biểu tượng lịch để chọn. Lịch hiển thị tiếng Việt, tuần bắt đầu từ Thứ hai.</span></li>
     <li><span class="n">11</span><span><strong>Cấp quyết định *</strong>: hệ thống tự điền theo loại khen thưởng, bạn có thể đổi.</span></li>
     <li><span class="n">12</span><span><strong>Thành tích, nội dung khen thưởng *</strong>: nhiều dòng, tối đa 2.000 ký tự.</span></li>
     <li><span class="n">13</span><span><strong>Ghi chú</strong>: không bắt buộc, tối đa 500 ký tự.</span></li>
@@ -331,7 +331,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><td><span class="n">3</span></td><td>Chọn danh hiệu thi đua / Chọn hình thức khen thưởng</td><td>Chọn một mục trong danh sách. Nếu không thấy mục cần chọn, kiểm tra lại Đối tượng và Hình thức ở phía trên.</td></tr>
       <tr><td></td><td>Chọn loại huân chương</td><td>Chỉ xuất hiện khi chọn Huân chương: chọn loại.</td></tr>
       <tr><td><span class="n">4</span></td><td>Nhập số quyết định</td><td>Gõ số quyết định (tối đa 50 ký tự).</td></tr>
-      <tr><td><span class="n">5</span></td><td>Nhập ngày quyết định</td><td>Chọn ngày quyết định.</td></tr>
+      <tr><td><span class="n">5</span></td><td>Nhập ngày quyết định</td><td>Gõ dd/mm/yyyy hoặc chọn từ lịch.</td></tr>
       <tr><td><span class="n">6</span></td><td>Chọn cấp quyết định</td><td>Chọn một cấp quyết định (thường đã tự điền khi chọn loại).</td></tr>
       <tr><td><span class="n">7</span></td><td>Nhập thành tích, nội dung khen thưởng</td><td>Mô tả ngắn thành tích (tối đa 2.000 ký tự).</td></tr>
     </tbody>
@@ -507,7 +507,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><td><span class="n">6</span></td><td>Chức vụ</td><td>Có</td><td>Chọn trong danh sách</td><td>Cán bộ</td></tr>
       <tr><td><span class="n">7</span></td><td>Đơn vị</td><td>Có</td><td>Chọn trong danh sách</td><td>Phòng 6</td></tr>
       <tr><td><span class="n">8</span></td><td>Đội</td><td>Không</td><td>Mục đầu <q>Không thuộc đội</q>; khóa nếu đơn vị không có đội</td><td>Đội CSGT đường bộ cao tốc số 3</td></tr>
-      <tr><td><span class="n">9</span></td><td>Tháng năm vào ngành</td><td>Không</td><td>Chọn tháng/năm. Không được ở tương lai; nếu đã nhập năm sinh thì năm vào ngành phải từ năm sinh + 16 trở đi</td><td>09/2015</td></tr>
+      <tr><td><span class="n">9</span></td><td>Tháng năm vào ngành</td><td>Không</td><td>Gõ mm/yyyy hoặc bấm biểu tượng lịch để chọn tháng, năm. Không được ở tương lai; nếu đã nhập năm sinh thì năm vào ngành phải từ năm sinh + 16 trở đi</td><td>09/2015</td></tr>
     </tbody>
   </table></div>
   <p><span class="n">10</span> <span class="btn">Lưu</span>: lưu, đóng cửa sổ và hiện thông báo. <span class="n">11</span> <span class="btn">Hủy</span>: đóng, không lưu.</p>
@@ -604,7 +604,7 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
       <tr><td><span class="n">2</span></td><td>Loại văn bản</td><td>Có</td><td>Chọn trong danh sách</td></tr>
       <tr><td><span class="n">3</span></td><td>Trích yếu</td><td>Có</td><td>Tối đa 1.000 ký tự</td></tr>
       <tr><td><span class="n">4</span></td><td>Cơ quan ban hành</td><td>Có</td><td>Tối đa 200 ký tự</td></tr>
-      <tr><td><span class="n">5</span></td><td>Ngày ban hành</td><td>Có</td><td>Chọn ngày từ lịch hoặc gõ</td></tr>
+      <tr><td><span class="n">5</span></td><td>Ngày ban hành</td><td>Có</td><td>Gõ dd/mm/yyyy hoặc chọn từ lịch tiếng Việt</td></tr>
       <tr><td><span class="n">6</span></td><td>Hiệu lực</td><td>Có</td><td>Còn hiệu lực (mặc định) hoặc Hết hiệu lực</td></tr>
       <tr><td><span class="n">7</span></td><td>Ghi chú</td><td>Không</td><td>Tối đa 1.000 ký tự</td></tr>
       <tr><td><span class="n">8</span></td><td>Tệp văn bản</td><td>Có, khi thêm</td><td>PDF, DOC, DOCX, XLS, XLSX; tối đa <strong>20 MB</strong>. Sau khi chọn, dòng <q>Đã chọn: tên tệp (dung lượng)</q> hiện bên dưới. Khi sửa, để trống thì giữ tệp cũ, chọn tệp mới thì thay thế</td></tr>
@@ -713,8 +713,8 @@ footer{color:var(--muted);font-size:14px;margin-top:32px;text-align:center}
   <p>Thường do: file quá 5 MB; quá 100 dòng dữ liệu; thiếu cột bắt buộc (không đổi tên cột tiêu đề, file theo mẫu cũ có cột Mã cán bộ nhưng không có Họ và tên, Cấp bậc, Chức vụ sẽ bị từ chối: tải lại file mẫu mới); hoặc file không phải .xlsx, .xls, .csv. Sửa file rồi tải lại (mục 9.2).</p>
   <h3>Tôi nhập nhầm khen thưởng</h3>
   <p>Bấm <em>Sửa</em> ở dòng đó để chỉnh, hoặc <em>Xóa</em> rồi nhập lại. Với import nhầm cả đợt, báo Quản trị hệ thống để hoàn tác theo đợt.</p>
-  <h3>Chữ hoặc ô ngày hiển thị khác tài liệu</h3>
-  <p>Ô chọn ngày và tháng hiển thị theo ngôn ngữ của trình duyệt, có thể là mm/dd/yyyy hoặc dd/mm/yyyy. Giá trị lưu vẫn đúng ngày bạn chọn.</p>
+  <h3>Ô ngày báo &quot;không hợp lệ&quot;</h3>
+  <p>Ô ngày luôn dùng dạng dd/mm/yyyy (tháng năm: mm/yyyy), không phụ thuộc ngôn ngữ trình duyệt. Kiểm tra ngày có thật (ví dụ không có 31/02) hoặc bấm biểu tượng lịch để chọn.</p>
 </section>
 
 <section id="cap-nhat">

@@ -1,5 +1,6 @@
 import { FormField, fieldA11y } from "../../components/ui/form-field";
 import { SelectField } from "../../components/ui/select-field";
+import { VnDateInput } from "../../components/vn-date/vn-date-input";
 import type { AwardSectionProps } from "./award-form-section-props";
 import { FIELD_IDS } from "./award-form-values";
 
@@ -39,10 +40,9 @@ export function AwardFormDecisionSection({ values, errors, set, master }: AwardS
         required
         error={errors.decision_date}
       >
-        <input
-          type="date"
+        <VnDateInput
           value={values.decision_date}
-          onChange={(e) => set({ decision_date: e.target.value })}
+          onChange={(v) => set({ decision_date: v })}
           {...fieldA11y(FIELD_IDS.decision_date, errors.decision_date)}
         />
       </FormField>

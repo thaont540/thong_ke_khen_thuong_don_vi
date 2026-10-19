@@ -36,7 +36,7 @@ export async function captureOfficerForm(page: Page): Promise<void> {
   await d.locator("#of-position").selectOption({ label: "Cán bộ" });
   await d.locator("#of-unit").selectOption({ label: "Phòng 6" });
   await d.locator("#of-team").selectOption({ label: "Đội CSGT đường bộ cao tốc số 3" });
-  await d.locator("#of-joined").fill("2015-09");
+  await d.locator("#of-joined").fill("09/2015");
   await shot(page, {
     name: "25-officer-form",
     height: 900,
@@ -58,7 +58,7 @@ export async function captureOfficerForm(page: Page): Promise<void> {
   // Validation: bad badge number, birth year, and a join month before age 16.
   await d.getByLabel(/^Số hiệu/).fill("12ab");
   await d.getByLabel(/^Năm sinh/).fill("1992");
-  await d.locator("#of-joined").fill("2005-01");
+  await d.locator("#of-joined").fill("01/2005");
   await d.getByRole("button", { name: "Lưu" }).click();
   await expect(d.locator(".err").first()).toBeVisible();
   await shot(page, {

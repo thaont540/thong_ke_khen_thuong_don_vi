@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type FormEvent, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import type { z } from "zod";
 import {
   DOC_STATUS_LABEL,
@@ -15,6 +15,7 @@ import {
 import { FormField, fieldA11y } from "../../components/ui/form-field";
 import { ModalDialog } from "../../components/ui/modal-dialog";
 import { SelectField } from "../../components/ui/select-field";
+import { VnDateInput } from "../../components/vn-date/vn-date-input";
 import { errorMessage, isApiError } from "../../lib/api-error";
 import { fieldMessage } from "../../lib/field-message";
 import { DocumentFileField } from "./document-file-field";
@@ -153,10 +154,17 @@ export function DocumentFormModal({ document: doc, onClose, onSaved }: Props) {
           />
         </FormField>
         <FormField id="doc-date" label="Ngày ban hành" required error={dateError}>
-          <input
-            type="date"
-            {...form.register("issued_date")}
-            {...fieldA11y("doc-date", dateError)}
+          <Controller
+            control={form.control}
+            name="issued_date"
+            render={({ field }) => (
+              <VnDateInput
+                value={field.value ?? ""}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                {...fieldA11y("doc-date", dateError)}
+              />
+            )}
           />
         </FormField>
         <SelectField

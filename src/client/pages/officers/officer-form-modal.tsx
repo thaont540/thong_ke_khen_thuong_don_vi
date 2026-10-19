@@ -57,7 +57,7 @@ export function OfficerFormModal({ officer, master, onClose, onSaved }: Props) {
       position_id: officer?.position_id,
       unit_id: officer?.unit_id,
       team_id: officer?.team_id ?? null,
-      joined_month: officer?.joined_month ?? "",
+      joined_month: officer?.joined_month ?? null,
     },
   });
   const { errors } = form.formState;
@@ -178,7 +178,7 @@ export function OfficerFormModal({ officer, master, onClose, onSaved }: Props) {
             Chọn đơn vị
           </div>
         ) : null}
-        <OfficerFormCareerFields register={form.register} errors={errors} />
+        <OfficerFormCareerFields control={form.control} errors={errors} />
       </form>
     </ModalDialog>
   );

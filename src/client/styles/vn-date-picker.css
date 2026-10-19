@@ -1,0 +1,160 @@
+/* Vietnamese date / month picker (components/vn-date). Reuses the input rule in form-controls.css. */
+.vn-picker {
+  position: relative;
+}
+.vn-picker input[type="text"] {
+  padding-right: 42px;
+}
+.vn-picker-btn {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: 38px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+}
+.vn-picker-btn:hover:not(:disabled),
+.vn-picker-btn[aria-expanded="true"] {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+.vn-picker-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.vn-picker-btn:focus-visible,
+.vn-nav:focus-visible,
+.vn-cell:focus-visible,
+.vn-link:focus-visible,
+.vn-title-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.vn-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  padding: 10px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+}
+.vn-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.vn-pop-title {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+.vn-title-btn {
+  font-family: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+}
+.vn-title-btn:hover {
+  background: var(--primary-soft);
+}
+.vn-nav {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.vn-nav:hover:not(:disabled) {
+  background: var(--primary-soft);
+}
+.vn-nav:disabled,
+.vn-cell:disabled,
+.vn-link:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.vn-weekdays,
+.vn-day-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.vn-weekdays span {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 0;
+}
+.vn-month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.vn-cell {
+  font: inherit;
+  font-size: 13px;
+  height: 34px;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.vn-cell:hover:not(:disabled) {
+  background: var(--primary-soft);
+}
+.vn-cell.today {
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 700;
+}
+.vn-cell.selected {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-ink);
+  font-weight: 700;
+}
+.vn-pop-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.vn-link {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.vn-link:hover:not(:disabled) {
+  background: var(--primary-soft);
+}

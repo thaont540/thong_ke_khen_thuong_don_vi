@@ -20,12 +20,12 @@ describe("F05 officers page: month joined, seniority, derived rating, optional f
     await user.selectOptions(form.getByLabelText(/Chức vụ/), "Cán bộ");
     await user.selectOptions(form.getByLabelText(/Đơn vị/), "Phòng 1");
     expect(form.queryByLabelText("Xếp loại")).not.toBeInTheDocument();
-    fireEvent.change(form.getByLabelText("Tháng năm vào ngành"), { target: { value: "2999-01" } });
+    fireEvent.change(form.getByLabelText("Tháng năm vào ngành"), { target: { value: "01/2999" } });
     await user.click(form.getByRole("button", { name: "Lưu" }));
     expect(await form.findByText("Tháng năm vào ngành không được ở tương lai")).toBeInTheDocument();
     expect(api.calls.some((c) => c.method === "POST")).toBe(false);
 
-    fireEvent.change(form.getByLabelText("Tháng năm vào ngành"), { target: { value: "2010-05" } });
+    fireEvent.change(form.getByLabelText("Tháng năm vào ngành"), { target: { value: "05/2010" } });
     await user.click(form.getByRole("button", { name: "Lưu" }));
     await vi.waitFor(() => expect(api.calls.some((c) => c.method === "POST")).toBe(true));
     expect(api.calls.find((c) => c.method === "POST")?.body).toMatchObject({

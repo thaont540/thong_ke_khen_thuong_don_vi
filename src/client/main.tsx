@@ -5,6 +5,7 @@ import "@fontsource/be-vietnam-pro/700.css";
 import "./styles/design-tokens.css";
 import "./styles/base-layout.css";
 import "./styles/form-controls.css";
+import "./styles/vn-date-picker.css";
 import "./styles/form-layout.css";
 import "./styles/tables-and-pager.css";
 import "./styles/dialog.css";

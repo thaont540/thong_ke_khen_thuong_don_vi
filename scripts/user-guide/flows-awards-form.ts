@@ -21,7 +21,7 @@ async function openForm(page: Page): Promise<void> {
 
 async function fillDecision(page: Page, decision: string): Promise<void> {
   await page.locator("#a-decision").fill(decision);
-  await page.locator("#a-date").fill("2026-10-10");
+  await page.locator("#a-date").fill("10/10/2026");
   await page.locator("#a-details").fill("Hoàn thành xuất sắc nhiệm vụ năm 2026");
 }
 

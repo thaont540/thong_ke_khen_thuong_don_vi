@@ -57,7 +57,7 @@ export async function captureDocumentForm(page: Page): Promise<void> {
     .locator("#doc-title")
     .fill("Thông tư về xếp loại cán bộ và khen thưởng trong lực lượng CSGT (minh họa)");
   await d.locator("#doc-issuer").fill("Bộ Công an");
-  await d.locator("#doc-date").fill("2026-10-10");
+  await d.locator("#doc-date").fill("10/10/2026");
   await d.locator("#doc-note").fill("Nhập từ bản gốc có dấu");
   const sample = DEMO_DOCUMENTS[1] as DemoDocument;
   await d.locator('input[type="file"]').setInputFiles({
