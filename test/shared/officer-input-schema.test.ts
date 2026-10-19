@@ -17,18 +17,21 @@ describe("officerInputSchema career fields", () => {
       joined_month: "2015-06",
     });
   });
-  it("birth year and badge number are optional (default null) but still validated when present", () => {
+  it("birth year and badge number are nullable but required keys (explicit null clears, omission is rejected)", () => {
     const { birth_year: _y, badge_number: _b, ...bare } = base;
-    expect(officerInputSchema.parse(bare)).toMatchObject({ birth_year: null, badge_number: null });
-    expect(officerInputSchema.safeParse({ ...bare, birth_year: 1949 }).success).toBe(false);
-    expect(officerInputSchema.safeParse({ ...bare, badge_number: "12345" }).success).toBe(false);
-    expect(officerInputSchema.safeParse({ ...bare, badge_number: "" }).success).toBe(false);
+    expect(officerInputSchema.safeParse(bare).success).toBe(false);
+    expect(officerInputSchema.safeParse({ ...bare, birth_year: 1990 }).success).toBe(false);
+    expect(officerInputSchema.safeParse({ ...bare, badge_number: "123456" }).success).toBe(false);
+    const nulls = { ...bare, birth_year: null, badge_number: null };
+    expect(officerInputSchema.parse(nulls)).toMatchObject({ birth_year: null, badge_number: null });
+    expect(officerInputSchema.safeParse({ ...nulls, birth_year: 1949 }).success).toBe(false);
+    expect(officerInputSchema.safeParse({ ...nulls, badge_number: "12345" }).success).toBe(false);
+    expect(officerInputSchema.safeParse({ ...nulls, badge_number: "" }).success).toBe(false);
   });
   it("joined month before birth year + 16 is only checked when the birth year is known", () => {
-    const { birth_year: _y, ...noBirth } = base;
-    expect(officerInputSchema.safeParse({ ...noBirth, joined_month: "1960-01" }).success).toBe(
-      true,
-    );
+    expect(
+      officerInputSchema.safeParse({ ...base, birth_year: null, joined_month: "1960-01" }).success,
+    ).toBe(true);
   });
   it("rating_id is no longer part of the input (stripped)", () => {
     expect(officerInputSchema.parse({ ...base, rating_id: 2 })).not.toHaveProperty("rating_id");

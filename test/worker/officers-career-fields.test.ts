@@ -48,12 +48,14 @@ describe("officer joined_month / optional birth year, badge / derived current_ra
     expect(json).not.toHaveProperty("rating_id");
   });
 
-  it("birth_year and badge_number may be omitted or null; several officers without badge coexist", async () => {
+  it("birth_year and badge_number must be sent but may be null; several officers without badge coexist", async () => {
     const { birth_year: _y, badge_number: _b, ...bare } = body();
-    const first = await post({ ...bare, full_name: "Người Một" });
+    expect((await post({ ...bare, full_name: "Thiếu khóa" })).status).toBe(400);
+    const nulls = { ...bare, birth_year: null, badge_number: null };
+    const first = await post({ ...nulls, full_name: "Người Một" });
     expect(first.status).toBe(201);
     expect(await first.json()).toMatchObject({ birth_year: null, badge_number: null });
-    const second = await post({ ...bare, full_name: "Người Hai", badge_number: null });
+    const second = await post({ ...nulls, full_name: "Người Hai" });
     expect(second.status).toBe(201);
     const { items } = (await (await api("/api/officers", { token })).json()) as {
       items: { badge_number: string | null }[];
@@ -71,6 +73,19 @@ describe("officer joined_month / optional birth year, badge / derived current_ra
     expect(cleared.status).toBe(200);
     expect(await cleared.json()).toMatchObject({ birth_year: null, badge_number: null });
     expect((await post(body({ badge_number: "123456" }))).status).toBe(201);
+  });
+
+  it("PUT omitting birth_year/badge_number is a 400 and keeps the stored values", async () => {
+    const created = (await (await post(body())).json()) as { id: number };
+    const { birth_year: _y, badge_number: _b, ...partial } = body({ full_name: "Đổi tên" });
+    expect((await put(created.id, partial)).status).toBe(400);
+    expect((await put(created.id, { ...partial, birth_year: 1990 })).status).toBe(400);
+    const detail = await (await api(`/api/officers/${created.id}`, { token })).json();
+    expect(detail).toMatchObject({
+      full_name: "Nguyễn Văn An",
+      birth_year: 1990,
+      badge_number: "123456",
+    });
   });
 
   it("update sets and clears joined_month; audit before/after contain it (no rating_id)", async () => {

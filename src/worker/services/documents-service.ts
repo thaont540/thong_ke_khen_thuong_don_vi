@@ -12,6 +12,8 @@ import type { UploadedFile } from "../lib/parse-document-form";
 import { sqlTimestamp } from "../lib/sql-timestamp";
 import { getDocument } from "./documents-query-service";
 
+const STALE_FILE_MESSAGE = "Văn bản vừa được người khác cập nhật, vui lòng tải lại";
+
 const newKey = () => `documents/${crypto.randomUUID()}`;
 
 async function putObject(env: Pick<Env, "DOCS">, file: UploadedFile): Promise<string> {
@@ -84,6 +86,7 @@ export async function updateDocument(
   const old = await env.DB.prepare("SELECT file_key FROM regulation_documents WHERE id = ?")
     .bind(id)
     .first<{ file_key: string }>();
+  if (!old) throw AppError.notFound("Không tìm thấy văn bản");
   const newFileKey = file ? await putObject(env, file) : null;
   const fields = [
     "doc_number",
@@ -103,7 +106,7 @@ export async function updateDocument(
              file_key = COALESCE(?, file_key), file_name = COALESCE(?, file_name),
              content_type = COALESCE(?, content_type), size_bytes = COALESCE(?, size_bytes),
              updated_at = ?
-           WHERE id = ? AND deleted_at IS NULL`,
+           WHERE id = ? AND deleted_at IS NULL AND (? IS NULL OR file_key = ?)`,
       ).bind(
         input.doc_number,
         normalizeText(input.doc_number),
@@ -120,6 +123,9 @@ export async function updateDocument(
         file?.bytes.byteLength ?? null,
         sqlTimestamp(),
         id,
+        // File replacement only commits if nobody replaced the file since we read it.
+        newFileKey ? old.file_key : null,
+        old.file_key,
       ),
       auditStatement(env.DB, {
         userId: actorId,
@@ -134,12 +140,21 @@ export async function updateDocument(
         },
       }),
     ]);
-    if (results[0]?.meta.changes === 0) throw AppError.notFound("Không tìm thấy văn bản");
+    if (results[0]?.meta.changes === 0) {
+      const alive = await env.DB.prepare(
+        "SELECT 1 AS ok FROM regulation_documents WHERE id = ? AND deleted_at IS NULL",
+      )
+        .bind(id)
+        .first();
+      throw alive
+        ? AppError.conflict(STALE_FILE_MESSAGE)
+        : AppError.notFound("Không tìm thấy văn bản");
+    }
   } catch (err) {
     if (newFileKey) await documentFileStore.delete(env, newFileKey);
     throw err;
   }
-  if (newFileKey && old) await documentFileStore.delete(env, old.file_key);
+  if (newFileKey) await documentFileStore.delete(env, old.file_key);
   return getDocument(env.DB, id);
 }
 

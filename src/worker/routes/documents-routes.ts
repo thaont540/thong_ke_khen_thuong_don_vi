@@ -3,6 +3,7 @@ import { AWARD_WRITER_ROLES } from "../../shared/role-permissions";
 import { documentListQuerySchema } from "../../shared/schemas/document-schemas";
 import { AppError } from "../lib/app-error";
 import { documentFileStore } from "../lib/document-file-store";
+import { safeEncodeURIComponent } from "../lib/file-name-text";
 import { parseDocumentForm } from "../lib/parse-document-form";
 import { parseIdParam } from "../lib/parse-request";
 import { requireRole } from "../middleware/require-role-middleware";
@@ -18,7 +19,10 @@ const writers = requireRole(...AWARD_WRITER_ROLES);
 
 /** RFC 5987 value: encodeURIComponent plus the characters it leaves bare. */
 const encodeRfc5987 = (s: string) =>
-  encodeURIComponent(s).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+  safeEncodeURIComponent(s).replace(
+    /['()*]/g,
+    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
+  );
 
 documentsRoutes.get("/", async (c) =>
   c.json(await listDocuments(c.env.DB, documentListQuerySchema.parse(c.req.query()))),

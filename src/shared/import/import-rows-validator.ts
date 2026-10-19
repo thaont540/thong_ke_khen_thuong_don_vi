@@ -16,9 +16,10 @@ const isRating = (master: MasterDataDto, awardTypeId: number): boolean =>
 
 /**
  * Turns a valid rating row into an error when an earlier valid row of the same run rates the same
- * officer (or the same to-be-created officer) in the same year.
+ * officer (or the same to-be-created officer) in the same year. Rows that already carry errors
+ * never count as "earlier", so callers run this pass after every other check.
  */
-function markRepeatedRatings(
+export function markRepeatedRatings(
   rows: readonly ImportRow[],
   checks: readonly ImportRowCheck[],
   master: MasterDataDto,
@@ -46,14 +47,21 @@ function markRepeatedRatings(
 }
 
 /**
- * Per-row checks of a whole file (browser) or one lot (Worker). Rows share one registry of officers
- * to create, so the same new person is created once; repeated ratings of one officer-year are errors.
+ * Per-row checks of one file/lot WITHOUT the repeated-rating pass. Rows share one registry of
+ * officers to create, so the same new person is created once.
  */
-export function validateImportRows(
+export function validateImportRowsBase(
   rows: readonly ImportRow[],
   lk: ImportLookups,
 ): ImportRowCheck[] {
   const pending = new PendingOfficers();
-  const checks = rows.map((row) => validateImportRow(row, lk, pending));
-  return markRepeatedRatings(rows, checks, lk.master);
+  return rows.map((row) => validateImportRow(row, lk, pending));
+}
+
+/** Per-row checks of a whole file (browser): base checks, then repeated ratings are errors. */
+export function validateImportRows(
+  rows: readonly ImportRow[],
+  lk: ImportLookups,
+): ImportRowCheck[] {
+  return markRepeatedRatings(rows, validateImportRowsBase(rows, lk), lk.master);
 }

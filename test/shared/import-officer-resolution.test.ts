@@ -6,7 +6,11 @@ import {
   type ImportOfficer,
 } from "../../src/shared/import/import-lookup-maps";
 import { validateImportRow } from "../../src/shared/import/import-row-validator";
-import { validateImportRows } from "../../src/shared/import/import-rows-validator";
+import {
+  markRepeatedRatings,
+  validateImportRows,
+  validateImportRowsBase,
+} from "../../src/shared/import/import-rows-validator";
 import type { ImportRow } from "../../src/shared/schemas/award-import-schemas";
 import { getMasterData } from "../../src/worker/services/master-data-service";
 
@@ -163,5 +167,34 @@ describe("Xếp loại cán bộ rows", () => {
       ["Cán bộ đã có xếp loại năm 2026 (trùng với dòng 5 trong file)"],
     ]);
     expect(checks[1]?.input).toBeNull();
+  });
+
+  it("an earlier row that is not valid never makes a later row 'repeated'", () => {
+    const rows = [
+      rating({ row_number: 2, award_name: "không có" }), // invalid itself
+      rating({ row_number: 3 }),
+      rating({ row_number: 4, full_name: "Trần Thị Bình" }),
+      rating({ row_number: 5, full_name: "Trần Thị Bình" }),
+    ];
+    const checks = validateImportRows(rows, lk);
+    expect(checks[0]?.errors).toHaveLength(1);
+    expect(checks[1]?.errors).toEqual([]);
+    expect(checks[2]?.errors).toEqual([]);
+    expect(checks[3]?.errors).toEqual([
+      "Cán bộ đã có xếp loại năm 2026 (trùng với dòng 4 trong file)",
+    ]);
+  });
+
+  it("repeated pass run after later-stage failures: a row failed afterwards does not poison the next", () => {
+    const rows = [rating({ row_number: 2 }), rating({ row_number: 3 })];
+    const base = validateImportRowsBase(rows, lk);
+    expect(base.map((c) => c.errors)).toEqual([[], []]);
+    // Later stage (master rules / DB check) rejects row 2 before the repeated pass.
+    const afterLaterStages = base.map((c, i) =>
+      i === 0 ? { ...c, input: null, newOfficer: null, errors: ["lỗi giai đoạn sau"] } : c,
+    );
+    const checks = markRepeatedRatings(rows, afterLaterStages, lk.master);
+    expect(checks.map((c) => c.errors)).toEqual([["lỗi giai đoạn sau"], []]);
+    expect(checks[1]?.input).not.toBeNull();
   });
 });

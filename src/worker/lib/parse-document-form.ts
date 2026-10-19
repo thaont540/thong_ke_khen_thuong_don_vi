@@ -8,6 +8,7 @@ import {
 } from "../../shared/schemas/document-schemas";
 import { AppError } from "./app-error";
 import { matchesMagicBytes } from "./document-file-check";
+import { tailCodePoints } from "./file-name-text";
 
 export interface UploadedFile {
   name: string;
@@ -27,7 +28,7 @@ async function readFile(file: File): Promise<UploadedFile> {
     const msg = "Nội dung tệp không đúng định dạng";
     throw AppError.validation(msg, { file: msg });
   }
-  return { name: file.name.slice(-MAX_FILE_NAME), ext, bytes };
+  return { name: tailCodePoints(file.name, MAX_FILE_NAME), ext, bytes };
 }
 
 /** Parses multipart metadata (zod) and the optional/required `file` part. */

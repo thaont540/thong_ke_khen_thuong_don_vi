@@ -5,6 +5,8 @@
  * KV limits: 25 MiB per value (uploads are capped at 20 MB), eventually consistent across
  * locations (a fresh upload can take ~60 s to be readable elsewhere), free plan = 1,000 writes/day.
  */
+import { safeEncodeURIComponent, tailCodePoints } from "./file-name-text";
+
 export interface StoredFileMeta {
   contentType: string;
   fileName: string;
@@ -29,7 +31,7 @@ export const documentFileStore = {
     await env.DOCS.put(key, bytes, {
       metadata: {
         ...metadata,
-        fileName: encodeURIComponent(metadata.fileName.slice(-META_NAME_CHARS)),
+        fileName: safeEncodeURIComponent(tailCodePoints(metadata.fileName, META_NAME_CHARS)),
       },
     });
   },

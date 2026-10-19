@@ -5,7 +5,10 @@ import {
 } from "../../shared/import/import-duplicate-identity";
 import { buildImportLookups, type ImportOfficer } from "../../shared/import/import-lookup-maps";
 import type { ImportRowCheck } from "../../shared/import/import-row-validator";
-import { validateImportRows } from "../../shared/import/import-rows-validator";
+import {
+  markRepeatedRatings,
+  validateImportRowsBase,
+} from "../../shared/import/import-rows-validator";
 import { normalizeText } from "../../shared/normalize-text";
 import type { ImportRow } from "../../shared/schemas/award-import-schemas";
 import type { MasterDataDto } from "../../shared/schemas/master-data-dto";
@@ -49,11 +52,16 @@ export async function checkImportLot(
   rows: readonly ImportRow[],
 ): Promise<CheckedRow[]> {
   const lookups = buildImportLookups(master, await loadOfficers(d1, rows));
-  const ruleChecks = validateImportRows(rows, lookups).map((check) => {
+  const ruleChecks = validateImportRowsBase(rows, lookups).map((check) => {
     const problem = check.input ? findAwardProblem(master, check.input) : null;
     return problem ? { ...check, input: null, newOfficer: null, errors: [problem.message] } : check;
   });
-  const checks = await rejectExistingRatings(d1, master, ruleChecks);
+  // Repeated ratings last: a row that fails any other check must not poison a later valid row.
+  const checks = markRepeatedRatings(
+    rows,
+    await rejectExistingRatings(d1, master, ruleChecks),
+    master,
+  );
 
   const valid = checks.flatMap((c, i) => (c.input ? [{ i, input: c.input }] : []));
   const dbHits = await findDuplicatesBulk(

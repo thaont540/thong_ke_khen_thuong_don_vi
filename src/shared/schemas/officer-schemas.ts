@@ -4,19 +4,22 @@ import { isJoinedMonthInFuture, MIN_JOIN_AGE, parseJoinedMonth } from "../office
 import { idSchema, pageSchema } from "./api-common-schemas";
 import { awardRecordSchema } from "./award-schemas";
 
-/** POST /api/officers, PUT /api/officers/:id (code is auto-generated, immutable). */
+/**
+ * POST /api/officers, PUT /api/officers/:id (code is auto-generated, immutable).
+ * birth_year/badge_number are required keys but nullable: explicit null clears, an omitted key is a
+ * 400 (a partial PUT body must never silently erase stored data).
+ */
 const joinedMonthSchema = z
   .string()
   .refine((s) => parseJoinedMonth(s) !== null, "Tháng năm vào ngành không hợp lệ");
 
 const officerInputBaseSchema = z.object({
   full_name: z.string().transform(collapseSpaces).pipe(z.string().min(1).max(100)),
-  birth_year: z.number().int().min(1950).max(2010).nullable().default(null),
+  birth_year: z.number().int().min(1950).max(2010).nullable(),
   badge_number: z
     .string()
     .regex(/^\d{6}$/, "Số hiệu gồm đúng 6 chữ số")
-    .nullable()
-    .default(null),
+    .nullable(),
   rank_id: idSchema,
   position_id: idSchema,
   unit_id: idSchema,
