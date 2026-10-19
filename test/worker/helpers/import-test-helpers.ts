@@ -1,10 +1,12 @@
 import type { ImportRow } from "../../../src/shared/schemas/award-import-schemas";
 
-/** Raw import row as the browser would send it: personal CSTD cơ sở for officer CB00<n> of Phòng 6. */
+/** Raw import row as the browser would send it: personal CSTD cơ sở for officer "Cán bộ 1" of Phòng 6. */
 export const importRow = (rowNumber: number, over: Partial<ImportRow> = {}): ImportRow => ({
   row_number: rowNumber,
   subject: "Cá nhân",
-  officer_code: "CB001",
+  full_name: "Cán bộ 1",
+  rank: "Đại úy",
+  position: "Cán bộ",
   unit: "Phòng 6",
   team: "",
   form: "Danh hiệu",
@@ -21,7 +23,9 @@ export const importRow = (rowNumber: number, over: Partial<ImportRow> = {}): Imp
 export const importCollectiveRow = (rowNumber: number, over: Partial<ImportRow> = {}): ImportRow =>
   importRow(rowNumber, {
     subject: "Tập thể",
-    officer_code: "",
+    full_name: "",
+    rank: "",
+    position: "",
     team: "Đội CSGT đường bộ cao tốc số 1",
     form: "Khen thưởng",
     award_name: "Bằng khen Bộ Công an",
@@ -45,6 +49,19 @@ export interface LotResponse {
     errors: string[];
     duplicate_messages: string[];
     imported: boolean;
+    new_officer?: boolean;
     award_id?: number;
   }[];
 }
+
+/** Personal row of a person who does not exist yet ("Nguyễn Văn Mới", Phòng 6). */
+export const newbieRow = (rowNumber: number, over: Partial<ImportRow> = {}): ImportRow =>
+  importRow(rowNumber, { full_name: "Nguyễn Văn Mới", ...over });
+
+/** Xếp loại cán bộ row of officer "Cán bộ 1" (Hoàn thành xuất sắc nhiệm vụ, 2026). */
+export const ratingRow = (rowNumber: number, over: Partial<ImportRow> = {}): ImportRow =>
+  importRow(rowNumber, {
+    form: "Xếp loại cán bộ",
+    award_name: "Hoàn thành xuất sắc nhiệm vụ",
+    ...over,
+  });

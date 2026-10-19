@@ -6,7 +6,7 @@ import type { DuplicateKey } from "./award-duplicate-check-service";
 
 type Bind = string | number | null;
 
-const COMMON_COLUMNS = `award_type_id, award_variant_id, year, decision_number, decision_number_search,
+export const COMMON_COLUMNS = `award_type_id, award_variant_id, year, decision_number, decision_number_search,
   decision_date, authority_id, achievement, note`;
 
 export const commonBinds = (i: AwardInput): Bind[] => [

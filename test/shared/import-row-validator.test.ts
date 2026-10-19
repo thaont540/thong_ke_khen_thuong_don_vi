@@ -10,8 +10,8 @@ import type { ImportRow } from "../../src/shared/schemas/award-import-schemas";
 import { getMasterData } from "../../src/worker/services/master-data-service";
 
 const OFFICERS: ImportOfficer[] = [
-  { id: 11, code: "CB001", full_name: "Nguyễn Văn An", unit_id: 6, team_id: 1 },
-  { id: 12, code: "CB002", full_name: "Trần Thị Bình", unit_id: 5, team_id: null },
+  { id: 11, full_name: "Nguyễn Văn An", unit_id: 6, team_id: 1 },
+  { id: 12, full_name: "Trần Thị Bình", unit_id: 5, team_id: null },
 ];
 
 let lk: ImportLookups;
@@ -22,7 +22,9 @@ beforeAll(async () => {
 const personal = (over: Partial<ImportRow> = {}): ImportRow => ({
   row_number: 2,
   subject: "Cá nhân",
-  officer_code: "CB001",
+  full_name: "Nguyễn Văn An",
+  rank: "Đại úy",
+  position: "Cán bộ",
   unit: "Phòng 6",
   team: "",
   form: "Danh hiệu",
@@ -38,7 +40,9 @@ const personal = (over: Partial<ImportRow> = {}): ImportRow => ({
 const collective = (over: Partial<ImportRow> = {}): ImportRow =>
   personal({
     subject: "Tập thể",
-    officer_code: "",
+    full_name: "",
+    rank: "",
+    position: "",
     team: "Đội CSGT đường bộ cao tốc số 1",
     form: "Khen thưởng",
     award_name: "Bằng khen Bộ Công an",
@@ -76,10 +80,12 @@ describe("validateImportRow happy paths", () => {
     expect(c.input).toMatchObject({ award_type_id: 9, award_variant_id: 6, authority_id: 1 });
   });
 
-  it("unit by code and by messy name (BR-07); officer code case-insensitive", () => {
-    expect(validateImportRow(personal({ unit: "p6", officer_code: " cb001 " }), lk).errors).toEqual(
-      [],
-    );
+  it("unit by code and by messy name (BR-07); officer name case/space-insensitive", () => {
+    const messy = personal({ unit: "p6", full_name: "  nguyễn   VĂN an " });
+    const c = validateImportRow(messy, lk);
+    expect(c.errors).toEqual([]);
+    expect(c.input).toMatchObject({ officer_id: 11 });
+    expect(c.newOfficer).toBeNull();
     expect(validateImportRow(personal({ unit: "  PHÒNG   6 " }), lk).errors).toEqual([]);
     expect(validateImportRow(personal({ unit: "Phòng 6".normalize("NFD") }), lk).errors).toEqual(
       [],
@@ -107,14 +113,24 @@ describe("validateImportRow messages (spec §5 table, verbatim)", () => {
       { team: "Đội Dẫn đoàn số 1" },
       'Đội "Đội Dẫn đoàn số 1" không thuộc Phòng 6',
     ],
-    ["personal without code", { officer_code: "" }, "Cá nhân cần có mã cán bộ"],
-    ["officer unknown", { officer_code: "cb999" }, "Không tìm thấy cán bộ mã CB999"],
+    ["personal without name", { full_name: "" }, "Cá nhân cần có họ tên"],
+    ["new officer without rank", { full_name: "Người Mới", rank: "" }, "Cá nhân cần có cấp bậc"],
     [
-      "officer of other unit",
-      { officer_code: "CB002" },
-      "Cán bộ Trần Thị Bình không thuộc Phòng 6",
+      "new officer without position",
+      { full_name: "Người Mới", position: " " },
+      "Cá nhân cần có chức vụ",
     ],
-    ["form", { form: "Khác" }, "Hình thức phải là Danh hiệu hoặc Khen thưởng"],
+    [
+      "new officer unknown rank",
+      { full_name: "Người Mới", rank: "Đại tướng quân" },
+      'Không tìm thấy cấp bậc "Đại tướng quân"',
+    ],
+    [
+      "new officer unknown position",
+      { full_name: "Người Mới", position: "Giám đốc" },
+      'Không tìm thấy chức vụ "Giám đốc"',
+    ],
+    ["form", { form: "Khác" }, "Hình thức phải là Danh hiệu, Khen thưởng hoặc Xếp loại cán bộ"],
     [
       "award wrong for personal title",
       { award_name: "Đơn vị tiên tiến" },
@@ -149,20 +165,19 @@ describe("validateImportRow messages (spec §5 table, verbatim)", () => {
     expect(c.input).toBeNull();
   });
 
-  it("officer outside the given team", () => {
-    expect(errorsOf(personal({ team: "Đội CSGT đường bộ cao tốc số 2" }))).toContain(
-      "Cán bộ Nguyễn Văn An không thuộc Đội CSGT đường bộ cao tốc số 2",
-    );
-  });
-
   it("medal under Danh hiệu form is rejected with the form hint", () => {
     expect(errorsOf(personal({ award_name: "Huân chương Chiến công hạng Ba" }))).toContain(
       "Huân chương thuộc hình thức Khen thưởng",
     );
   });
 
-  it("collects every error of a row; collective ignores the officer code", () => {
+  it("collects every error of a row; collective must not carry name, rank or position", () => {
     expect(errorsOf(personal({ unit: "x", year: "", decision_number: "" })).length).toBe(3);
-    expect(validateImportRow(collective({ officer_code: "ZZZ" }), lk).errors).toEqual([]);
+    expect(errorsOf(collective({ full_name: "ZZZ" }))).toEqual([
+      "Tập thể không ghi họ tên, cấp bậc, chức vụ",
+    ]);
+    expect(errorsOf(collective({ rank: "Đại úy" }))).toContain(
+      "Tập thể không ghi họ tên, cấp bậc, chức vụ",
+    );
   });
 });

@@ -4,10 +4,13 @@ import {
   intraFileMessage,
 } from "../../shared/import/import-duplicate-identity";
 import { buildImportLookups, type ImportOfficer } from "../../shared/import/import-lookup-maps";
-import { type ImportRowCheck, validateImportRow } from "../../shared/import/import-row-validator";
+import type { ImportRowCheck } from "../../shared/import/import-row-validator";
+import { validateImportRows } from "../../shared/import/import-rows-validator";
+import { normalizeText } from "../../shared/normalize-text";
 import type { ImportRow } from "../../shared/schemas/award-import-schemas";
 import type { MasterDataDto } from "../../shared/schemas/master-data-dto";
 import { findDuplicatesBulk } from "./award-duplicate-check-service";
+import { rejectExistingRatings } from "./award-import-rating-check";
 import { findAwardProblem } from "./award-validation-service";
 import { duplicateKeyOf } from "./award-write-statements";
 
@@ -18,19 +21,19 @@ export interface CheckedRow {
   duplicateMessages: string[];
 }
 
-/** One query: active officers of the lot by code (`code` is COLLATE NOCASE). */
+/** One query: active officers whose normalized name appears in the lot (<= 30 names). */
 async function loadOfficers(d1: D1Database, rows: readonly ImportRow[]): Promise<ImportOfficer[]> {
-  const codes = [
-    ...new Set(rows.map((r) => (r.officer_code ?? "").trim()).filter((c) => c.length > 0)),
+  const names = [
+    ...new Set(rows.map((r) => normalizeText(r.full_name ?? "")).filter((n) => n.length > 0)),
   ];
-  if (codes.length === 0) return [];
-  const marks = codes.map(() => "?").join(", ");
+  if (names.length === 0) return [];
+  const marks = names.map(() => "?").join(", ");
   const { results } = await d1
     .prepare(
-      `SELECT id, code, full_name, unit_id, team_id FROM officers
-       WHERE deleted_at IS NULL AND code IN (${marks})`,
+      `SELECT id, full_name, unit_id, team_id FROM officers
+       WHERE deleted_at IS NULL AND full_name_search IN (${marks})`,
     )
-    .bind(...codes)
+    .bind(...names)
     .all<ImportOfficer>();
   return results;
 }
@@ -46,11 +49,11 @@ export async function checkImportLot(
   rows: readonly ImportRow[],
 ): Promise<CheckedRow[]> {
   const lookups = buildImportLookups(master, await loadOfficers(d1, rows));
-  const checks = rows.map((row) => {
-    const check = validateImportRow(row, lookups);
+  const ruleChecks = validateImportRows(rows, lookups).map((check) => {
     const problem = check.input ? findAwardProblem(master, check.input) : null;
-    return problem ? { ...check, input: null, errors: [problem.message] } : check;
+    return problem ? { ...check, input: null, newOfficer: null, errors: [problem.message] } : check;
   });
+  const checks = await rejectExistingRatings(d1, master, ruleChecks);
 
   const valid = checks.flatMap((c, i) => (c.input ? [{ i, input: c.input }] : []));
   const dbHits = await findDuplicatesBulk(

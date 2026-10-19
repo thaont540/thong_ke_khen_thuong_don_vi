@@ -10,7 +10,7 @@ import {
   buildTemplateWorkbookBytes,
 } from "../../src/client/pages/awards/import/excel-template-builder";
 import { buildImportLookups } from "../../src/shared/import/import-lookup-maps";
-import { validateImportRow } from "../../src/shared/import/import-row-validator";
+import { validateImportRows } from "../../src/shared/import/import-rows-validator";
 import { master, officerOption } from "./helpers/award-fixtures";
 import {
   csvFile,
@@ -36,11 +36,22 @@ const messageOf = async (p: Promise<unknown>) => {
 };
 
 describe("template builder -> file reader round trip", () => {
-  it("template has both sheets with the doc layout and 3 rows that validate as is", async () => {
-    const sheets = buildTemplateSheets(master, officers);
+  it("template has both sheets with the new layout and 4 example rows that validate as is", async () => {
+    const sheets = buildTemplateSheets(master);
     expect(sheets.main[0]).toEqual(HEADERS);
-    expect(sheets.catalog[0]).toHaveLength(9);
-    expect(sheets.catalog[0]?.[6]).toBe("Đội (Đơn vị: Đội)");
+    expect(sheets.catalog[0]).toEqual([
+      "Đối tượng",
+      "Hình thức",
+      "Danh hiệu tập thể",
+      "Danh hiệu cá nhân",
+      "Hình thức khen thưởng",
+      "Xếp loại cán bộ",
+      "Đơn vị",
+      "Đội (Đơn vị: Đội)",
+      "Cấp bậc",
+      "Chức vụ",
+      "Cấp quyết định",
+    ]);
     const bytes = await buildTemplateWorkbookBytes(sheets);
 
     const wb = XLSX.read(bytes, { type: "array" });
@@ -49,28 +60,43 @@ describe("template builder -> file reader round trip", () => {
       header: 1,
     });
     expect(catalog.flat()).toEqual(
-      expect.arrayContaining(["Phòng 6: Đội cao tốc 1", "CB005", "Trần Thị Bình", "Giấy khen"]),
+      expect.arrayContaining([
+        "Phòng 6: Đội cao tốc 1",
+        "Giấy khen",
+        "Xếp loại cán bộ",
+        "Hoàn thành xuất sắc nhiệm vụ",
+        "Đại úy",
+        "Cán bộ",
+        "Thủ trưởng đơn vị",
+        "Huân chương Chiến công hạng Nhất",
+      ]),
     );
-    expect(catalog.flat()).toContain("Huân chương Chiến công hạng Nhất");
+    expect(catalog.flat()).not.toContain("CB005");
+    expect(sheets.main.slice(1).map((r) => r[6])).toEqual([
+      "Danh hiệu",
+      "Khen thưởng",
+      "Khen thưởng",
+      "Xếp loại cán bộ",
+    ]);
 
     const parsed = await readImportFile(
       new File([bytes as BlobPart], "mau.xlsx", { type: "application/octet-stream" }),
     );
-    expect(parsed.rows).toHaveLength(3);
-    const lk = buildImportLookups(master, officers);
-    for (const row of parsed.rows) {
-      expect(validateImportRow(row, lk).errors, `row ${row.row_number}`).toEqual([]);
-    }
+    expect(parsed.rows).toHaveLength(4);
+    const checks = validateImportRows(parsed.rows, buildImportLookups(master, officers));
+    for (const [i, check] of checks.entries()) expect(check.errors, `row ${i + 2}`).toEqual([]);
+    // Individuals of the examples are new people: they would be created on import.
+    expect(checks.map((c) => c.newOfficer !== null)).toEqual([true, false, true, true]);
   });
 });
 
 describe("readImportFile", () => {
-  it("reads rows with their sheet row numbers, skipping blank rows and keeping codes as text", async () => {
+  it("reads rows with their sheet row numbers, skipping blank rows and keeping numeric-looking names as text", async () => {
     const parsed = await readImportFile(
-      xlsxFile([HEADERS, sheetRow(), HEADERS.map(() => ""), sheetRow({ "Mã cán bộ": "007" })]),
+      xlsxFile([HEADERS, sheetRow(), HEADERS.map(() => ""), sheetRow({ "Họ và tên": "007" })]),
     );
     expect(parsed.rows.map((r) => r.row_number)).toEqual([2, 4]);
-    expect(parsed.rows[1]?.officer_code).toBe("007");
+    expect(parsed.rows[1]?.full_name).toBe("007");
     expect(parsed.rows[0]?.year).toBe("2026");
   });
 
@@ -114,6 +140,14 @@ describe("readImportFile", () => {
     const headers = HEADERS.filter((h) => h !== "Năm" && h !== "Số quyết định");
     expect(await messageOf(readImportFile(xlsxFile([headers, headers.map(() => "x")])))).toBe(
       "File thiếu cột: Năm, Số quyết định. Hãy dùng file mẫu để có đúng tên cột.",
+    );
+  });
+
+  it("rejects an old file (Mã cán bộ, no Họ và tên / Cấp bậc / Chức vụ) as missing columns", async () => {
+    const old = HEADERS.filter((h) => !["Họ và tên", "Cấp bậc", "Chức vụ"].includes(h));
+    const headers = [old[0] as string, "Mã cán bộ", ...old.slice(1)];
+    expect(await messageOf(readImportFile(xlsxFile([headers, headers.map(() => "x")])))).toBe(
+      "File thiếu cột: Họ và tên, Cấp bậc, Chức vụ. Hãy dùng file mẫu để có đúng tên cột.",
     );
   });
 

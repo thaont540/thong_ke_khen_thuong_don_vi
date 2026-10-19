@@ -7,6 +7,14 @@ const STATUS = {
   DUPLICATE: { tone: "warn", label: "Có thể trùng", row: "row-warn" },
 } as const;
 
+const FORM_LABEL = {
+  DANH_HIEU: "Danh hiệu",
+  KHEN_THUONG: "Khen thưởng",
+  XEP_LOAI: "Xếp loại cán bộ",
+} as const;
+
+const NEW_OFFICER_NOTE = "Sẽ tạo cán bộ mới";
+
 function Messages({ row }: { row: PreviewRow }) {
   const errors = rowErrors(row);
   if (errors.length > 0) {
@@ -18,13 +26,21 @@ function Messages({ row }: { row: PreviewRow }) {
       </ul>
     );
   }
-  if (row.dupMessages.length === 0) return null;
   return (
-    <ul className="warn-list">
-      {row.dupMessages.map((m) => (
-        <li key={m}>{m}</li>
-      ))}
-    </ul>
+    <>
+      {row.check.newOfficer ? (
+        <ul className="info-list">
+          <li>{NEW_OFFICER_NOTE}</li>
+        </ul>
+      ) : null}
+      {row.dupMessages.length > 0 ? (
+        <ul className="warn-list">
+          {row.dupMessages.map((m) => (
+            <li key={m}>{m}</li>
+          ))}
+        </ul>
+      ) : null}
+    </>
   );
 }
 
@@ -37,8 +53,9 @@ export function ImportPreviewTable({ rows }: { rows: readonly PreviewRow[] }) {
             <tr>
               <th>Dòng</th>
               <th>Trạng thái</th>
-              <th>Tập thể / cá nhân</th>
+              <th>Họ và tên / đơn vị</th>
               <th>Đối tượng</th>
+              <th>Hình thức</th>
               <th>Danh hiệu / khen thưởng</th>
               <th>Năm</th>
               <th>Số quyết định</th>
@@ -55,7 +72,14 @@ export function ImportPreviewTable({ rows }: { rows: readonly PreviewRow[] }) {
                   <td>
                     <StatusBadge tone={s.tone}>{s.label}</StatusBadge>
                   </td>
-                  <td className="who">{d.subjectName}</td>
+                  <td className="who">
+                    {d.subjectName}
+                    {r.check.newOfficer ? (
+                      <span className="new-officer-badge">
+                        <StatusBadge tone="warn">mới</StatusBadge>
+                      </span>
+                    ) : null}
+                  </td>
                   <td>
                     {d.subject ? (
                       <StatusBadge tone={d.subject === "TAP_THE" ? "ok" : "muted"}>
@@ -65,6 +89,7 @@ export function ImportPreviewTable({ rows }: { rows: readonly PreviewRow[] }) {
                       "—"
                     )}
                   </td>
+                  <td>{d.form ? FORM_LABEL[d.form] : "—"}</td>
                   <td>{d.awardLabel || "—"}</td>
                   <td className="tnum">{d.year}</td>
                   <td className="decision">{d.decision || "—"}</td>

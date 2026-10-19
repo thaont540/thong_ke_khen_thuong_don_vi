@@ -4,10 +4,8 @@ import {
   isIntraFileMessage,
 } from "../../../../shared/import/import-duplicate-identity";
 import type { ImportLookups } from "../../../../shared/import/import-lookup-maps";
-import {
-  type ImportRowCheck,
-  validateImportRow,
-} from "../../../../shared/import/import-row-validator";
+import type { ImportRowCheck } from "../../../../shared/import/import-row-validator";
+import { validateImportRows } from "../../../../shared/import/import-rows-validator";
 import type { ImportRow, ImportRowResult } from "../../../../shared/schemas/award-import-schemas";
 
 export type PreviewStatus = "OK" | "ERROR" | "DUPLICATE";
@@ -32,7 +30,7 @@ export function rowStatus(r: PreviewRow): PreviewStatus {
 
 /** Local validation of every row plus duplicates against earlier rows of the whole file. */
 export function buildPreviewRows(rows: readonly ImportRow[], lookups: ImportLookups): PreviewRow[] {
-  const checks = rows.map((raw) => validateImportRow(raw, lookups));
+  const checks = validateImportRows(rows, lookups);
   const intra = findIntraFileDuplicates(
     rows.map((raw, i) => ({ row_number: raw.row_number, input: checks[i]?.input ?? null })),
   );

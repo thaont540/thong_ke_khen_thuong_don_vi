@@ -12,7 +12,9 @@ const cell = z.string().max(IMPORT_CELL_MAX);
 export const importRowSchema = z.object({
   row_number: z.number().int().positive(),
   subject: cell,
-  officer_code: cell.optional().default(""),
+  full_name: cell.optional().default(""),
+  rank: cell.optional().default(""),
+  position: cell.optional().default(""),
   unit: cell,
   team: cell.optional().default(""),
   form: cell,
@@ -51,6 +53,8 @@ export const importRowResultSchema = z.object({
   errors: z.array(z.string()),
   duplicate_messages: z.array(z.string()),
   imported: z.boolean(),
+  /** Cá nhân row whose officer does not exist yet: created on commit ("Sẽ tạo cán bộ mới"). */
+  new_officer: z.boolean().optional(),
   award_id: idSchema.optional(),
 });
 

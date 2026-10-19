@@ -6,11 +6,13 @@ import { loginViaForm } from "./helpers/ui-helpers";
 
 const HEADERS = IMPORT_COLUMNS.map((c) => c.header);
 
-const row = (code: string, year: number, decision: string): (string | number)[] => {
+const row = (id: number, year: number, decision: string, unit = "Phòng 6"): (string | number)[] => {
   const cells: Record<string, string | number> = {
     "Đối tượng": "Cá nhân",
-    "Mã cán bộ": code,
-    "Đơn vị": "Phòng 6",
+    "Họ và tên": `Cán bộ Import ${id}`,
+    "Cấp bậc": "Đại úy",
+    "Chức vụ": "Cán bộ",
+    "Đơn vị": unit,
     "Hình thức": "Danh hiệu",
     "Danh hiệu / khen thưởng": "Chiến sĩ thi đua cơ sở",
     Năm: year,
@@ -42,11 +44,11 @@ test("import: 3 valid rows go in, the duplicate only with its checkbox, the erro
   page,
 }) => {
   const file = workbook([
-    row("CB001", 2021, "01/QĐ-IMP"),
-    row("CB002", 2021, "02/QĐ-IMP"),
-    row("CB003", 2021, "03/QĐ-IMP"),
-    row("CB999", 2021, "04/QĐ-IMP"), // unknown officer code -> error
-    row("CB001", 2024, "05/QĐ-IMP"), // same officer/type/year as the stored award -> duplicate
+    row(1, 2021, "01/QĐ-IMP"),
+    row(2, 2021, "02/QĐ-IMP"),
+    row(3, 2021, "03/QĐ-IMP"),
+    row(9, 2021, "04/QĐ-IMP", "Phòng 99"), // unknown unit -> error
+    row(1, 2024, "05/QĐ-IMP"), // same officer/type/year as the stored award -> duplicate
   ]);
   await loginViaForm(page, "editor");
   await page.goto("/awards/new");

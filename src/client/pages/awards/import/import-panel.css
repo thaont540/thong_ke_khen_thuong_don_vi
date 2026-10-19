@@ -68,7 +68,8 @@
   font-weight: 600;
 }
 .err-list,
-.warn-list {
+.warn-list,
+.info-list {
   margin: 0;
   padding-left: 16px;
   font-size: 13px;
@@ -78,6 +79,12 @@
 }
 .warn-list {
   color: var(--gold);
+}
+.info-list {
+  color: var(--muted);
+}
+.new-officer-badge {
+  margin-left: 6px;
 }
 tr.row-err td {
   background: color-mix(in srgb, var(--red-soft) 45%, transparent);

@@ -4,7 +4,6 @@ import type { MasterDataDto, TeamDto, UnitDto } from "../schemas/master-data-dto
 /** Officer fields the import needs; `OfficerOption` (client) and DB rows (server) both satisfy it. */
 export interface ImportOfficer {
   id: number;
-  code: string;
   full_name: string;
   unit_id: number;
   team_id: number | null;
@@ -15,12 +14,13 @@ export interface ImportLookups {
   master: MasterDataDto;
   unitByKey: ReadonlyMap<string, UnitDto>;
   teamsByUnit: ReadonlyMap<number, ReadonlyMap<string, TeamDto>>;
-  officerByCode: ReadonlyMap<string, ImportOfficer>;
+  /** Active officers by normalized full name (several officers may share a name). */
+  officersByName: ReadonlyMap<string, readonly ImportOfficer[]>;
+  rankByName: ReadonlyMap<string, number>;
+  positionByName: ReadonlyMap<string, number>;
   authorityByName: ReadonlyMap<string, number>;
   variantByName: ReadonlyMap<string, MasterDataDto["award_variants"][number]>;
 }
-
-export const normalizeOfficerCode = (code: string): string => normalizeText(code);
 
 export function buildImportLookups(
   master: MasterDataDto,
@@ -35,11 +35,18 @@ export function buildImportLookups(
     for (const team of unit.teams) teams.set(normalizeText(team.name), team);
     teamsByUnit.set(unit.id, teams);
   }
+  const officersByName = new Map<string, ImportOfficer[]>();
+  for (const o of officers) {
+    const key = normalizeText(o.full_name);
+    officersByName.set(key, [...(officersByName.get(key) ?? []), o]);
+  }
   return {
     master,
     unitByKey,
     teamsByUnit,
-    officerByCode: new Map(officers.map((o) => [normalizeOfficerCode(o.code), o])),
+    officersByName,
+    rankByName: new Map(master.ranks.map((r) => [normalizeText(r.name), r.id])),
+    positionByName: new Map(master.positions.map((p) => [normalizeText(p.name), p.id])),
     authorityByName: new Map(master.authorities.map((a) => [normalizeText(a.name), a.id])),
     variantByName: new Map(master.award_variants.map((v) => [normalizeText(v.name), v])),
   };

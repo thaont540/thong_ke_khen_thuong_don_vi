@@ -4,11 +4,13 @@ import { IMPORT_COLUMNS } from "../../../src/shared/import/import-column-definit
 export const HEADERS = IMPORT_COLUMNS.map((c) => c.header);
 type Cell = string | number | null;
 
-/** Personal CSTD cơ sở row for officer CB005 (see award-fixtures) in the sheet column order. */
+/** Personal CSTD cơ sở row for officer Nguyễn Văn An of Phòng 6 (see award-fixtures), in the sheet column order. */
 export const sheetRow = (over: Partial<Record<(typeof HEADERS)[number], Cell>> = {}): Cell[] => {
   const base: Record<string, Cell> = {
     "Đối tượng": "Cá nhân",
-    "Mã cán bộ": "CB005",
+    "Họ và tên": "Nguyễn Văn An",
+    "Cấp bậc": "Đại úy",
+    "Chức vụ": "Cán bộ",
     "Đơn vị": "Phòng 6",
     Đội: "",
     "Hình thức": "Danh hiệu",

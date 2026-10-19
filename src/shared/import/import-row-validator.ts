@@ -5,7 +5,9 @@ import { collapseSpaces, normalizeText } from "../normalize-text";
 import type { ImportRow } from "../schemas/award-import-schemas";
 import { type AwardInput, awardInputSchema } from "../schemas/award-schemas";
 import type { AwardTypeDto } from "../schemas/master-data-dto";
-import { type ImportLookups, normalizeOfficerCode } from "./import-lookup-maps";
+import type { ImportLookups } from "./import-lookup-maps";
+import { type ResolvedOfficer, resolveImportOfficer } from "./import-officer-resolver";
+import { type NewOfficerDraft, PendingOfficers } from "./import-pending-officers";
 
 /** What the preview table shows for a row, whether or not it is valid. */
 export interface ImportRowDisplay {
@@ -21,6 +23,8 @@ export interface ImportRowCheck {
   errors: string[];
   /** Ready-to-save input, only when `errors` is empty. */
   input: AwardInput | null;
+  /** Cá nhân row whose officer will be created on commit (`input.officer_id` is then negative). */
+  newOfficer: NewOfficerDraft | null;
   display: ImportRowDisplay;
 }
 
@@ -34,6 +38,7 @@ const SUBJECT_BY_TEXT: Record<string, Subject> = {
 const FORM_BY_TEXT: Record<string, Form> = {
   "danh hiệu": FORM.DANH_HIEU,
   "khen thưởng": FORM.KHEN_THUONG,
+  "xếp loại cán bộ": FORM.XEP_LOAI,
 };
 
 const MEDAL_HINT = "Ghi rõ loại huân chương, ví dụ Huân chương Chiến công hạng Ba";
@@ -41,6 +46,7 @@ const text = (v: string | undefined): string => collapseSpaces(v ?? "");
 
 function awardKindLabel(subject: Subject, form: Form): string {
   if (form === FORM.KHEN_THUONG) return "hình thức khen thưởng";
+  if (form === FORM.XEP_LOAI) return "xếp loại cán bộ";
   return subject === SUBJECT.TAP_THE ? "danh hiệu tập thể" : "danh hiệu cá nhân";
 }
 
@@ -81,34 +87,6 @@ function resolveAward(
   return null;
 }
 
-/** Officer part of a Cá nhân row; returns the officer when found and consistent with unit/team. */
-function resolveOfficer(
-  row: ImportRow,
-  lk: ImportLookups,
-  place: { unit: { id: number; name: string } | null; team: { id: number; name: string } | null },
-  errors: string[],
-) {
-  const code = collapseSpaces(row.officer_code ?? "").toUpperCase();
-  if (!code) {
-    errors.push("Cá nhân cần có mã cán bộ");
-    return null;
-  }
-  const officer = lk.officerByCode.get(normalizeOfficerCode(code));
-  if (!officer) {
-    errors.push(`Không tìm thấy cán bộ mã ${code}`);
-    return null;
-  }
-  if (place.unit && officer.unit_id !== place.unit.id) {
-    errors.push(`Cán bộ ${officer.full_name} không thuộc ${place.unit.name}`);
-    return null;
-  }
-  if (place.team && officer.team_id !== place.team.id) {
-    errors.push(`Cán bộ ${officer.full_name} không thuộc ${place.team.name}`);
-    return null;
-  }
-  return officer;
-}
-
 function parseYear(raw: string | number): number | null {
   const s = String(raw ?? "").trim();
   if (!/^\d{4}(\.0+)?$/.test(s)) return null;
@@ -118,9 +96,14 @@ function parseYear(raw: string | number): number | null {
 
 /**
  * Pure per-row check of spec §5 (browser preview and Worker use the same code). Column values are
- * matched by BR-07 normalized text; collects every error of the row, like the mockup.
+ * matched by BR-07 normalized text; collects every error of the row, like the mockup. `pending`
+ * collects the officers to create so that rows of the same new person share one (see `validateImportRows`).
  */
-export function validateImportRow(row: ImportRow, lk: ImportLookups): ImportRowCheck {
+export function validateImportRow(
+  row: ImportRow,
+  lk: ImportLookups,
+  pending: PendingOfficers = new PendingOfficers(),
+): ImportRowCheck {
   const errors: string[] = [];
   const subject = SUBJECT_BY_TEXT[normalizeText(row.subject ?? "")] ?? null;
   if (!subject) errors.push("Đối tượng phải là Tập thể hoặc Cá nhân");
@@ -137,15 +120,24 @@ export function validateImportRow(row: ImportRow, lk: ImportLookups): ImportRowC
     if (!team) errors.push(`Đội "${teamRaw}" không thuộc ${unit.name}`);
   }
 
-  const officer =
-    subject === SUBJECT.CA_NHAN ? resolveOfficer(row, lk, { unit, team }, errors) : null;
-
   const form = FORM_BY_TEXT[normalizeText(row.form ?? "")] ?? null;
-  if (!form) errors.push("Hình thức phải là Danh hiệu hoặc Khen thưởng");
+  if (!form) errors.push("Hình thức phải là Danh hiệu, Khen thưởng hoặc Xếp loại cán bộ");
+
+  let officer: ResolvedOfficer | null = null;
+  if (subject === SUBJECT.CA_NHAN) {
+    // Unit/team problems are reported above; the officer cannot be looked up without them.
+    if (unit && (!teamRaw || team)) {
+      officer = resolveImportOfficer(row, lk, { unit, team }, pending, errors);
+    } else if (!text(row.full_name)) errors.push("Cá nhân cần có họ tên");
+  } else if (subject && (text(row.full_name) || text(row.rank) || text(row.position))) {
+    errors.push("Tập thể không ghi họ tên, cấp bậc, chức vụ");
+  }
+  const ratingForTeam = subject === SUBJECT.TAP_THE && form === FORM.XEP_LOAI;
+  if (ratingForTeam) errors.push("Xếp loại cán bộ chỉ áp dụng cho cá nhân");
 
   const awardRaw = text(row.award_name);
   let choice: AwardChoice | null = null;
-  if (subject && form) choice = resolveAward(row, subject, form, lk, errors);
+  if (subject && form && !ratingForTeam) choice = resolveAward(row, subject, form, lk, errors);
   else if (!awardRaw) errors.push("Thiếu danh hiệu / khen thưởng");
 
   const authorityRaw = text(row.authority);
@@ -169,7 +161,10 @@ export function validateImportRow(row: ImportRow, lk: ImportLookups): ImportRowC
   if (note.length > 500) errors.push("Ghi chú tối đa 500 ký tự");
 
   const display: ImportRowDisplay = {
-    subjectName: officer?.full_name ?? team?.name ?? unit?.name ?? "—",
+    subjectName:
+      subject === SUBJECT.CA_NHAN
+        ? officer?.full_name || text(row.full_name) || unit?.name || "—"
+        : (team?.name ?? unit?.name ?? "—"),
     subject,
     form,
     awardLabel: awardRaw,
@@ -177,12 +172,12 @@ export function validateImportRow(row: ImportRow, lk: ImportLookups): ImportRowC
     decision,
   };
   if (errors.length > 0 || !subject || !unit || !choice || !authorityId || !year || !date) {
-    return { errors, input: null, display };
+    return { errors, input: null, newOfficer: null, display };
   }
   const parsed = awardInputSchema.safeParse({
     subject,
     ...(subject === SUBJECT.CA_NHAN
-      ? { officer_id: officer?.id }
+      ? { officer_id: officer ? Math.abs(officer.id) : undefined }
       : { unit_id: unit.id, team_id: team?.id ?? null }),
     award_type_id: choice.type.id,
     award_variant_id: choice.variantId,
@@ -193,6 +188,13 @@ export function validateImportRow(row: ImportRow, lk: ImportLookups): ImportRowC
     achievement,
     note: note || null,
   });
-  if (!parsed.success) return { errors: ["Dữ liệu dòng không hợp lệ"], input: null, display };
-  return { errors: [], input: parsed.data, display };
+  if (!parsed.success) {
+    return { errors: ["Dữ liệu dòng không hợp lệ"], input: null, newOfficer: null, display };
+  }
+  // A to-be-created officer keeps its negative placeholder id (the schema only accepts real ids).
+  const input: AwardInput =
+    officer?.draft && parsed.data.subject === SUBJECT.CA_NHAN
+      ? { ...parsed.data, officer_id: officer.id }
+      : parsed.data;
+  return { errors: [], input, newOfficer: officer?.draft ?? null, display };
 }

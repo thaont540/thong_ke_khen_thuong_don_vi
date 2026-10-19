@@ -119,22 +119,4 @@ describe("POST /api/awards/import: commit", () => {
     expect(res.results[0]?.errors[0]).toBe('Đội "Đội Dẫn đoàn số 1" không thuộc Phòng 6');
     expect(await count("SELECT COUNT(*) n FROM awards")).toBe(0);
   });
-
-  it("rejects an officer of another unit and an unknown code", async () => {
-    const res = await lot(
-      tokens.editor,
-      importBody([
-        importRow(2, { officer_code: "CB002" }),
-        importRow(3, { officer_code: "CB404" }),
-      ]),
-    );
-    expect(res.results[0]?.errors).toEqual(["Cán bộ Cán bộ 2 không thuộc Phòng 6"]);
-    expect(res.results[1]?.errors).toEqual(["Không tìm thấy cán bộ mã CB404"]);
-  });
-
-  it("ignores soft-deleted officers", async () => {
-    await insertOfficer(env.DB, { id: 3, deletedAt: "2026-01-01 00:00:00" });
-    const res = await lot(tokens.editor, importBody([importRow(2, { officer_code: "CB003" })]));
-    expect(res.results[0]?.errors).toEqual(["Không tìm thấy cán bộ mã CB003"]);
-  });
 });

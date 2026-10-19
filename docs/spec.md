@@ -41,7 +41,7 @@ Hệ thống có 3 vai trò, lưu ở cột role của bảng users và do Quả
 - Menu chỉ hiện các màn hình vai trò được phép. Vai trò Xem chỉ thấy Danh hiệu, khen thưởng; Biên tập thấy thêm Thêm khen thưởng.
 - Mở thẳng đường dẫn của màn hình không được phép: chuyển về F01 và báo "Bạn không có quyền truy cập chức năng này".
 - Giao diện chỉ ẩn nút cho gọn; quyền thật sự do API kiểm tra, sai quyền trả 403 (mục 9).
-- Biên tập không có màn hình F05, F06 nhưng vẫn được đọc danh mục đơn vị, đội và danh sách cán bộ rút gọn qua API, để chọn được cán bộ ở F03 và kiểm tra mã cán bộ khi import ở F04.
+- Biên tập không có màn hình F05, F06 nhưng vẫn được đọc danh mục đơn vị, đội và danh sách cán bộ rút gọn qua API, để chọn được cán bộ ở F03 và đối chiếu họ tên cán bộ khi import ở F04.
 
 ### Thuật ngữ
 
@@ -223,22 +223,40 @@ Nhập nhiều bản ghi cùng lúc từ một file. Hệ thống kiểm tra t�
 
 ### File mẫu
 
-Sheet **Khen thưởng** có dòng tiêu đề và 3 dòng ví dụ. Sheet **Danh mục** liệt kê giá trị hợp lệ: đối tượng, hình thức, danh hiệu tập thể, danh hiệu cá nhân, hình thức khen thưởng (gồm các loại huân chương), đơn vị, đội theo dạng "Đơn vị: Đội", mã cán bộ và họ tên.
+File mẫu sinh từ danh mục hiện hành (bản đối chiếu: `plans/cr-19102026/mau-import-khen-thuong.xlsx`). Sheet **Khen thưởng** có dòng tiêu đề và 4 dòng ví dụ: danh hiệu cá nhân, khen thưởng tập thể, huân chương cá nhân, xếp loại cán bộ. Sheet **Danh mục** liệt kê giá trị hợp lệ theo từng cột: đối tượng, hình thức (Danh hiệu, Khen thưởng, Xếp loại cán bộ), danh hiệu tập thể, danh hiệu cá nhân, hình thức khen thưởng (gồm các loại huân chương), xếp loại cán bộ, đơn vị (gồm Cục Cảnh sát giao thông), đội theo dạng "Đơn vị: Đội", cấp bậc, chức vụ và cấp quyết định. Danh mục không còn mã cán bộ hay danh sách họ tên.
 
 | Cột | Bắt buộc | Ví dụ | Quy tắc |
 | --- | --- | --- | --- |
 | Đối tượng | Có | Cá nhân | Tập thể hoặc Cá nhân |
-| Mã cán bộ | Có, khi Cá nhân | CB001 | Phải tồn tại; để trống khi Tập thể |
-| Đơn vị | Có | Phòng 6 | Khớp tên hoặc mã đơn vị |
+| Họ và tên | Cột phải có; ô bắt buộc khi Cá nhân | Nguyễn Văn A | Dùng để xác định cán bộ (xem dưới). Tập thể phải để trống |
+| Cấp bậc | Cột phải có; ô bắt buộc khi Cá nhân chưa có trong hệ thống | Đại tá | Khớp tên cấp bậc. Với cán bộ đã có chỉ để tham khảo, không cập nhật. Tập thể phải để trống |
+| Chức vụ | Cột phải có; ô bắt buộc khi Cá nhân chưa có trong hệ thống | Trưởng phòng | Khớp tên chức vụ. Với cán bộ đã có chỉ để tham khảo, không cập nhật. Tập thể phải để trống |
+| Đơn vị | Có | Phòng 7 | Khớp tên hoặc mã đơn vị, gồm Cục Cảnh sát giao thông (C08) |
 | Đội | Không | Đội Dẫn đoàn số 1 | Phải thuộc đơn vị ở cột Đơn vị |
-| Hình thức | Có | Danh hiệu | Danh hiệu hoặc Khen thưởng |
-| Danh hiệu / khen thưởng | Có | Chiến sĩ thi đua cơ sở | Hợp lệ theo ma trận mục 2. Với huân chương ghi đúng tên loại, ví dụ Huân chương Chiến công hạng Ba |
+| Hình thức | Có | Danh hiệu | Danh hiệu, Khen thưởng hoặc Xếp loại cán bộ |
+| Danh hiệu / khen thưởng | Có | Chiến sĩ thi đua cơ sở | Hợp lệ theo ma trận mục 2. Với huân chương ghi đúng tên loại, ví dụ Huân chương Chiến công hạng Ba. Với Xếp loại cán bộ ghi tên xếp loại, ví dụ Hoàn thành xuất sắc nhiệm vụ |
 | Năm | Có | 2026 | Số nguyên 1990–2100 |
-| Số quyết định | Có | 125/QĐ-ĐV |  |
+| Số quyết định | Có | 125/QĐ-C08-P1 |  |
 | Ngày quyết định | Có | 15/09/2026 | dd/mm/yyyy, yyyy-mm-dd hoặc ô kiểu ngày của Excel |
-| Cấp quyết định | Không | Bộ trưởng Bộ Công an | Để trống thì lấy mặc định theo mục 2 |
-| Chi tiết giải thưởng | Có | Hoàn thành xuất sắc nhiệm vụ năm 2026 |  |
+| Cấp quyết định | Không | Cục trưởng Cục CSGT | Để trống thì lấy mặc định theo mục 2 (xếp loại: Cục trưởng Cục CSGT) |
+| Chi tiết giải thưởng | Có | Có thành tích trong phong trào thi đua năm 2026 |  |
 | Ghi chú | Không |  |  |
+
+Cột "Mã cán bộ" của mẫu cũ đã bỏ. File cũ (có Mã cán bộ, thiếu Họ và tên) bị từ chối vì thiếu cột bắt buộc.
+
+### Xác định cán bộ (dòng Cá nhân)
+
+Họ tên được chuẩn hóa theo BR-07 rồi so với cán bộ đang hoạt động cùng đơn vị (và cùng đội nếu cột Đội có giá trị):
+
+- **Đúng 1 cán bộ:** dùng cán bộ đó. Nếu cột Đội để trống thì cán bộ ở đội nào của đơn vị cũng được nhận. Cấp bậc và Chức vụ trong file không làm thay đổi hồ sơ cán bộ.
+- **Không có:** tạo cán bộ mới từ Họ và tên, Cấp bậc, Chức vụ (phải khớp tên trong danh mục, không phân biệt hoa thường và khoảng trắng); đơn vị và đội lấy từ dòng (Đội trống thì đội để trống). Năm sinh và số hiệu để trống, mã cán bộ tự sinh (CB + 3 chữ số). Ghi audit\_logs CREATE cán bộ (`via: import`).
+- **Từ 2 cán bộ trở lên:** lỗi dòng, không tự chọn.
+
+Người mới xuất hiện ở nhiều dòng (cùng họ tên, đơn vị, đội) chỉ được tạo một lần, kể cả khi các dòng nằm ở các lô khác nhau (lô sau tìm thấy cán bộ do lô trước tạo). Khi xem trước và chạy thử (dry run) hệ thống không tạo gì, chỉ báo "Sẽ tạo cán bộ mới" ở từng dòng và gắn nhãn "mới" cạnh tên. Khi nhập, mỗi lô tạo cán bộ và khen thưởng trong cùng một giao dịch `db.batch` (cán bộ trước, khen thưởng tìm cán bộ vừa tạo theo họ tên, đơn vị, đội), nên lô lỗi thì không để lại cán bộ nào. Cán bộ chỉ được tạo khi có dòng được nhập tham chiếu tới họ.
+
+### Xếp loại cán bộ
+
+Hình thức **Xếp loại cán bộ** lưu thành bản ghi xếp loại theo năm (bốn mức xếp loại, mục 8) và chỉ áp dụng cho cá nhân. Mỗi cán bộ mỗi năm tối đa một xếp loại, đây là quy tắc cứng (trigger DB cũng chặn): trùng với dữ liệu đã có hoặc với dòng phía trên trong file đều là **lỗi**, không phải cảnh báo "Có thể trùng".
 
 ### Kiểm tra và thông báo lỗi
 
@@ -249,17 +267,24 @@ Thiếu một cột bắt buộc thì từ chối cả file và liệt kê tên 
 | Đối tượng sai giá trị | Đối tượng phải là Tập thể hoặc Cá nhân |
 | Đơn vị không tồn tại | Không tìm thấy đơn vị "…" |
 | Đội không thuộc đơn vị | Đội "…" không thuộc … |
-| Cá nhân thiếu mã | Cá nhân cần có mã cán bộ |
-| Mã cán bộ không tồn tại | Không tìm thấy cán bộ mã … |
-| Cán bộ khác đơn vị hoặc đội | Cán bộ … không thuộc … |
-| Hình thức sai giá trị | Hình thức phải là Danh hiệu hoặc Khen thưởng |
-| Danh hiệu sai đối tượng hoặc hình thức | "…" không phải danh hiệu tập thể / danh hiệu cá nhân / hình thức khen thưởng hợp lệ |
+| Cá nhân thiếu họ tên | Cá nhân cần có họ tên |
+| Cán bộ mới thiếu cấp bậc hoặc chức vụ | Cá nhân cần có cấp bậc / Cá nhân cần có chức vụ |
+| Cấp bậc hoặc chức vụ không có trong danh mục | Không tìm thấy cấp bậc "…" / Không tìm thấy chức vụ "…" |
+| Họ tên quá dài khi tạo mới | Họ tên tối đa 100 ký tự |
+| Trùng tên nhiều cán bộ | Có N cán bộ trùng tên "…" trong … — vui lòng kiểm tra |
+| Tập thể có họ tên, cấp bậc hoặc chức vụ | Tập thể không ghi họ tên, cấp bậc, chức vụ |
+| Hình thức sai giá trị | Hình thức phải là Danh hiệu, Khen thưởng hoặc Xếp loại cán bộ |
+| Xếp loại cho tập thể | Xếp loại cán bộ chỉ áp dụng cho cá nhân |
+| Xếp loại trùng dữ liệu đã có | Cán bộ đã có xếp loại năm … |
+| Xếp loại trùng dòng phía trên | Cán bộ đã có xếp loại năm … (trùng với dòng … trong file) |
+| Danh hiệu sai đối tượng hoặc hình thức | "…" không phải danh hiệu tập thể / danh hiệu cá nhân / hình thức khen thưởng / xếp loại cán bộ hợp lệ |
 | Huân chương ghi thiếu loại | Ghi rõ loại huân chương, ví dụ Huân chương Chiến công hạng Ba |
+| Cấp quyết định không có trong danh mục | Không tìm thấy cấp quyết định "…" |
 | Năm, số QĐ, ngày QĐ, chi tiết | Năm không hợp lệ / Thiếu số quyết định / Ngày quyết định phải theo dạng dd/mm/yyyy / Thiếu chi tiết giải thưởng |
 
-Bảng xem trước gồm: số dòng trong file, trạng thái (Hợp lệ / Lỗi), tên tập thể hoặc cá nhân, đối tượng, danh hiệu / khen thưởng, năm, số quyết định và danh sách lỗi. Dòng lỗi được tô màu.
+Bảng xem trước gồm: số dòng trong file, trạng thái (Hợp lệ / Lỗi / Có thể trùng), họ tên cá nhân hoặc tên tập thể (kèm nhãn "mới" khi sẽ tạo cán bộ), đối tượng, hình thức (Danh hiệu, Khen thưởng, Xếp loại cán bộ), danh hiệu / khen thưởng, năm, số quyết định và danh sách lỗi hoặc ghi chú ("Sẽ tạo cán bộ mới"). Dòng lỗi được tô màu.
 
-**Cảnh báo trùng khi import:** dòng hợp lệ còn được kiểm tra trùng theo BR-08, với dữ liệu đã có ("Trùng với bản ghi đã có (quyết định …)") và với các dòng phía trên trong cùng file ("Trùng với dòng … trong file"). Dòng trùng có trạng thái "Có thể trùng", tô màu vàng, mặc định không được nhập. Người dùng tích ô **Nhập cả N dòng có thể trùng** thì các dòng này được nhập cùng; nút nhập hiện đúng số dòng sẽ nhập.
+**Cảnh báo trùng khi import:** dòng hợp lệ (trừ xếp loại, xem trên) còn được kiểm tra trùng theo BR-08, với dữ liệu đã có ("Trùng với bản ghi đã có (quyết định …)") và với các dòng phía trên trong cùng file ("Trùng với dòng … trong file"). Dòng trùng có trạng thái "Có thể trùng", tô màu vàng, mặc định không được nhập. Người dùng tích ô **Nhập cả N dòng có thể trùng** thì các dòng này được nhập cùng; nút nhập hiện đúng số dòng sẽ nhập.
 
 ### Giới hạn
 
@@ -267,7 +292,7 @@ Bảng xem trước gồm: số dòng trong file, trạng thái (Hợp lệ / L�
 - Vượt giới hạn thì từ chối cả file, không hiện bảng xem trước: "File vượt quá 5 MB" hoặc "File có N dòng, tối đa 100 dòng mỗi lần nhập". Máy chủ cũng chặn đợt import vượt 100 dòng.
 - Trình duyệt đọc file; máy chủ kiểm tra lại từng dòng khi nhận, không tin hoàn toàn kết quả phía trình duyệt.
 - Gửi lên máy chủ theo lô 30 dòng mỗi request để nằm trong giới hạn truy vấn của Worker bản free.
-- Mỗi lần nhập tạo một bản ghi đợt import (tên file, số dòng, người nhập) để tra lại nguồn của bản ghi.
+- Mỗi lần nhập tạo một bản ghi đợt import (tên file, số dòng, người nhập) để tra lại nguồn của bản ghi. Cán bộ tạo mới qua import ghi audit\_logs CREATE riêng, mỗi lô ghi thêm một dòng IMPORT.
 
 ## 6. F05 Quản lý cán bộ, F06 Quản lý đơn vị, F07 Đăng nhập và F08 Quản lý người dùng
 
@@ -355,6 +380,17 @@ Danh sách tài khoản, tìm theo tên đăng nhập hoặc họ tên. Cột b�
 - Không xóa cứng tài khoản đã tạo dữ liệu (có trong created\_by), chỉ khóa. Tài khoản chưa tạo dữ liệu thì được xóa.
 - Quản trị không tự hạ vai trò hay tự khóa chính mình. Hệ thống luôn phải còn ít nhất 1 Quản trị đang hoạt động.
 - Mọi thao tác trên tài khoản đều ghi vào audit\_logs.
+
+### F10 Văn bản quy định
+
+Kho văn bản pháp quy (luật, nghị định, thông tư...) để tra cứu và tải về. Menu "Văn bản quy định".
+
+- **Vai trò:** Quản trị và Biên tập thêm, sửa, xóa; mọi vai trò xem danh sách và tải về.
+- **Trường:** Số hiệu (bắt buộc), Trích yếu (bắt buộc, tối đa 1.000 ký tự), Loại (Luật, Nghị định, Thông tư, Quyết định, Hướng dẫn, Khác), Cơ quan ban hành, Ngày ban hành (không sai ngày lịch), Hiệu lực (Còn hiệu lực / Hết hiệu lực), Ghi chú (tối đa 1.000 ký tự), Tệp đính kèm.
+- **Tệp:** PDF, DOC, DOCX, XLS, XLSX; tối đa **20 MB**; kiểm tra phần mở rộng, kiểu MIME và chữ ký byte đầu file. Khi sửa có thể không chọn tệp (giữ tệp cũ) hoặc chọn tệp mới để thay.
+- **Danh sách:** tìm theo số hiệu hoặc trích yếu, lọc theo loại và hiệu lực, sắp xếp ngày ban hành giảm dần, phân trang tối đa 50.
+- **Lưu trữ:** thân tệp nằm trong Cloudflare Workers KV (binding `DOCS`), siêu dữ liệu trong D1 (`regulation_documents`). KV nhất quán cuối cùng: tệp vừa tải lên có thể mất tới khoảng 60 giây mới tải về được ở vùng khác; khi đó tải về trả 404 "Tệp chưa sẵn sàng hoặc không tồn tại, vui lòng thử lại sau ít phút". Gói free của KV giới hạn 1.000 lượt ghi mỗi ngày (mỗi lần thêm hoặc thay tệp tính 1 lượt).
+- Xóa là xóa mềm dòng dữ liệu và xóa tệp khỏi KV. Mọi thao tác ghi đều ghi audit\_logs.
 
 ## 7. Thiết kế cơ sở dữ liệu
 
@@ -511,7 +547,7 @@ API dạng REST, trả JSON, chạy bằng Hono trong cùng một Cloudflare Wor
 | PUT | /api/awards/:id | Sửa bản ghi (F09); xử lý trùng giống POST, bỏ qua chính bản ghi đang sửa | ADMIN, EDITOR |
 | DELETE | /api/awards/:id | Xóa mềm bản ghi (F09) | ADMIN, EDITOR |
 | POST | /api/awards/import | Nhận một lô tối đa 30 dòng, kiểm tra lại và lưu (F04). Trả kết quả từng dòng gồm lỗi và cảnh báo trùng; dòng trùng chỉ được lưu khi gửi `include_duplicates: true` | ADMIN, EDITOR |
-| GET | /api/officers/options | Danh sách cán bộ rút gọn (mã, họ tên, cấp bậc, số hiệu, đơn vị, đội) để chọn ở F03, F09 và đối chiếu mã ở F04 | ADMIN, EDITOR |
+| GET | /api/officers/options | Danh sách cán bộ rút gọn (mã, họ tên, cấp bậc, số hiệu, đơn vị, đội) để chọn ở F03, F09 và đối chiếu họ tên ở F04 | ADMIN, EDITOR |
 | GET | /api/officers | Danh sách F05. Lọc: `unit_id`, `team_id`, `q` | ADMIN |
 | POST, PUT | /api/officers, /api/officers/:id | Thêm, sửa cán bộ | ADMIN |
 | DELETE | /api/officers/:id | Xóa mềm cán bộ và các khen thưởng của cán bộ | ADMIN |
@@ -521,6 +557,12 @@ API dạng REST, trả JSON, chạy bằng Hono trong cùng một Cloudflare Wor
 | GET, POST, PUT | /api/users, /api/users/:id | Danh sách, thêm, sửa người dùng; khóa và mở khóa qua PUT (F08) | ADMIN |
 | POST | /api/users/:id/reset-password | Đặt lại mật khẩu tạm | ADMIN |
 | DELETE | /api/users/:id | Xóa tài khoản chưa tạo dữ liệu | ADMIN |
+| GET | /api/documents | Danh sách văn bản quy định (F10). Lọc: `q`, `doc_type`, `status`; phân trang | Tất cả |
+| GET | /api/documents/:id | Chi tiết một văn bản | Tất cả |
+| GET | /api/documents/:id/download | Tải tệp (attachment). Tệp chưa đọc được từ KV trả 404 kèm gợi ý thử lại | Tất cả |
+| POST | /api/documents | Thêm văn bản, nhận `multipart/form-data` (các trường và `file`, tối đa 20 MB) | ADMIN, EDITOR |
+| PUT | /api/documents/:id | Sửa văn bản, `multipart/form-data`; `file` tùy chọn để thay tệp | ADMIN, EDITOR |
+| DELETE | /api/documents/:id | Xóa mềm văn bản và xóa tệp | ADMIN, EDITOR |
 
 Mọi request (trừ đăng nhập) đi qua middleware đọc cookie phiên, lấy người dùng và vai trò. Không có phiên hợp lệ trả 401; sai vai trò trả 403. Người dùng còn cờ bắt đổi mật khẩu chỉ gọi được /api/me, /api/auth/change-password và /api/auth/logout. Mọi request ghi được kiểm tra header Origin để chống CSRF.
 

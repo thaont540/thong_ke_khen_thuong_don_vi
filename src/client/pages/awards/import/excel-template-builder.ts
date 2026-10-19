@@ -5,8 +5,8 @@ import {
   TEMPLATE_CATALOG_SHEET,
   TEMPLATE_MAIN_SHEET,
 } from "../../../../shared/import/import-column-definitions";
-import type { ImportOfficer } from "../../../../shared/import/import-lookup-maps";
-import type { MasterDataDto } from "../../../../shared/schemas/master-data-dto";
+import { normalizeText } from "../../../../shared/normalize-text";
+import type { MasterDataDto, UnitDto } from "../../../../shared/schemas/master-data-dto";
 import { loadXlsx } from "./excel-file-reader";
 
 export const TEMPLATE_FILE_NAME = "mau-import-khen-thuong.xlsx";
@@ -20,11 +20,11 @@ export interface TemplateSheets {
 const nameOf = (list: readonly { name: string }[]) => list.map((x) => x.name);
 
 /** Rows below the header of sheet "Danh mục": one column per list, padded to the longest. */
-function catalogRows(master: MasterDataDto, officers: readonly ImportOfficer[]): string[][] {
+function catalogRows(master: MasterDataDto): string[][] {
   const rewards = awardTypesFor(master, "CA_NHAN", "KHEN_THUONG");
   const columns: string[][] = [
     ["Tập thể", "Cá nhân"],
-    ["Danh hiệu", "Khen thưởng"],
+    ["Danh hiệu", "Khen thưởng", "Xếp loại cán bộ"],
     nameOf(awardTypesFor(master, "TAP_THE", "DANH_HIEU")),
     nameOf(awardTypesFor(master, "CA_NHAN", "DANH_HIEU")),
     [
@@ -33,56 +33,72 @@ function catalogRows(master: MasterDataDto, officers: readonly ImportOfficer[]):
         .filter((t) => t.requires_variant)
         .flatMap((t) => nameOf(variantsFor(master, t.id))),
     ],
+    nameOf(awardTypesFor(master, "CA_NHAN", "XEP_LOAI")),
     nameOf(master.units),
     master.units.flatMap((u) => u.teams.map((t) => `${u.name}: ${t.name}`)),
-    officers.map((o) => o.code),
-    officers.map((o) => o.full_name),
+    nameOf(master.ranks),
+    nameOf(master.positions),
+    nameOf(master.authorities),
   ];
   const height = Math.max(...columns.map((c) => c.length));
   return Array.from({ length: height }, (_, i) => columns.map((c) => c[i] ?? ""));
 }
 
-/** 3 example rows built from live data so that they pass the validator as is. */
-function exampleRows(master: MasterDataDto, officers: readonly ImportOfficer[]): Cell[][] {
-  const unitName = (id: number) => master.units.find((u) => u.id === id)?.name ?? "";
-  const teamName = (id: number | null) =>
-    master.units.flatMap((u) => u.teams).find((t) => t.id === id)?.name ?? "";
-  const lowestAuthority = master.authorities.at(-1)?.id;
-  const titles = awardTypesFor(master, "CA_NHAN", "DANH_HIEU");
-  const title = titles.find((t) => t.default_authority_id === lowestAuthority) ?? titles[0];
-  const rewards = awardTypesFor(master, "TAP_THE", "KHEN_THUONG").filter(
-    (t) => !t.requires_variant,
-  );
-  const reward = rewards[1] ?? rewards[0];
-  const collectiveUnit = master.units.find((u) => u.teams.length > 0) ?? master.units[0];
-  const first = officers[0];
-  const second = officers[1] ?? first;
-  const medal = master.award_variants[2] ?? master.award_variants[0];
-  const authority = (id?: number) => master.authorities.find((a) => a.id === id)?.name ?? "";
+/** Entry of `list` named `name` (BR-07 normalized), else the first one: examples use real catalog names. */
+function pick<T extends { name: string }>(list: readonly T[], name: string): T | undefined {
+  return list.find((x) => normalizeText(x.name) === normalizeText(name)) ?? list[0];
+}
 
-  const personal = (o: ImportOfficer | undefined, form: string, award: string): Cell[] => [
+/** 4 example rows mirroring the sample file, built from live data so that they pass the validator. */
+function exampleRows(master: MasterDataDto): Cell[][] {
+  const unit = (name: string) => pick(master.units, name);
+  const authority = (id?: number) => master.authorities.find((a) => a.id === id)?.name ?? "";
+  const authorityNamed = (name: string) => pick(master.authorities, name)?.name ?? "";
+  const rank = (name: string) => pick(master.ranks, name)?.name ?? "";
+  const position = (name: string) => pick(master.positions, name)?.name ?? "";
+  const team = (u: UnitDto | undefined, name: string) =>
+    (u?.teams.find((t) => normalizeText(t.name) === normalizeText(name)) ?? u?.teams[0])?.name ??
+    "";
+
+  const title = pick(awardTypesFor(master, "CA_NHAN", "DANH_HIEU"), "Chiến sĩ thi đua cơ sở");
+  const reward = pick(
+    awardTypesFor(master, "TAP_THE", "KHEN_THUONG").filter((t) => !t.requires_variant),
+    "Bằng khen Bộ Công an",
+  );
+  const medal =
+    master.award_variants.find(
+      (v) => normalizeText(v.name) === "huân chương bảo vệ tổ quốc hạng ba",
+    ) ?? master.award_variants[0];
+  const rating = pick(awardTypesFor(master, "CA_NHAN", "XEP_LOAI"), "Hoàn thành xuất sắc nhiệm vụ");
+  const personalUnit = unit("Phòng 7");
+  const collectiveUnit = unit("Phòng 6");
+  const person = (name: string, r: string, p: string, u?: UnitDto, t = ""): Cell[] => [
     "Cá nhân",
-    o?.code ?? "",
-    o ? unitName(o.unit_id) : "",
-    o ? teamName(o.team_id) : "",
-    form,
-    award,
+    name,
+    rank(r),
+    position(p),
+    u?.name ?? "",
+    u && t ? team(u, t) : "",
   ];
   return [
     [
-      ...personal(first, "Danh hiệu", title?.name ?? ""),
+      ...person("Nguyễn Văn A", "Đại tá", "Trưởng phòng", personalUnit, "Đội Dẫn đoàn số 1"),
+      "Danh hiệu",
+      title?.name ?? "",
       2026,
-      "125/QĐ-ĐV",
+      "125/QĐ-C08-P1",
       "15/09/2026",
-      "",
-      "Hoàn thành xuất sắc nhiệm vụ công tác năm 2026",
+      authority(title?.default_authority_id),
+      'Có thành tích trong phong trào thi đua "Vì an ninh Tổ quốc" năm 2026',
       "",
     ],
     [
       "Tập thể",
       "",
+      "",
+      "",
       collectiveUnit?.name ?? "",
-      collectiveUnit?.teams[0]?.name ?? "",
+      team(collectiveUnit, "Đội CSGT đường bộ cao tốc số 1"),
       "Khen thưởng",
       reward?.name ?? "",
       2026,
@@ -93,25 +109,35 @@ function exampleRows(master: MasterDataDto, officers: readonly ImportOfficer[]):
       "",
     ],
     [
-      ...personal(second, "Khen thưởng", medal?.name ?? ""),
+      ...person("Nguyễn Văn B", "Thiếu tá", "Cán bộ", personalUnit, "Đội Dẫn đoàn số 1"),
+      "Khen thưởng",
+      medal?.name ?? "",
       2026,
       "1580/QĐ-CTN",
       "02/09/2026",
-      "",
+      authorityNamed("Chủ tịch nước"),
       "Có thành tích đặc biệt xuất sắc trong công tác bảo đảm an ninh trật tự",
+      "",
+    ],
+    [
+      ...person("Nguyễn Văn C", "Thiếu tá", "Cán bộ", unit("Phòng 5")),
+      "Xếp loại cán bộ",
+      rating?.name ?? "",
+      2026,
+      "126/QĐ-C08-P1",
+      "30/12/2026",
+      authority(rating?.default_authority_id),
+      "Xếp loại cán bộ năm 2026",
       "",
     ],
   ];
 }
 
 /** Both sheets as plain arrays (header + examples; header + valid values), layout of docs/import-template.xlsx. */
-export function buildTemplateSheets(
-  master: MasterDataDto,
-  officers: readonly ImportOfficer[],
-): TemplateSheets {
+export function buildTemplateSheets(master: MasterDataDto): TemplateSheets {
   return {
-    main: [IMPORT_COLUMNS.map((c) => c.header), ...exampleRows(master, officers)],
-    catalog: [[...CATALOG_HEADERS], ...catalogRows(master, officers)],
+    main: [IMPORT_COLUMNS.map((c) => c.header), ...exampleRows(master)],
+    catalog: [[...CATALOG_HEADERS], ...catalogRows(master)],
   };
 }
 
@@ -128,12 +154,9 @@ export async function buildTemplateWorkbookBytes(sheets: TemplateSheets): Promis
   return new Uint8Array(XLSX.write(wb, { type: "array", bookType: "xlsx" }) as ArrayBuffer);
 }
 
-/** Generates the template from live master data + officers and triggers the browser download. */
-export async function downloadImportTemplate(
-  master: MasterDataDto,
-  officers: readonly ImportOfficer[],
-): Promise<void> {
-  const bytes = await buildTemplateWorkbookBytes(buildTemplateSheets(master, officers));
+/** Generates the template from live master data and triggers the browser download. */
+export async function downloadImportTemplate(master: MasterDataDto): Promise<void> {
+  const bytes = await buildTemplateWorkbookBytes(buildTemplateSheets(master));
   const blob = new Blob([bytes as BlobPart], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });

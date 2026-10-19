@@ -8,13 +8,15 @@ export interface ImportColumn {
   key: ImportColumnKey;
   /** Header text of sheet "Khen thưởng" (identical to docs/import-template.xlsx). */
   header: string;
-  /** Column must exist in the file; the cell itself may still be optional (e.g. Mã cán bộ for Tập thể). */
+  /** Column must exist in the file; the cell itself may still be optional (e.g. Họ và tên for Tập thể). */
   required: boolean;
 }
 
 export const IMPORT_COLUMNS: readonly ImportColumn[] = [
   { key: "subject", header: "Đối tượng", required: true },
-  { key: "officer_code", header: "Mã cán bộ", required: true },
+  { key: "full_name", header: "Họ và tên", required: true },
+  { key: "rank", header: "Cấp bậc", required: true },
+  { key: "position", header: "Chức vụ", required: true },
   { key: "unit", header: "Đơn vị", required: true },
   { key: "team", header: "Đội", required: false },
   { key: "form", header: "Hình thức", required: true },
@@ -37,10 +39,12 @@ export const CATALOG_HEADERS = [
   "Danh hiệu tập thể",
   "Danh hiệu cá nhân",
   "Hình thức khen thưởng",
+  "Xếp loại cán bộ",
   "Đơn vị",
   "Đội (Đơn vị: Đội)",
-  "Mã cán bộ",
-  "Họ tên",
+  "Cấp bậc",
+  "Chức vụ",
+  "Cấp quyết định",
 ] as const;
 
 export interface HeaderMapping {
@@ -80,7 +84,9 @@ export function toImportRow(
   return {
     row_number: rowNumber,
     subject: get("subject"),
-    officer_code: get("officer_code"),
+    full_name: get("full_name"),
+    rank: get("rank"),
+    position: get("position"),
     unit: get("unit"),
     team: get("team"),
     form: get("form"),

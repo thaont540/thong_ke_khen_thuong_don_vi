@@ -27,7 +27,7 @@ export function ImportPanel() {
     if (!master.data || !officers.data) return;
     setTemplateError(null);
     try {
-      await downloadImportTemplate(master.data, officers.data.items);
+      await downloadImportTemplate(master.data);
     } catch {
       setTemplateError("Không tạo được file mẫu. Vui lòng thử lại.");
     }
@@ -43,8 +43,8 @@ export function ImportPanel() {
           </button>
         </li>
         <li>
-          Điền mỗi dòng một khen thưởng. Với cá nhân, ghi mã cán bộ. Với tập thể, để trống cột mã
-          cán bộ.
+          Điền mỗi dòng một khen thưởng. Với cá nhân, ghi họ và tên, cấp bậc, chức vụ: cán bộ chưa
+          có trong hệ thống sẽ được tạo mới. Với tập thể, để trống ba cột này.
         </li>
         <li>Tải file lên để kiểm tra dữ liệu, sau đó nhập các dòng hợp lệ.</li>
       </ol>

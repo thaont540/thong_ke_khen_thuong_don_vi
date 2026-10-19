@@ -169,7 +169,7 @@ describe("limits and batch ownership", () => {
     let batchId: number | undefined;
     const rows = Array.from({ length: 100 }, (_, i) =>
       importRow(i + 2, {
-        officer_code: `CB${String((i % 10) + 1).padStart(3, "0")}`,
+        full_name: `Cán bộ ${(i % 10) + 1}`,
         year: 1990 + Math.floor(i / 10),
         unit: i % 10 === 1 ? "Phòng 1" : "Phòng 6",
       }),

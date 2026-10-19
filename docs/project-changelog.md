@@ -2,6 +2,12 @@
 
 Định dạng: theo ngày, nhóm theo loại. Nguồn: `git log` và kế hoạch `plans/261014-1644-awards-management-system/`.
 
+## 2026-10-19
+
+### Changed
+- F04 Import Excel theo mẫu mới (CR 19/10/2026): bỏ cột "Mã cán bộ"; thêm Họ và tên, Cấp bậc, Chức vụ. Cá nhân xác định theo họ tên (BR-07) + đơn vị (+ đội): 1 cán bộ thì dùng, chưa có thì tự tạo cán bộ mới (cấp bậc, chức vụ bắt buộc, năm sinh và số hiệu để trống, mã tự sinh, audit CREATE `via: import`), trùng tên nhiều người thì báo lỗi. Cán bộ mới tạo cùng giao dịch `db.batch` với khen thưởng của lô, một người mới chỉ tạo một lần kể cả qua nhiều lô. Hình thức thêm "Xếp loại cán bộ" (chỉ cá nhân, mỗi cán bộ mỗi năm một xếp loại, trùng là lỗi cứng). Tập thể không được ghi họ tên, cấp bậc, chức vụ. Xem trước và dry run báo "Sẽ tạo cán bộ mới" (nhãn "mới", cột Hình thức), không tạo gì. File mẫu sinh từ danh mục: 4 dòng ví dụ, sheet Danh mục thêm xếp loại, cấp bậc, chức vụ, cấp quyết định và bỏ danh sách mã/họ tên cán bộ. File cũ có Mã cán bộ bị từ chối vì thiếu cột. `docs/import-template.xlsx` thay bằng mẫu mới.
+- Văn bản quy định: lưu tệp bằng Cloudflare Workers KV thay vì R2 (không cần thẻ). `wrangler.jsonc`: `kv_namespaces` binding `DOCS` (prod + staging); lớp trừu tượng `src/worker/lib/document-file-store.ts`. API và giao diện giữ nguyên; tải về khi tệp chưa đọc được từ KV (nhất quán cuối cùng, tới ~60 giây) trả 404 "Tệp chưa sẵn sàng hoặc không tồn tại, vui lòng thử lại sau ít phút". Giới hạn 20 MB; KV free 1.000 lượt ghi mỗi ngày.
+
 ## 2026-10-15
 
 - Sửa lỗi giao diện điện thoại: ở màn hình hẹp (≤ 760px) thanh menu ngang làm trang rộng hơn màn hình; cột lưới dùng `minmax(0, 1fr)`, menu cuộn trong dải riêng.

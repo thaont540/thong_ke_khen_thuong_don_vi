@@ -15,8 +15,8 @@ import type { ImportRow } from "../../src/shared/schemas/award-import-schemas";
 import { getMasterData } from "../../src/worker/services/master-data-service";
 
 const OFFICERS: ImportOfficer[] = [
-  { id: 11, code: "CB001", full_name: "Nguyễn Văn An", unit_id: 6, team_id: 1 },
-  { id: 12, code: "CB002", full_name: "Trần Thị Bình", unit_id: 5, team_id: null },
+  { id: 11, full_name: "Nguyễn Văn An", unit_id: 6, team_id: 1 },
+  { id: 12, full_name: "Trần Thị Bình", unit_id: 5, team_id: null },
 ];
 
 let lk: ImportLookups;
@@ -27,7 +27,9 @@ beforeAll(async () => {
 const personal = (over: Partial<ImportRow> = {}): ImportRow => ({
   row_number: 2,
   subject: "Cá nhân",
-  officer_code: "CB001",
+  full_name: "Nguyễn Văn An",
+  rank: "Đại úy",
+  position: "Cán bộ",
   unit: "Phòng 6",
   team: "",
   form: "Danh hiệu",
@@ -45,7 +47,9 @@ describe("header mapping and intra-file duplicates", () => {
   it("lists missing required column names, ignores case and spacing", () => {
     const m = mapImportHeaders(["đối tượng", " Đơn  vị ", "Năm"]);
     expect(m.missing).toEqual([
-      "Mã cán bộ",
+      "Họ và tên",
+      "Cấp bậc",
+      "Chức vụ",
       "Hình thức",
       "Danh hiệu / khen thưởng",
       "Số quyết định",
