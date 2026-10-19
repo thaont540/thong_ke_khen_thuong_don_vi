@@ -75,7 +75,7 @@ describe("update and delete", () => {
       size_bytes: OLE_BYTES.byteLength,
     });
     expect(await objectCount()).toBe(1);
-    expect(await env.DOCS.head(before?.file_key ?? "")).toBeNull();
+    expect(await env.DOCS.get(before?.file_key ?? "")).toBeNull();
   });
 
   it("a failed replacement leaves the old file; unknown id is 404 without orphan objects", async () => {

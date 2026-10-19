@@ -19,6 +19,11 @@ Account id: `73f25c30ebdac673580327d9385d6ca6`. Cấu hình ở `wrangler.jsonc`
    npx wrangler d1 create app-nghia-staging
    ```
    Chép `database_id` vào `wrangler.jsonc`, rồi `npm run cf-typegen`.
+   Tệp văn bản quy định lưu ở Workers KV (không cần R2, không cần thẻ). Namespace đã tạo: production `app-nghia-docs` (id `0843798cc27241ba8a7a0898e4e6b50e`), staging `app-nghia-docs-staging` (id `688dc9454b9d4222b9be891b451ad1e3`), đã khai báo trong `kv_namespaces` của `wrangler.jsonc`. Dựng account mới thì tạo lại và thay id:
+   ```bash
+   npx wrangler kv namespace create app-nghia-docs
+   npx wrangler kv namespace create app-nghia-docs-staging
+   ```
 4. Áp migration (thứ tự 0001 -> 0004, tự chạy theo số thứ tự):
    ```bash
    npm run db:migrate:staging
@@ -110,4 +115,4 @@ Khi có domain trên Cloudflare zone:
 
 ## 9. Giới hạn nên nhớ
 
-Import Excel: 5 MB, 100 dòng mỗi file, mỗi lô gửi 30 dòng. Body API tối đa 256 KB (login/đổi mật khẩu 5 KB). Phiên đăng nhập 8 giờ, cron dọn phiên 17:00 UTC hằng ngày.
+Văn bản quy định: mỗi tệp tối đa 20 MB (KV tối đa 25 MiB mỗi giá trị); KV free tối đa 1.000 lượt ghi mỗi ngày và nhất quán cuối cùng (tệp mới có thể mất tới ~60 giây mới tải về được, API trả 404 kèm thông báo thử lại). Import Excel: 5 MB, 100 dòng mỗi file, mỗi lô gửi 30 dòng. Body API tối đa 256 KB (login/đổi mật khẩu 5 KB). Phiên đăng nhập 8 giờ, cron dọn phiên 17:00 UTC hằng ngày.

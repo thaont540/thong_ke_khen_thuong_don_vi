@@ -140,7 +140,7 @@ describe("metadata validation", () => {
 });
 
 describe("transactional behaviour", () => {
-  it("removes the R2 object when the D1 insert fails", async () => {
+  it("removes the KV value when the D1 insert fails", async () => {
     await env.DB.prepare("DROP INDEX ix_regulation_documents_list").run();
     await env.DB.prepare(
       "ALTER TABLE regulation_documents RENAME TO regulation_documents_bak",

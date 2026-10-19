@@ -10,6 +10,7 @@ Một Cloudflare Worker phục vụ cả API (Hono) và giao diện React (file 
 | Giao diện | React 19, React Router, TanStack Query, react-hook-form | `src/client` |
 | Hợp đồng dùng chung | Zod schema, enum, quy tắc danh hiệu, validator import | `src/shared` |
 | Dữ liệu | D1, migration SQL thuần | `migrations/` |
+| Lưu tệp | Workers KV, binding `DOCS` (thân tệp văn bản quy định; trừu tượng hóa trong `src/worker/lib/document-file-store.ts`) | `wrangler.jsonc` |
 | Cron | Dọn phiên hết hạn, `0 17 * * *` UTC | `src/worker/cron` |
 | Build/Deploy | Vite + `@cloudflare/vite-plugin`, Wrangler | `wrangler.jsonc` |
 
@@ -60,6 +61,12 @@ Lỗi đi qua `handleError` (`lib/error-handler.ts`), trả `{ error: { code, me
 - Xóa mềm bằng `deleted_at` cho `officers` và `awards`; index một phần `WHERE deleted_at IS NULL`.
 - Ràng buộc chéo bảng bằng **trigger** (đội thuộc đơn vị, danh hiệu hợp đối tượng, huân chương có loại, chặn xóa đơn vị/đội đang dùng, `imported_rows <= total_rows`). Ghi nhiều câu lệnh dùng `db.batch()` (atomic, rollback khi một câu lỗi).
 - Migration: 0001 schema, 0002 seed danh mục, 0003 `award_counters` + index danh sách, 0004 trigger chặn quá số dòng của đợt import.
+
+### Lưu tệp văn bản quy định (Workers KV)
+
+- Thân tệp trong KV (khóa `documents/<uuid>`, metadata `contentType`, `fileName` đã mã hóa %, `size`), siêu dữ liệu và `file_key` trong D1 (`regulation_documents`). Chọn KV vì R2 cần thẻ thanh toán; muốn đổi sang R2/Supabase chỉ sửa `document-file-store.ts` và binding.
+- Thứ tự ghi: KV trước, D1 sau; D1 lỗi thì xóa khóa KV vừa ghi. Thay tệp: xóa khóa cũ sau khi D1 thành công. Xóa văn bản: xóa khóa. Dọn dẹp lỗi chỉ ghi log, không che kết quả chính.
+- Giới hạn KV: 25 MiB mỗi giá trị (ta giới hạn 20 MB), nhất quán cuối cùng (tải về ngay sau khi tải lên có thể 404 tới ~60 giây, API trả thông báo thử lại), gói free 1.000 lượt ghi mỗi ngày và 100.000 lượt đọc mỗi ngày.
 
 ## 5. Chiến lược giới hạn D1 free
 

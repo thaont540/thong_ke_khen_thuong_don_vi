@@ -13,7 +13,7 @@ Nguồn: [cr-detail.md](cr-detail.md), file mẫu [mau-import-khen-thuong.xlsx](
 | # | Phase | Phụ thuộc | Status |
 |---|---|---|---|
 | A | Branding + Cục CSGT + Xếp loại theo năm + cán bộ không bắt buộc năm sinh/số hiệu (migration 0007) | – | pending |
-| C | Văn bản quy định (R2, migration 0008) | – (song song A) | pending |
+| C | Văn bản quy định (KV, migration 0008) | – (song song A) | pending |
 | B | Import theo mẫu mới (khớp/tự tạo cán bộ, xếp loại) | A | pending |
 | D | Tài liệu (spec, user guide, docs), review, deploy | A, B, C | pending |
 
@@ -29,7 +29,7 @@ Nguồn: [cr-detail.md](cr-detail.md), file mẫu [mau-import-khen-thuong.xlsx](
 - F01: lọc Hình thức thêm "Xếp loại cán bộ", dòng thống kê thêm số xếp loại. F03/F09: hình thức thứ 3 khi Cá nhân. F05: bỏ ô xếp loại trong form, hiện xếp loại năm gần nhất; năm sinh, số hiệu không bắt buộc. F06: loại đơn vị thêm "Cục". F02: quá trình gồm cả xếp loại.
 
 ## C. Văn bản quy định
-- Bảng `regulation_documents` (số hiệu, trích yếu, loại, cơ quan ban hành, ngày ban hành, hiệu lực, ghi chú, file key/tên/kiểu/kích thước, created_by, deleted_at...). R2 binding `DOCS` (bucket `app-nghia-docs`, `app-nghia-docs-staging`).
+- Bảng `regulation_documents` (số hiệu, trích yếu, loại, cơ quan ban hành, ngày ban hành, hiệu lực, ghi chú, file key/tên/kiểu/kích thước, created_by, deleted_at...). Lưu thân tệp ở Workers KV, binding `DOCS` (namespace `app-nghia-docs`, `app-nghia-docs-staging`) thay cho R2 (không cần thẻ); abstraction `src/worker/lib/document-file-store.ts`. KV nhất quán cuối cùng (download trả 404 thử lại), 25 MiB/giá trị, free 1.000 ghi/ngày.
 - API: GET list (lọc/tìm/phân trang, mọi vai trò), GET :id/download (mọi vai trò), POST multipart, PUT, DELETE (ADMIN, EDITOR); giới hạn 20 MB, kiểu file cho phép; audit.
 - UI: menu "Văn bản quy định", danh sách + form + tải về.
 

@@ -36,7 +36,7 @@ const create = async (meta: Record<string, string> = {}, token = admin) => {
 };
 
 describe("create + read", () => {
-  it("stores the object in R2 and metadata in D1 (no file_key leaked), audits it", async () => {
+  it("stores the file in KV and metadata in D1 (no file_key leaked), audits it", async () => {
     const doc = await create({ note: "  ghi chú  " });
     expect(doc).toMatchObject({
       doc_number: META.doc_number,
@@ -50,6 +50,12 @@ describe("create + read", () => {
     });
     expect(doc).not.toHaveProperty("file_key");
     expect(await objectCount()).toBe(1);
+    const key = (await env.DOCS.list()).keys[0];
+    expect(key?.metadata).toEqual({
+      contentType: "application/pdf",
+      fileName: "nghi-dinh-12.pdf",
+      size: PDF_BYTES.byteLength,
+    });
     const audit = await env.DB.prepare(
       "SELECT user_id, action, entity, entity_id FROM audit_logs WHERE entity = 'document'",
     ).first();
@@ -147,12 +153,14 @@ describe("download", () => {
     expect(new Uint8Array(await res.arrayBuffer())).toEqual(PDF_BYTES);
   });
 
-  it("404 when the document or its object is missing", async () => {
+  it("404 when the document or its stored value is missing (row exists, not a 500)", async () => {
     expect((await api("/api/documents/42/download", { token: admin })).status).toBe(404);
     const doc = await create();
     await clearDocumentObjects();
     const res = await api(`/api/documents/${doc.id}/download`, { token: admin });
     expect(res.status).toBe(404);
-    expect((await errorOf(res)).code).toBe("NOT_FOUND");
+    const err = await errorOf(res);
+    expect(err.code).toBe("NOT_FOUND");
+    expect(err.message).toBe("Tệp chưa sẵn sàng hoặc không tồn tại, vui lòng thử lại sau ít phút");
   });
 });

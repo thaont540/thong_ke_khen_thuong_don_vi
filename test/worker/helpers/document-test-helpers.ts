@@ -43,7 +43,7 @@ export function upload(method: "POST" | "PUT", path: string, o: UploadOptions = 
 
 export async function clearDocumentObjects() {
   const listed = await env.DOCS.list();
-  await Promise.all(listed.objects.map((o) => env.DOCS.delete(o.key)));
+  await Promise.all(listed.keys.map((k) => env.DOCS.delete(k.name)));
 }
 
-export const objectCount = async () => (await env.DOCS.list()).objects.length;
+export const objectCount = async () => (await env.DOCS.list()).keys.length;
